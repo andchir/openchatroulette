@@ -1,13 +1,58 @@
+<div class="row g-0 mb-3">
+    <div class="col-lg-6 order-last order-lg-first">
+        <div class="bg-secondary" [style.height]="videoHeight + 'px'">
+
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div [style.height]="videoHeight + 'px'" style="background-color: #000;">
+
+        </div>
+    </div>
+</div>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-6 pt-3">
-            <div class="bg-secondary" style="min-height: 400px;">
-
+        <div class="col-lg-6">
+            <div class="row mb-3">
+                <div class="col-6">
+                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4 shadow-sm">
+                        Country: All
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4 shadow-sm">
+                        Purpose: Dating
+                    </button>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5 shadow">
+                        Start
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 shadow">
+                        Stop
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="col-lg-6 pt-3">
-            <div class="bg-secondary" style="min-height: 400px;">
+        <div class="col-lg-6 mb-2">
+            <div class="card mb-2 shadow-sm">
+                <div class="card-body" style="height: 165px;">
 
+                </div>
+            </div>
+            <div class="row g-2">
+                <div class="col-10">
+                    <input type="text" class="form-control shadow-sm" placeholder="Enter your message">
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-info d-block w-100 shadow-sm">
+                        Send
+                    </button>
+                </div>
             </div>
         </div>
     </div>
