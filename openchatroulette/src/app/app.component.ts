@@ -1,6 +1,9 @@
-import {Component, HostListener, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+
+import {DataConnection} from 'peerjs';
 
 import {PeerjsService} from './services/peerjs.service';
+import {TextMessageInterface} from './models/textmessage.interface';
 
 declare const window: Window;
 
@@ -9,15 +12,18 @@ declare const window: Window;
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
     readonly peerId: string;
+    strangerPeerId: string;
+    peerConnection: DataConnection;
     videoHeight = 400;
+    messages: TextMessageInterface[] = [];
 
     constructor(
-        peerjsService: PeerjsService
+        private peerjsService: PeerjsService
     ) {
-        this.peerId = peerjsService.peerInit();
+        this.peerId = this.peerjsService.peerInit();
     }
 
     @HostListener('window:resize', ['$event.target'])
@@ -32,7 +38,46 @@ export class AppComponent implements OnInit {
         }
     }
 
+    sendMessage(fieldEl: HTMLInputElement): void {
+        if (!fieldEl.value) {
+            return;
+        }
+        const message = fieldEl.value;
+        fieldEl.value = '';
+        if (!this.strangerPeerId && this.peerjsService.peerConnection) {
+            this.strangerPeerId = this.peerjsService.peerConnection.peer;
+            this.peerConnection = this.peerjsService.peerConnection;
+        }
+        if (!this.strangerPeerId) {
+            this.strangerPeerId = message;
+            this.peerConnection = this.peerjsService.connectToPeer(this.strangerPeerId);
+            return;
+        }
+        this.messages.push({message, type: 'question'});
+        this.peerConnection.send(message);
+    }
+
+    onMessageFieldKeyUp(event: KeyboardEvent): void {
+        if ((event.key || event.code) === 'Enter') {
+            this.sendMessage(event.target as HTMLInputElement);
+        }
+    }
+
     ngOnInit(): void {
         this.onResize(window);
+        this.messagesInit();
+    }
+
+    messagesInit(): void {
+        this.peerjsService.messageStream$.subscribe({
+            next: (message) => {
+                console.log('New message received:', message);
+                this.messages.push({message, type: 'answer'});
+            }
+        });
+    }
+
+    ngOnDestroy(): void {
+        this.peerjsService.messageStream$.unsubscribe();
     }
 }

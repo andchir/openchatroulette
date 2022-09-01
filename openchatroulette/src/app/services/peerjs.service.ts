@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 
-import {Peer} from 'peerjs';
+import {DataConnection, Peer} from 'peerjs';
 import {v4 as uuidv4} from 'uuid';
+import {Subject} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -9,6 +10,8 @@ import {v4 as uuidv4} from 'uuid';
 export class PeerjsService {
 
     private peer: Peer;
+    peerConnection: DataConnection;
+    messageStream$ = new Subject<string>();
 
     constructor() {
 
@@ -24,9 +27,49 @@ export class PeerjsService {
         this.peer.on('open', (id) => {
             console.log('My peer ID: ' + id);
         });
+        this.peer.on('connection', (conn) => {
+            this.peerConnection = conn;
+            console.log('incoming peer connection!');
+            conn.on('data', (data) => {
+                console.log(`received: ${data}`);
+                this.messageStream$.next(String(data));
+            });
+            conn.on('open', () => {
+                conn.send('hello!');
+            });
+        });
+        this.peer.on('call', (call) => {
+            navigator.mediaDevices.getUserMedia({video: true, audio: true})
+                .then((stream) => {
+                    call.answer(stream);
+                    // call.on('stream', renderVideo);
+                })
+                .catch((err) => {
+                    console.error('Failed to get local stream', err);
+                });
+        });
         this.peer.on('error', (error) => {
             console.error(error);
         });
         return peerId;
+    }
+
+    connectToPeer(peerId: string): DataConnection {
+        let conn = this.peer.connect(peerId);
+        conn.on('data', (data) => {
+            this.messageStream$.next(String(data));
+        });
+        conn.on('open', () => {
+            conn.send('hi!');
+        });
+        navigator.mediaDevices.getUserMedia({video: true, audio: true})
+            .then((stream) => {
+                let call = this.peer.call(peerId, stream);
+                // call.on('stream', renderVideo);
+            })
+            .catch((err) => {
+                console.log('Failed to get local stream', err);
+            });
+        return conn;
     }
 }
