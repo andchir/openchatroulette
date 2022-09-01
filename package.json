@@ -1,23 +1,26 @@
 {
-  "name": "openchatroulette-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/andchir/openchatroulette.git"
-  },
-  "author": "Andchir",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/andchir/openchatroulette/issues"
-  },
-  "homepage": "https://github.com/andchir/openchatroulette#readme",
-  "dependencies": {
-    "peer": "^0.6.1",
-    "save": "^2.5.0"
-  }
+    "name": "openchatroulette-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "ws-server": "node server/ws-server.js",
+        "peer-server": "node server/peer-server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/andchir/openchatroulette.git"
+    },
+    "author": "Andchir",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/andchir/openchatroulette/issues"
+    },
+    "homepage": "https://github.com/andchir/openchatroulette#readme",
+    "dependencies": {
+        "peer": "^0.6.1",
+        "save": "^2.5.0",
+        "ws": "^8.8.1"
+    }
 }

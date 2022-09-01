@@ -3,6 +3,7 @@ import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {DataConnection} from 'peerjs';
 
 import {PeerjsService} from './services/peerjs.service';
+import {WebsocketService} from './services/websocket.service';
 import {TextMessageInterface} from './models/textmessage.interface';
 
 declare const window: Window;
@@ -21,6 +22,7 @@ export class AppComponent implements OnInit, OnDestroy {
     messages: TextMessageInterface[] = [];
 
     constructor(
+        private websocketService: WebsocketService,
         private peerjsService: PeerjsService
     ) {
         this.peerId = this.peerjsService.peerInit();
@@ -36,6 +38,11 @@ export class AppComponent implements OnInit, OnDestroy {
         } else {
             this.videoHeight = Math.floor(windowHeight - footerHeight);
         }
+    }
+
+    ngOnInit(): void {
+        this.onResize(window);
+        this.messagesInit();
     }
 
     sendMessage(fieldEl: HTMLInputElement): void {
@@ -61,11 +68,6 @@ export class AppComponent implements OnInit, OnDestroy {
         if ((event.key || event.code) === 'Enter') {
             this.sendMessage(event.target as HTMLInputElement);
         }
-    }
-
-    ngOnInit(): void {
-        this.onResize(window);
-        this.messagesInit();
     }
 
     messagesInit(): void {

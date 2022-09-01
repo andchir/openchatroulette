@@ -7,7 +7,7 @@ const peerServer = PeerServer({
     key: 'peerjs'
 });
 
-console.log('PeerServer started.');
+console.log('PeerServer initialized.');
 
 peerServer.on('connection', (client) => {
     console.log('connection', client.id);
