@@ -1,5 +1,7 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 
+import {PeerjsService} from './services/peerjs.service';
+
 declare const window: Window;
 
 @Component({
@@ -9,9 +11,13 @@ declare const window: Window;
 })
 export class AppComponent implements OnInit {
 
+    readonly peerId: string;
     videoHeight = 400;
 
-    constructor() {
+    constructor(
+        peerjsService: PeerjsService
+    ) {
+        this.peerId = peerjsService.peerInit();
     }
 
     @HostListener('window:resize', ['$event.target'])
