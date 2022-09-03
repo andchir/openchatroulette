@@ -1,51 +1,35 @@
-const WebSocketServer = require('ws').Server;
-const wss = new WebSocketServer({
-    port: 6759
-});
+const {Server} = require('ws');
+const {createServer} = require('http');
 
-const peers = [
+const app = require('express')();
 
-];
+const server = createServer(app);
+const ws = new Server({server});
+
+server.listen(6759);
 
 console.log('WebSocket initialized.');
 
-wss.on('connection', (ws) => {
+ws.on('connection', socket => {
     console.log('WebSocket connection.');
 
-    ws.on('message', (event) => {
-        const data = JSON.parse(event);
-        const res = JSON.parse(data);
+    socket.on('message', data => {
+        const {type, from, message} = JSON.parse(data);
+        console.log('Message received', type, from, message);
 
-        switch (res.event) {
-            case 'peer-add':
-                peers.unshift(res.data);
-                break;
-            case 'peer-remove':
-                peers.splice(res.data, 1);
-                break;
+        if (type === 'message') {
+            const event = JSON.stringify({
+                type: '[Chat] Add message',
+                from,
+                message
+            });
+
+            // That's the same as `broadcast`
+            // we want to send message to all connected
+            // to the chat clients
+            ws.clients.forEach(client => {
+                client.send(event);
+            });
         }
-
-        console.log(peers);
-
-        // ws.send(JSON.stringify({
-        //     event: 'update-texts',
-        //     data: texts
-        // }));
-        //
-        // console.log('message', data);
-    });
-
-    // ws.send(JSON.stringify({
-    //     event: 'messages',
-    //     data: messages
-    // }));
-    //
-    // ws.send(JSON.stringify({
-    //     event: 'update-texts',
-    //     data: texts
-    // }));
-
-    ws.on('close', () => {
-        console.log('disconnected');
     });
 });

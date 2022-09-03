@@ -18,6 +18,8 @@
     "@angular/platform-browser": "^14.0.0",
     "@angular/platform-browser-dynamic": "^14.0.0",
     "@angular/router": "^14.0.0",
+    "@ngxs/store": "^3.7.5",
+    "@ngxs/websocket-plugin": "^3.7.5",
     "@types/peerjs": "^1.1.0",
     "@types/uuid": "^8.3.4",
     "bootstrap": "^5.2.0",

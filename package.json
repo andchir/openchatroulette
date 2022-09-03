@@ -19,6 +19,7 @@
     },
     "homepage": "https://github.com/andchir/openchatroulette#readme",
     "dependencies": {
+        "express": "^4.18.1",
         "peer": "^0.6.1",
         "save": "^2.5.0",
         "ws": "^8.8.1"
