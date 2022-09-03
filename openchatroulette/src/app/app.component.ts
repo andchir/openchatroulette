@@ -5,7 +5,7 @@ import {Store} from '@ngxs/store';
 import {ConnectWebSocket, DisconnectWebSocket, SendWebSocketMessage} from '@ngxs/websocket-plugin';
 
 import {PeerjsService} from './services/peerjs.service';
-import {TextMessageInterface} from './models/textmessage.interface';
+import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 
 declare const window: Window;
 
@@ -20,7 +20,12 @@ export class AppComponent implements OnInit, OnDestroy {
     strangerPeerId: string;
     peerConnection: DataConnection;
     videoHeight = 400;
-    messages: TextMessageInterface[] = [];
+    isStarted = false;
+    messages: TextMessageInterface[] = [
+        {type: TextMessageType.Question, message: 'Hi, friend!'},
+        {type: TextMessageType.Answer, message: 'Hi! What city are you from?'},
+        {type: TextMessageType.Question, message: 'I\'m from London.'}
+    ];
 
     constructor(
         private store: Store,
@@ -45,6 +50,14 @@ export class AppComponent implements OnInit, OnDestroy {
         this.store.dispatch(new ConnectWebSocket());
         this.onResize(window);
         this.messagesInit();
+    }
+
+    rouletteStart(): void {
+        this.isStarted = true;
+    }
+
+    rouletteStop(): void {
+        this.isStarted = false;
     }
 
     sendMessageAction(from: string, message: string) {

@@ -29,15 +29,18 @@
             </div>
             <div class="row mb-3">
                 <div class="col-6">
-                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5">
+                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5" (click)="rouletteStart()">
                         <div class="btn-animation">
                             <div class="btn-animation-icon"><i-tabler name="arrow-big-left" class="icon-big"></i-tabler></div>
-                            <span class="btn-animation-label">Start</span>
+                            <span class="btn-animation-label" *ngIf="!isStarted">Start</span>
+                            <span class="btn-animation-label" *ngIf="isStarted">Next</span>
                         </div>
                     </button>
                 </div>
                 <div class="col-6">
-                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 show-on-hover-parent">
+                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 show-on-hover-parent"
+                            [disabled]="!isStarted"
+                            (click)="rouletteStop()">
                         <div class="btn-animation">
                             <div class="btn-animation-icon"><i-tabler name="hand-stop" class="icon-big"></i-tabler></div>
                             <span class="btn-animation-label">Stop</span>
@@ -50,11 +53,12 @@
             <div class="card mb-2 shadow-sm">
                 <div class="card-body app-message-container">
                     <ng-container *ngFor="let msg of messages">
-                        <div class="card mb-3"
-                             [class.text-bg-info]="msg.type === 'answer'"
-                             [class.text-bg-secondary]="msg.type === 'question'">
-                            <div class="card-body">
-                                <div class="card-text">{{ msg.message }}</div>
+                        <div [class.text-end]="msg.type === 'answer'">
+                            <div class="card d-inline-block border-0 rounded-pill mb-3"
+                                 [ngClass]="{'bg-info round-0-top-right': msg.type === 'answer', 'bg-primary text-white round-0-top-left': msg.type === 'question'}">
+                                <div class="card-body">
+                                    <div class="card-text">{{ msg.message }}</div>
+                                </div>
                             </div>
                         </div>
                     </ng-container>
@@ -63,11 +67,14 @@
             <div class="row g-2">
                 <div class="col-10">
                     <input type="text" class="form-control shadow-sm" placeholder="Enter your message"
+                           [disabled]="!isStarted"
                            (keyup)="onMessageFieldKeyUp($event)"
                            #messageField>
                 </div>
                 <div class="col-2">
-                    <button type="button" class="btn btn-info d-block w-100" (click)="sendMessage(messageField)">
+                    <button type="button" class="btn btn-info d-block w-100"
+                            [disabled]="!isStarted"
+                            (click)="sendMessage(messageField)">
                         Send
                     </button>
                 </div>

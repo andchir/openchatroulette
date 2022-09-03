@@ -1,5 +1,10 @@
 export interface TextMessageInterface {
-    message: string;
     type: string;
-    peerId?: string;
+    message: string;
+    from?: string;
+}
+
+export enum TextMessageType {
+    Answer = 'answer',
+    Question = 'question'
 }
