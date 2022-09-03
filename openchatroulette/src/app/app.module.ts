@@ -5,6 +5,14 @@ import {environment} from '../environments/environment';
 import {NgxsModule} from '@ngxs/store';
 import {NgxsWebsocketPluginModule} from '@ngxs/websocket-plugin';
 
+import {TablerIconsModule} from 'angular-tabler-icons';
+import {IconChevronDown, IconHandStop, IconArrowBigLeft} from 'angular-tabler-icons/icons';
+const icons = {
+    IconChevronDown,
+    IconHandStop,
+    IconArrowBigLeft
+};
+
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {AppState} from './store/app.state';
@@ -22,7 +30,8 @@ import {AppState} from './store/app.state';
         }),
         NgxsWebsocketPluginModule.forRoot({
             url: 'ws://localhost:6759'
-        })
+        }),
+        TablerIconsModule.pick(icons)
     ],
     providers: [],
     bootstrap: [AppComponent]

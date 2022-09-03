@@ -15,25 +15,33 @@
         <div class="col-lg-6">
             <div class="row mb-3">
                 <div class="col-6">
-                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4 shadow-sm">
-                        Country: All
+                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
+                        <span class="fs-5">Country:</span> All
+                        <i-tabler name="chevron-down"></i-tabler>
                     </button>
                 </div>
                 <div class="col-6">
-                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4 shadow-sm">
-                        Purpose: Dating
+                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
+                        <span class="fs-5">Purpose:</span> Dating
+                        <i-tabler name="chevron-down"></i-tabler>
                     </button>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col-6">
-                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5 shadow">
-                        Start
+                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5">
+                        <div class="btn-animation">
+                            <div class="btn-animation-icon"><i-tabler name="arrow-big-left" class="icon-big"></i-tabler></div>
+                            <span class="btn-animation-label">Start</span>
+                        </div>
                     </button>
                 </div>
                 <div class="col-6">
-                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 shadow">
-                        Stop
+                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 show-on-hover-parent">
+                        <div class="btn-animation">
+                            <div class="btn-animation-icon"><i-tabler name="hand-stop" class="icon-big"></i-tabler></div>
+                            <span class="btn-animation-label">Stop</span>
+                        </div>
                     </button>
                 </div>
             </div>
@@ -59,7 +67,7 @@
                            #messageField>
                 </div>
                 <div class="col-2">
-                    <button type="button" class="btn btn-info d-block w-100 shadow-sm" (click)="sendMessage(messageField)">
+                    <button type="button" class="btn btn-info d-block w-100" (click)="sendMessage(messageField)">
                         Send
                     </button>
                 </div>

@@ -1,3 +1,56 @@
 
+.opacity50 { opacity: 0.5; }
+.opacity70 { opacity: 0.7; }
+
+/* messages */
 .app-message-container { height: 165px; overflow: hidden; overflow-y: auto; }
+
+/* buttons */
+.btn { border-radius: 4px !important; }
+.btn:active { position: relative; top: 1px; box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075); }
+.btn:focus,
+.btn:active,
+.btn:active:focus { border-radius: 6px; }
+.btn-secondary { box-shadow: inset 0 1px 0 0 #ffffff, 0 2px 5px rgba(0, 0, 0, 0.1); background: linear-gradient(to bottom, #f9f9f9 5%, #e9e9e9 100%) #f9f9f9; border: 1px solid #dcdcdc; cursor: pointer; color: #666; text-shadow: 0 1px 0 #fff; }
+.btn-secondary:hover { background: linear-gradient(to bottom, #e9e9e9 5%, #f9f9f9 100%) #e9e9e9; }
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active:focus { color: #666666; box-shadow: inset 0 1px 0 0 #ffffff, 0 2px 5px rgba(0, 0, 0, 0.1); border: 1px solid #dcdcdc; }
+
+.btn-primary { box-shadow: inset 0 1px 0 0 #a9d5eb, 0 2px 5px rgba(0, 0, 0, 0.5); background: linear-gradient(to bottom, #63b9ee 5%, #3970a3 100%) #63b9ee; border: 1px solid #6e95c4; cursor: pointer; color: #fff; text-shadow: 0 1px 0 #3867a3; }
+.btn-primary:hover { background: linear-gradient(to bottom, #3970a3 5%, #63b9ee 100%) #3970a3; }
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active:focus { color: #fff; box-shadow: inset 0 1px 0 0 #5f9fc7, 0 2px 5px rgba(0, 0, 0, 0.5); border: 1px solid #6e95c4; }
+.btn-primary:focus:not(:active):not(:hover) { box-shadow: inset 0 1px 0 0 #a9d5eb, 0 2px 5px rgba(0, 0, 0, 0.5); }
+
+.btn-info { box-shadow: inset 0 1px 0 0 #fff, 0 2px 5px rgba(0, 0, 0, 0.2); background: linear-gradient(to bottom, #bddcfa 5%, #80b5ea 100%) #bddcfa; border: 1px solid #84bcf3; cursor: pointer; color: #fff; text-shadow: 0 1px 0 #528fcc; }
+.btn-info:hover { background: linear-gradient(to bottom, #80b5ea 5%, #bddcfa 100%) #80b5ea; }
+.btn-info:hover,
+.btn-info:focus,
+.btn-info:active:focus { color: #fff; box-shadow: inset 0 1px 0 0 #9dcfe8, 0 2px 5px rgba(0, 0, 0, 0.2); border: 1px solid #84bcf3; }
+.btn-info:focus:not(:active):not(:hover) { box-shadow: inset 0 1px 0 0 #fff, 0 2px 5px rgba(0, 0, 0, 0.2); }
+
+.btn-danger { box-shadow: inset 0 1px 0 0 #f5978e, 0 2px 5px rgba(0, 0, 0, 0.5); background: linear-gradient(to bottom, #cc5147 5%, #c62d1f 100%) #f24437; border: 1px solid #d02718; cursor: pointer; color: #fff; text-shadow: 0 1px 0 #b23d35; }
+.btn-danger:hover { background: linear-gradient(to bottom, #c62d1f 5%, #cc5147 100%) #c62d1f; }
+.btn-danger:hover,
+.btn-danger:focus,
+.btn-danger:active:focus { color: #fff; box-shadow: inset 0 1px 0 0 #d1837b, 0 2px 5px rgba(0, 0, 0, 0.5); border: 1px solid #d02718; }
+.btn-danger:focus:not(:active):not(:hover) { box-shadow: inset 0 1px 0 0 #f5978e, 0 2px 5px rgba(0, 0, 0, 0.5); }
+
+/* icons */
+.icon-big { height: 50px !important; width: 50px !important; }
+
+/* show-on-hover */
+.show-on-hover-parent .show-on-hover { display: none; }
+.show-on-hover-parent:hover .show-on-hover.show-on-hover-block { display: block; }
+.show-on-hover-parent:hover .show-on-hover.show-on-hover-inline-block { display: inline-block; }
+
+.btn-animation { position: relative; display: inline-block; }
+.btn-animation div,
+.btn-animation span { display: inline-block; }
+.btn-animation-icon { position: absolute; top: 0; right: 30%; opacity: 0.7; transition: right 300ms, opacity 300ms; }
+.btn-animation-label { opacity: 0; margin-left: 5px; transition: opacity 300ms; }
+.btn:hover .btn-animation .btn-animation-icon { right: 105%; opacity: 1; }
+.btn:hover .btn-animation .btn-animation-label { opacity: 1; }
 
