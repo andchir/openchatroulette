@@ -1,11 +1,11 @@
 import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {DataConnection} from 'peerjs';
-import {Store, Select} from '@ngxs/store';
+import {Store, Select, Actions, ofActionSuccessful} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 import {AppAction} from "./store/actions/app.actions";
-import {Observable, skip, take} from "rxjs";
+import {Observable, skip, Subject, take, takeUntil} from "rxjs";
 import {AppState} from "./store/states/app.state";
 
 declare const window: Window;
@@ -20,8 +20,10 @@ export class AppComponent implements OnInit, OnDestroy {
     @Select(AppState.connected) connectedState$: Observable<boolean>;
     @Select(AppState.ready) readyState$: Observable<boolean>;
     @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
+    @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
 
     @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
+    @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;
 
     strangerPeerId: string;
     peerConnection: DataConnection;
@@ -32,9 +34,11 @@ export class AppComponent implements OnInit, OnDestroy {
         {type: TextMessageType.Answer, message: 'Hi! What city are you from?'},
         {type: TextMessageType.Question, message: 'I\'m from London.'}
     ];
+    destroyed$ = new Subject<void>();
 
     constructor(
-        private store: Store
+        private store: Store,
+        private actions$: Actions
     ) {
 
     }
@@ -71,9 +75,19 @@ export class AppComponent implements OnInit, OnDestroy {
         this.localStream$
             .subscribe({
                 next: (stream) => {
-                    if (stream) {
+                    if (stream && this.myVideo) {
                         this.myVideo.nativeElement.srcObject = stream;
                         this.myVideo.nativeElement.autoplay = true;
+                    }
+                }
+            });
+
+        this.remoteStream$
+            .subscribe({
+                next: (stream) => {
+                    if (stream && this.remoteVideo) {
+                        this.remoteVideo.nativeElement.srcObject = stream;
+                        this.remoteVideo.nativeElement.autoplay = true;
                     }
                 }
             });
@@ -81,6 +95,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
     rouletteStart(): void {
         this.isStarted = true;
+        // this.actions$
+        //     .pipe(
+        //         ofActionSuccessful(AppAction.NextPeer),
+        //         takeUntil(this.destroyed$)
+        //     )
+        //     .subscribe((res) => {
+        //         console.log(res);
+        //     });
+        this.store.dispatch(new AppAction.NextPeer());
     }
 
     rouletteStop(): void {
@@ -134,6 +157,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         // this.peerjsService.messageStream$.unsubscribe();
-        // this.store.dispatch(new DisconnectWebSocket());
+        this.destroyed$.next();
+        this.destroyed$.complete();
     }
 }

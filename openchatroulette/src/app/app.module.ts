@@ -1,9 +1,10 @@
 import {NgModule} from '@angular/core';
+import {HttpClientModule} from '@angular/common/http';
 import {BrowserModule} from '@angular/platform-browser';
 import {environment} from '../environments/environment';
 
 import {NgxsModule} from '@ngxs/store';
-import {NgxsWebsocketPluginModule} from '@ngxs/websocket-plugin';
+import {NgxsLoggerPluginModule} from '@ngxs/logger-plugin';
 
 import {TablerIconsModule} from 'angular-tabler-icons';
 import {IconChevronDown, IconHandStop, IconArrowBigLeft} from 'angular-tabler-icons/icons';
@@ -24,12 +25,14 @@ import {AppState} from './store/states/app.state';
     imports: [
         BrowserModule,
         AppRoutingModule,
+        HttpClientModule,
 
         NgxsModule.forRoot([AppState], {
             developmentMode: !environment.production
         }),
-        NgxsWebsocketPluginModule.forRoot({
-            url: 'ws://localhost:6759'
+        NgxsLoggerPluginModule.forRoot({
+            disabled: environment.production,
+            collapsed: true
         }),
         TablerIconsModule.pick(icons)
     ],

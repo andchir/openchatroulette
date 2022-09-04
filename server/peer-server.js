@@ -1,26 +1,75 @@
+const express = require('express');
+const http = require('http');
+const path = require('path');
+const {ExpressPeerServer, PeerServer} = require('peer');
 
-const {PeerServer} = require('peer');
+const app = express();
+const server = http.createServer(app);
+const port = process.env.PORT || 8000;
 
-const peerServer = PeerServer({
-    port: 9000,
+app.get('/', (req, res) => res.send('Welcome to OpenChatRoulette!'));
+
+const peerServer = ExpressPeerServer(server, {
+    proxied: true,
+    debug: true,
+    // allow_discovery: true,//Allow to use GET /:key/peers
     path: '/openchatroulette',
-    key: 'peerjs'
+    key: 'peerjs',
+    ssl: {
+        // key: fs.readFileSync('/path/to/your/ssl/key/here.key'),
+        // cert: fs.readFileSync('/path/to/your/ssl/certificate/here.crt')
+    }
 });
 
+app.use(peerServer);
+server.listen(port);
+
 console.log('PeerServer initialized.');
+console.log(`Listening on: ${port}`);
+
+const peers = {};
 
 peerServer.on('connection', (client) => {
     console.log('connection', client.id);
+    peers[client.id] = {
+        country: '',
+        purpose: ''
+    };
+    console.log(peers);
 });
 
 peerServer.on('disconnect', (client) => {
     console.log('disconnect', client.id);
+    if (peers[client.id]) {
+        delete peers[client.id];
+    }
+    console.log(peers);
 });
 
 peerServer.on('message', (client, message) => {
-    console.log('disconnect', client.id, message);
+    console.log('message', client.id, message);
 });
 
 peerServer.on('error', (error) => {
     console.log('error', error);
+});
+
+app.get('/openchatroulette/random_peer/:id', (req, res) => {
+    const myPeerId = req.params.id;
+    const clientsIds = Object.keys(peers);
+    const myIndex = clientsIds.findIndex((id) => {
+        return id === myPeerId;
+    });
+    if (myIndex > -1) {
+        clientsIds.splice(myIndex, 1);
+    }
+    const randomPeerId = clientsIds.length > 0
+        ? clientsIds[Math.floor(Math.random() * clientsIds.length)]
+        : '';
+
+    console.log('/random_peer/:id', myPeerId, myIndex, clientsIds.length, randomPeerId);
+
+    return res.json({
+        peerId: randomPeerId
+    });
 });

@@ -18,6 +18,7 @@
     "@angular/platform-browser": "^14.0.0",
     "@angular/platform-browser-dynamic": "^14.0.0",
     "@angular/router": "^14.0.0",
+    "@ngxs/logger-plugin": "^3.7.5",
     "@ngxs/store": "^3.7.5",
     "@ngxs/websocket-plugin": "^3.7.5",
     "@tabler/icons": "^1.92.0",
