@@ -15,7 +15,7 @@ const icons = {
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-import {AppState} from './store/app.state';
+import {AppState} from './store/states/app.state';
 
 @NgModule({
     declarations: [

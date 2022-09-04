@@ -17,16 +17,26 @@ export class PeerjsService {
 
     }
 
-    peerInit(): string {
-        const peerId = uuidv4();
-        this.peer = new Peer(peerId, {
-            host: '/',
-            path: '/openchatroulette',
-            port: 9000
+    connect(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const peerId = uuidv4();
+            this.peer = new Peer(peerId, {
+                host: '/',
+                path: '/openchatroulette',
+                port: 9000
+            });
+            this.peer.on('open', (id) => {
+                this.onConnected();
+                resolve(id);
+            });
+            this.peer.on('error', (error) => {
+                reject(error);
+            });
         });
-        this.peer.on('open', (id) => {
-            console.log('My peer ID: ' + id);
-        });
+    }
+
+    onConnected(): void {
+        console.log('onConnected');
         this.peer.on('connection', (conn) => {
             this.peerConnection = conn;
             console.log('incoming peer connection!');
@@ -48,10 +58,6 @@ export class PeerjsService {
                     console.error('Failed to get local stream', err);
                 });
         });
-        this.peer.on('error', (error) => {
-            console.error(error);
-        });
-        return peerId;
     }
 
     connectToPeer(peerId: string): DataConnection {
@@ -64,7 +70,7 @@ export class PeerjsService {
         });
         navigator.mediaDevices.getUserMedia({video: true, audio: true})
             .then((stream) => {
-                let call = this.peer.call(peerId, stream);
+                // let call = this.peer.call(peerId, stream);
                 // call.on('stream', renderVideo);
             })
             .catch((err) => {

@@ -1,11 +1,12 @@
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 
 import {DataConnection} from 'peerjs';
-import {Store} from '@ngxs/store';
-import {ConnectWebSocket, DisconnectWebSocket, SendWebSocketMessage} from '@ngxs/websocket-plugin';
+import {Store, Select} from '@ngxs/store';
 
-import {PeerjsService} from './services/peerjs.service';
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
+import {AppAction} from "./store/actions/app.actions";
+import {Observable} from "rxjs";
+import {AppState} from "./store/states/app.state";
 
 declare const window: Window;
 
@@ -16,7 +17,9 @@ declare const window: Window;
 })
 export class AppComponent implements OnInit, OnDestroy {
 
-    readonly peerId: string;
+    @Select(AppState.connected) connectedState$: Observable<boolean>;
+    @Select(AppState.ready) readyState$: Observable<boolean>;
+
     strangerPeerId: string;
     peerConnection: DataConnection;
     videoHeight = 400;
@@ -28,10 +31,9 @@ export class AppComponent implements OnInit, OnDestroy {
     ];
 
     constructor(
-        private store: Store,
-        private peerjsService: PeerjsService
+        private store: Store
     ) {
-        // this.peerId = this.peerjsService.peerInit();
+
     }
 
     @HostListener('window:resize', ['$event.target'])
@@ -47,9 +49,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.store.dispatch(new ConnectWebSocket());
         this.onResize(window);
-        this.messagesInit();
+        // this.store.dispatch(new ConnectWebSocket());
+        // this.messagesInit();
+        this.store.dispatch(new AppAction.SetConnected(true));
     }
 
     rouletteStart(): void {
@@ -61,12 +64,13 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     sendMessageAction(from: string, message: string) {
-        const event = new SendWebSocketMessage({
-            type: 'message',
-            from,
-            message
-        });
-        this.store.dispatch(event);
+        // const event = new SendWebSocketMessage({
+        //     type: 'message',
+        //     from,
+        //     message
+        // });
+        // this.store.dispatch(event);
+        console.log('sendMessageAction', from, message);
     }
 
     sendMessage(fieldEl: HTMLInputElement): void {
@@ -96,16 +100,16 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     messagesInit(): void {
-        this.peerjsService.messageStream$.subscribe({
-            next: (message) => {
-                console.log('New message received:', message);
-                this.messages.push({message, type: 'answer'});
-            }
-        });
+        // this.peerjsService.messageStream$.subscribe({
+        //     next: (message) => {
+        //         console.log('New message received:', message);
+        //         this.messages.push({message, type: 'answer'});
+        //     }
+        // });
     }
 
     ngOnDestroy(): void {
         // this.peerjsService.messageStream$.unsubscribe();
-        this.store.dispatch(new DisconnectWebSocket());
+        // this.store.dispatch(new DisconnectWebSocket());
     }
 }
