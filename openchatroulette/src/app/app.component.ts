@@ -1,11 +1,11 @@
-import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {DataConnection} from 'peerjs';
 import {Store, Select} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 import {AppAction} from "./store/actions/app.actions";
-import {Observable} from "rxjs";
+import {Observable, skip, take} from "rxjs";
 import {AppState} from "./store/states/app.state";
 
 declare const window: Window;
@@ -19,6 +19,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     @Select(AppState.connected) connectedState$: Observable<boolean>;
     @Select(AppState.ready) readyState$: Observable<boolean>;
+    @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
+
+    @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
 
     strangerPeerId: string;
     peerConnection: DataConnection;
@@ -50,9 +53,30 @@ export class AppComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.onResize(window);
-        // this.store.dispatch(new ConnectWebSocket());
-        // this.messagesInit();
+        this.connectionInit();
+    }
+
+    connectionInit(): void {
+        this.connectedState$
+            .pipe(skip(1), take(1))
+            .subscribe({
+                next: (connected) => {
+                    if (connected) {
+                        this.store.dispatch(new AppAction.GetLocalStream());
+                    }
+                }
+            });
         this.store.dispatch(new AppAction.SetConnected(true));
+
+        this.localStream$
+            .subscribe({
+                next: (stream) => {
+                    if (stream) {
+                        this.myVideo.nativeElement.srcObject = stream;
+                        this.myVideo.nativeElement.autoplay = true;
+                    }
+                }
+            });
     }
 
     rouletteStart(): void {

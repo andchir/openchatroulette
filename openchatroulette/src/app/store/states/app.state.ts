@@ -39,6 +39,11 @@ export class AppState {
         return state.ready;
     }
 
+    @Selector()
+    static localStream(state: AppStateModel) {
+        return state.localStream;
+    }
+
     @Action(AppAction.SetConnected)
     setConnected(ctx: StateContext<AppStateModel>, action: AppAction.SetConnected) {
         if (action.payload) {
@@ -71,6 +76,26 @@ export class AppState {
         ctx.patchState({
             localPeerId: action.payload
         });
-        console.log('setPeerId', action.payload, ctx.getState());
+    }
+
+    @Action(AppAction.GetLocalStream)
+    getLocalStream(ctx: StateContext<AppStateModel>, action: AppAction.GetLocalStream) {
+        this.peerjsService.getUserMedia()
+            .then((stream) => {
+                ctx.patchState({localStream: stream});
+                return ctx.dispatch(new AppAction.SetReady(ctx.getState().connected));
+            })
+            .catch((err) => {
+                ctx.patchState({localStream: null});
+                return ctx.dispatch(new AppAction.SetReady(false));
+            });
+    }
+
+    @Action(AppAction.StopLocalStream)
+    stopLocalStream(ctx: StateContext<AppStateModel>, action: AppAction.StopLocalStream) {
+
+        // stream.getTracks().forEach(function(track) {
+        //     track.stop();
+        // });
     }
 }

@@ -36,7 +36,6 @@ export class PeerjsService {
     }
 
     onConnected(): void {
-        console.log('onConnected');
         this.peer.on('connection', (conn) => {
             this.peerConnection = conn;
             console.log('incoming peer connection!');
@@ -58,6 +57,10 @@ export class PeerjsService {
                     console.error('Failed to get local stream', err);
                 });
         });
+    }
+
+    getUserMedia(): Promise<MediaStream> {
+        return navigator.mediaDevices.getUserMedia({video: true, audio: true});
     }
 
     connectToPeer(peerId: string): DataConnection {
