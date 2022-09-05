@@ -14,7 +14,9 @@ export class PeerjsService {
     dataConnection: DataConnection|null;
     mediaConnection: MediaConnection|null;
     messageStream$ = new Subject<string>();
-    disconnected$ = new Subject<string>();
+    connected$ = new Subject<boolean>();
+    callFromPeer$ = new Subject<string|null|undefined>();
+    remotePeerConnected$ = new Subject<string|null|undefined>();
     public headers = new HttpHeaders({
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
@@ -34,6 +36,7 @@ export class PeerjsService {
                 path: '/openchatroulette'
             });
             this.peer.on('open', (id) => {
+                this.connected$.next(true);
                 this.onConnected();
                 resolve(id);
             });
@@ -49,15 +52,16 @@ export class PeerjsService {
         });
         this.peer.on('disconnected', (currentId: string) => {
             console.log('disconnected', currentId);
-            this.disconnected$.next(currentId);
+            this.remotePeerConnected$.next('');
+            this.connected$.next(false);
             if (this.dataConnection) {
                 this.dataConnection.close();
             }
-            this.dataConnection = null;
+            // this.dataConnection = null;
         });
         this.peer.on('connection', (dataConnection) => {
             this.dataConnection = dataConnection;
-            console.log('incoming peer connection!');
+            console.log('incoming peer connection!', dataConnection.peer);
             dataConnection.on('data', (data) => {
                 console.log(`received: ${data}`);
                 this.messageStream$.next(String(data));
@@ -66,21 +70,46 @@ export class PeerjsService {
                 console.log('dataConnection open');
                 dataConnection.send('hello!');
             });
+            dataConnection.on('close', () => {
+                this.remotePeerConnected$.next('');
+                console.log('dataConnection close');
+            });
+            dataConnection.on('error', () => {
+                console.log('dataConnection error');
+            });
         });
         this.peer.on('call', (mediaConnection: MediaConnection) => {
             this.mediaConnection = mediaConnection;
             console.log('on call');
-            navigator.mediaDevices.getUserMedia({video: true, audio: true})
-                .then((stream) => {
-                    mediaConnection.answer(stream);
-                    mediaConnection.on('stream', (remoteStream) => {
-                        console.log('GOT REMOTE STREAM', remoteStream);
-                    });
-                })
-                .catch((err) => {
-                    console.error('Failed to get local stream', err);
-                });
+            this.callFromPeer$.next(this.dataConnection?.peer);
         });
+    }
+
+    callAnswer(remotePeerId: string): void {
+        console.log('callAnswer', remotePeerId);
+        if (!this.mediaConnection) {
+            return;
+        }
+        navigator.mediaDevices.getUserMedia({video: true, audio: true})
+            .then((stream) => {
+                this.mediaConnection?.answer(stream);
+                this.mediaConnection?.on('stream', (remoteStream) => {
+                    console.log('GOT REMOTE STREAM', remoteStream);
+                    this.remotePeerConnected$.next(remotePeerId);
+                });
+                this.mediaConnection?.on('close', () => {
+                    console.log('mediaConnection close');
+                    this.remotePeerConnected$.next('');
+                });
+                this.mediaConnection?.on('error', () => {
+                    console.log('mediaConnection error');
+                    this.remotePeerConnected$.next('');
+                });
+            })
+            .catch((err) => {
+                console.error('Failed to get local stream', err);
+                this.remotePeerConnected$.next('');
+            });
     }
 
     getUserMedia(): Promise<MediaStream> {
@@ -101,8 +130,12 @@ export class PeerjsService {
             );
     }
 
-    connectToPeer(peerId: string): Promise<any> {
-        this.dataConnection = this.peer.connect(peerId);
+    connectToPeer(remotePeerId: string): Promise<any> {
+        console.log('connectToPeer', this.peer.disconnected);
+        this.dataConnection = this.peer.connect(remotePeerId);
+        if (!this.dataConnection) {
+            return Promise.reject(null);
+        }
         this.dataConnection.on('data', (data) => {
             this.messageStream$.next(String(data));
         });
@@ -112,19 +145,41 @@ export class PeerjsService {
                 this.dataConnection.send('hi!');
             }
         });
+        this.dataConnection.on('close', () => {
+            this.remotePeerConnected$.next('');
+        });
         return new Promise((resolve, reject) => {
             navigator.mediaDevices.getUserMedia({video: true, audio: true})
                 .then((stream) => {
-                    this.mediaConnection = this.peer.call(peerId, stream);
+                    this.mediaConnection = this.peer.call(remotePeerId, stream);
                     this.mediaConnection.on('stream', (remoteStream) => {
+                        this.remotePeerConnected$.next(remotePeerId);
                         resolve(remoteStream);
                     });
                 })
                 .catch((err) => {
                     console.log('Failed to get local stream', err);
-                    reject();
+                    reject(null);
                 });
         });
+    }
+
+    disconnect(all = false): void {
+        if (this.peer.disconnected) {
+            return;
+        }
+        if (this.dataConnection) {
+            this.dataConnection.close();
+            this.dataConnection = null;
+        }
+        if (this.mediaConnection) {
+            this.mediaConnection.close();
+            this.mediaConnection = null;
+        }
+        this.callFromPeer$.next('');
+        if (all) {
+            this.peer.disconnect();
+        }
     }
 
     handleError<T>(error: HttpErrorResponse) {

@@ -30,8 +30,8 @@ console.log(`Listening on: ${port}`);
 const peers = {};
 
 peerServer.on('connection', (client) => {
-    console.log('connection', client.id);
-    peers[client.id] = {
+    console.log('connection', client.getId());
+    peers[client.getId()] = {
         country: '',
         purpose: ''
     };
@@ -39,15 +39,15 @@ peerServer.on('connection', (client) => {
 });
 
 peerServer.on('disconnect', (client) => {
-    console.log('disconnect', client.id);
-    if (peers[client.id]) {
-        delete peers[client.id];
+    console.log('disconnect', client.getId());
+    if (peers[client.getId()]) {
+        delete peers[client.getId()];
     }
     console.log(peers);
 });
 
 peerServer.on('message', (client, message) => {
-    console.log('message', client.id, message);
+    console.log('message', client.getId(), message);
 });
 
 peerServer.on('error', (error) => {
@@ -69,6 +69,9 @@ app.get('/openchatroulette/random_peer/:id', (req, res) => {
 
     console.log('/random_peer/:id', myPeerId, myIndex, clientsIds.length, randomPeerId);
 
+    if (!randomPeerId) {
+        return res.status(422).send('No peer found.');
+    }
     return res.json({
         peerId: randomPeerId
     });

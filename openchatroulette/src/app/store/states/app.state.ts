@@ -1,14 +1,16 @@
 import {Injectable} from '@angular/core';
 import {State, Action, Selector, StateContext} from '@ngxs/store';
+import {Observable, take, takeUntil, tap} from 'rxjs';
 import {AppAction} from '../actions/app.actions';
 import {TextMessageInterface} from '../../models/textmessage.interface';
 import {PeerjsService} from '../../services/peerjs.service';
-import {Observable, take} from "rxjs";
 
 export class AppStateModel {
     public connected: boolean;
+    public remotePeerConnected: boolean;
     public ready: boolean;
     public localPeerId: string;
+    public remotePeerId: string;
     public localStream: MediaStream|null;
     public remoteStream: MediaStream|null;
     public messages: TextMessageInterface[];
@@ -16,8 +18,10 @@ export class AppStateModel {
 
 const defaults = {
     connected: false,
+    remotePeerConnected: false,
     ready: false,
     localPeerId: '',
+    remotePeerId: '',
     localStream: null,
     remoteStream: null,
     messages: []
@@ -57,15 +61,36 @@ export class AppState {
         if (action.payload) {
             this.peerjsService.connect()
                 .then((peerId) => {
+
                     ctx.patchState({connected: true});
-                    this.peerjsService.disconnected$
-                        .pipe(take(1))
+                    ctx.dispatch(new AppAction.SetPeerId(peerId));
+
+                    this.peerjsService.callFromPeer$
+                        .pipe(takeUntil(this.peerjsService.connected$))
                         .subscribe({
-                            next: (peerId) => {
-                                ctx.dispatch(new AppAction.SetConnected(false));
+                            next: (remotePeerId) => {
+                                if (ctx.getState().ready && ctx.getState().remotePeerId) {
+                                    this.peerjsService.callAnswer(ctx.getState().remotePeerId);
+                                }
                             }
                         });
-                    return ctx.dispatch(new AppAction.SetPeerId(peerId));
+
+                    this.peerjsService.remotePeerConnected$
+                        .pipe(takeUntil(this.peerjsService.connected$))
+                        .subscribe({
+                            next: (remotePeerId) => {
+                                if (remotePeerId) {
+                                    ctx.dispatch(new AppAction.SetRemotePeerId(remotePeerId));
+                                    if (this.peerjsService.mediaConnection?.remoteStream) {
+                                        ctx.dispatch(new AppAction.SetRemoteStream(this.peerjsService.mediaConnection?.remoteStream));
+                                    }
+                                } else {
+                                    ctx.dispatch(new AppAction.SetRemotePeerId(''));
+                                    ctx.dispatch(new AppAction.SetRemoteStream(null));
+                                }
+                            }
+                        });
+
                 })
                 .catch((error) => {
                     console.log(error);
@@ -85,6 +110,9 @@ export class AppState {
         ctx.patchState({
             ready: action.payload
         });
+        if (!action.payload) {
+            this.peerjsService.disconnect();
+        }
     }
 
     @Action(AppAction.SetPeerId)
@@ -99,7 +127,6 @@ export class AppState {
         this.peerjsService.getUserMedia()
             .then((stream) => {
                 ctx.patchState({localStream: stream});
-                ctx.dispatch(new AppAction.SetReady(ctx.getState().connected));
             })
             .catch((err) => {
                 ctx.patchState({localStream: null});
@@ -119,25 +146,28 @@ export class AppState {
     }
 
     @Action(AppAction.NextPeer)
-    nextPeer(ctx: StateContext<AppStateModel>): void {
-        this.peerjsService.nextPeer()
-            .subscribe({
-                next: (res) => {
-                    if (res.peerId) {
-                        ctx.dispatch(new AppAction.GetRemoteStream(res.peerId));
-                    }
+    nextPeer(ctx: StateContext<AppStateModel>, action: AppAction.NextPeer): Observable<any> {
+        ctx.dispatch(new AppAction.SetRemoteStream(null));
+        return this.peerjsService.nextPeer()
+            .pipe(tap(result => {
+                if (result.peerId) {
+                    ctx.dispatch(new AppAction.SetRemotePeerId(result.peerId));
                 }
-            });
+            }));
+    }
+
+    @Action(AppAction.SetRemotePeerId)
+    setRemotePeerId(ctx: StateContext<AppStateModel>, action: AppAction.SetRemotePeerId) {
+        ctx.patchState({
+            remotePeerId: action.payload
+        });
     }
 
     @Action(AppAction.GetRemoteStream)
     getRemoteStream(ctx: StateContext<AppStateModel>, action: AppAction.GetRemoteStream) {
         this.peerjsService.connectToPeer(action.payload)
-            .then((res) => {
-                ctx.dispatch(new AppAction.SetRemoteStream(res));
-            })
             .catch((err) => {
-                ctx.patchState({remoteStream: null});
+                console.log(err);
             });
     }
 

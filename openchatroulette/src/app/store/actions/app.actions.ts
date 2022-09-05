@@ -32,8 +32,13 @@ export namespace AppAction {
         constructor(public payload: string) {}
     }
 
+    export class SetRemotePeerId {
+        static readonly type = '[App] SetRemotePeerId';
+        constructor(public payload: string) {}
+    }
+
     export class SetRemoteStream {
         static readonly type = '[App] SetRemoteStream';
-        constructor(public payload: MediaStream) {}
+        constructor(public payload: MediaStream|null) {}
     }
 }

@@ -30,7 +30,7 @@
             <div class="row mb-3">
                 <div class="col-6">
                     <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5"
-                            [disabled]="!(readyState$ | async)"
+                            [disabled]="!isLocalStreamReady"
                             (click)="rouletteStart()">
                         <div class="btn-animation">
                             <div class="btn-animation-icon"><i-tabler name="arrow-big-left" class="icon-big"></i-tabler></div>

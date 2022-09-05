@@ -1,7 +1,7 @@
 import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {DataConnection} from 'peerjs';
-import {Store, Select, Actions, ofActionSuccessful} from '@ngxs/store';
+import {Store, Select, Actions} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 import {AppAction} from "./store/actions/app.actions";
@@ -28,6 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
     strangerPeerId: string;
     peerConnection: DataConnection;
     videoHeight = 400;
+    isLocalStreamReady = false;
     isStarted = false;
     messages: TextMessageInterface[] = [
         {type: TextMessageType.Question, message: 'Hi, friend!'},
@@ -37,8 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
     destroyed$ = new Subject<void>();
 
     constructor(
-        private store: Store,
-        private actions$: Actions
+        private store: Store
     ) {
 
     }
@@ -67,6 +67,8 @@ export class AppComponent implements OnInit, OnDestroy {
                 next: (connected) => {
                     if (connected) {
                         this.store.dispatch(new AppAction.GetLocalStream());
+                    } else {
+                        this.isLocalStreamReady = false;
                     }
                 }
             });
@@ -76,8 +78,11 @@ export class AppComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (stream) => {
                     if (stream && this.myVideo) {
+                        this.isLocalStreamReady = true;
                         this.myVideo.nativeElement.srcObject = stream;
                         this.myVideo.nativeElement.autoplay = true;
+                    } else {
+                        this.isLocalStreamReady = false;
                     }
                 }
             });
@@ -85,29 +90,53 @@ export class AppComponent implements OnInit, OnDestroy {
         this.remoteStream$
             .subscribe({
                 next: (stream) => {
-                    if (stream && this.remoteVideo) {
-                        this.remoteVideo.nativeElement.srcObject = stream;
+                    console.log('this.remoteStream$', !!stream);
+                    if (!this.remoteVideo) {
+                        return;
+                    }
+                    this.remoteVideo.nativeElement.srcObject = stream;
+                    if (stream) {
                         this.remoteVideo.nativeElement.autoplay = true;
+                    } else {
+                        this.remoteVideo.nativeElement.pause();
+                        this.remoteVideo.nativeElement.load();
                     }
                 }
             });
     }
 
     rouletteStart(): void {
+        if (!this.isLocalStreamReady) {
+            return;
+        }
+        this.store.dispatch(new AppAction.SetReady(true));
         this.isStarted = true;
-        // this.actions$
-        //     .pipe(
-        //         ofActionSuccessful(AppAction.NextPeer),
-        //         takeUntil(this.destroyed$)
-        //     )
-        //     .subscribe((res) => {
-        //         console.log(res);
-        //     });
-        this.store.dispatch(new AppAction.NextPeer());
+        this.getNextPeer();
     }
 
     rouletteStop(): void {
         this.isStarted = false;
+        this.store.dispatch(new AppAction.SetReady(false));
+    }
+
+    getNextPeer(): void {
+        if (!this.isStarted) {
+            return;
+        }
+        this.store.dispatch(new AppAction.NextPeer())
+            .pipe(take(1))
+            .subscribe({
+                next: (res) => {
+                    if (res.app.remotePeerId) {
+                        this.store.dispatch(new AppAction.GetRemoteStream(res.app.remotePeerId));
+                    }
+                },
+                error: (err) => {
+                    if (this.isStarted) {
+                        setTimeout(this.getNextPeer.bind(this), 4000);
+                    }
+                }
+            });
     }
 
     sendMessageAction(from: string, message: string) {
