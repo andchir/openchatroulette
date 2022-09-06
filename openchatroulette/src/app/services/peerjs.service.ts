@@ -46,6 +46,10 @@ export class PeerjsService {
         });
     }
 
+    getIsConnected(): boolean {
+        return this.peer ? !this.peer.disconnected : false;
+    }
+
     onConnected(): void {
         this.peer.on('close', () => {
             console.log('close');

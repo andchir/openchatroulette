@@ -5,8 +5,8 @@ export namespace AppAction {
         constructor(public payload: boolean) {}
     }
 
-    export class SetReady {
-        static readonly type = '[App] SetReady';
+    export class SetReadyToConnect {
+        static readonly type = '[App] SetReadyToConnect';
         constructor(public payload: boolean) {}
     }
 

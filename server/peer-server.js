@@ -69,9 +69,9 @@ app.get('/openchatroulette/random_peer/:id', (req, res) => {
 
     console.log('/random_peer/:id', myPeerId, myIndex, clientsIds.length, randomPeerId);
 
-    if (!randomPeerId) {
-        return res.status(422).send('No peer found.');
-    }
+    // if (!randomPeerId) {
+    //     return res.status(422).send('No peer found.');
+    // }
     return res.json({
         peerId: randomPeerId
     });

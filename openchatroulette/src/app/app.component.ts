@@ -18,7 +18,7 @@ declare const window: Window;
 export class AppComponent implements OnInit, OnDestroy {
 
     @Select(AppState.connected) connectedState$: Observable<boolean>;
-    @Select(AppState.ready) readyState$: Observable<boolean>;
+    @Select(AppState.readyToConnect) readyToConnectState$: Observable<boolean>;
     @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
 
@@ -61,18 +61,18 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     connectionInit(): void {
-        this.connectedState$
-            .pipe(skip(1), take(1))
-            .subscribe({
-                next: (connected) => {
-                    if (connected) {
-                        this.store.dispatch(new AppAction.GetLocalStream());
-                    } else {
-                        this.isLocalStreamReady = false;
-                    }
-                }
-            });
-        this.store.dispatch(new AppAction.SetConnected(true));
+        // this.connectedState$
+        //     .pipe(skip(1), take(1))
+        //     .subscribe({
+        //         next: (connected) => {
+        //             console.log('connectionInit', connected);
+        //             if (connected) {
+        //                 this.getNextPeer();
+        //             }
+        //         }
+        //     });
+
+        this.store.dispatch(new AppAction.GetLocalStream());
 
         this.localStream$
             .subscribe({
@@ -109,34 +109,33 @@ export class AppComponent implements OnInit, OnDestroy {
         if (!this.isLocalStreamReady) {
             return;
         }
-        this.store.dispatch(new AppAction.SetReady(true));
         this.isStarted = true;
-        this.getNextPeer();
+        this.store.dispatch(new AppAction.SetConnected(true));
     }
 
     rouletteStop(): void {
         this.isStarted = false;
-        this.store.dispatch(new AppAction.SetReady(false));
+        this.store.dispatch(new AppAction.SetConnected(false));
     }
 
     getNextPeer(): void {
-        if (!this.isStarted) {
-            return;
-        }
-        this.store.dispatch(new AppAction.NextPeer())
-            .pipe(take(1))
-            .subscribe({
-                next: (res) => {
-                    if (res.app.remotePeerId) {
-                        this.store.dispatch(new AppAction.GetRemoteStream(res.app.remotePeerId));
-                    }
-                },
-                error: (err) => {
-                    if (this.isStarted) {
-                        setTimeout(this.getNextPeer.bind(this), 4000);
-                    }
-                }
-            });
+        // if (!this.isStarted) {
+        //     return;
+        // }
+        // this.store.dispatch(new AppAction.NextPeer())
+        //     .pipe(take(1))
+        //     .subscribe({
+        //         next: (res) => {
+        //             if (res.app.remotePeerId) {
+        //                 this.store.dispatch(new AppAction.GetRemoteStream(res.app.remotePeerId));
+        //             }
+        //         },
+        //         error: (err) => {
+        //             if (this.isStarted) {
+        //                 setTimeout(this.getNextPeer.bind(this), 4000);
+        //             }
+        //         }
+        //     });
     }
 
     sendMessageAction(from: string, message: string) {
