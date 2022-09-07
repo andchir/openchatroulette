@@ -7,9 +7,10 @@ import {NgxsModule} from '@ngxs/store';
 import {NgxsLoggerPluginModule} from '@ngxs/logger-plugin';
 
 import {TablerIconsModule} from 'angular-tabler-icons';
-import {IconChevronDown, IconHandStop, IconArrowBigLeft} from 'angular-tabler-icons/icons';
+import {IconChevronDown, IconChevronUp, IconHandStop, IconArrowBigLeft} from 'angular-tabler-icons/icons';
 const icons = {
     IconChevronDown,
+    IconChevronUp,
     IconHandStop,
     IconArrowBigLeft
 };

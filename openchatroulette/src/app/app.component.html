@@ -1,4 +1,4 @@
-<div class="row g-0 mb-3">
+<div class="row g-0">
     <div class="col-lg-6 order-last order-lg-first">
         <div class="bg-secondary" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #remoteVideo></video>
@@ -10,23 +10,11 @@
         </div>
     </div>
 </div>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="row mb-3">
-                <div class="col-6">
-                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
-                        <span class="fs-5">Country:</span> All
-                        <i-tabler name="chevron-down"></i-tabler>
-                    </button>
-                </div>
-                <div class="col-6">
-                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
-                        <span class="fs-5">Purpose:</span> Dating
-                        <i-tabler name="chevron-down"></i-tabler>
-                    </button>
-                </div>
-            </div>
+
+<div class="row g-0">
+    <div class="col-lg-6 pt-3">
+
+        <div class="container-fluid">
             <div class="row mb-3">
                 <div class="col-6">
                     <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5"
@@ -50,22 +38,41 @@
                     </button>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-6 mb-2">
-            <div class="card mb-2 shadow-sm">
-                <div class="card-body app-message-container">
-                    <ng-container *ngFor="let msg of messages">
-                        <div [class.text-end]="msg.type === 'answer'">
-                            <div class="card d-inline-block border-0 rounded-pill mb-3"
-                                 [ngClass]="{'bg-info round-0-top-right': msg.type === 'answer', 'bg-primary text-white round-0-top-left': msg.type === 'question'}">
-                                <div class="card-body">
-                                    <div class="card-text">{{ msg.message }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </ng-container>
+            <div class="row mb-3">
+                <div class="col-6">
+                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
+                        <span class="fs-5">Country:</span> All
+                        <i-tabler name="chevron-up"></i-tabler>
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
+                        <span class="fs-5">Purpose:</span> Dating
+                        <i-tabler name="chevron-up"></i-tabler>
+                    </button>
                 </div>
             </div>
+        </div>
+
+    </div>
+    <div class="col-lg-6 mb-3">
+
+        <div class="card mb-3 shadow-sm rounded-0">
+            <div class="card-body app-message-container">
+                <ng-container *ngFor="let msg of messages">
+                    <div [class.text-end]="msg.type === 'answer'">
+                        <div class="card d-inline-block border-0 rounded-pill mb-3"
+                             [ngClass]="{'bg-info round-0-top-right': msg.type === 'answer', 'bg-primary text-white round-0-top-left': msg.type === 'question'}">
+                            <div class="card-body">
+                                <div class="card-text">{{ msg.message }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+
+        <div class="container-fluid">
             <div class="row g-2">
                 <div class="col-10">
                     <input type="text" class="form-control shadow-sm" placeholder="Enter your message"
@@ -82,6 +89,8 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
+
 

@@ -10,10 +10,10 @@
 .bg-danger { background-color: #cc5147 !important; }
 
 /* messages */
-.app-message-container { height: 165px; overflow: hidden; overflow-y: auto; }
+.app-message-container { height: 175px; overflow: hidden; overflow-y: auto; }
 
 /* buttons */
-.btn { border-radius: 4px !important; }
+.btn { border-radius: 4px; }
 .btn:active { position: relative; top: 1px; box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075); }
 .btn:focus,
 .btn:active,
@@ -57,8 +57,8 @@
 .btn-animation { position: relative; display: inline-block; }
 .btn-animation div,
 .btn-animation span { display: inline-block; }
-.btn-animation-icon { position: absolute; top: 0; right: 30%; opacity: 0.7; transition: right 300ms, opacity 300ms; }
-.btn-animation-label { opacity: 0; margin-left: 5px; transition: opacity 300ms; }
-.btn:hover .btn-animation .btn-animation-icon { right: 105%; opacity: 1; }
-.btn:hover .btn-animation .btn-animation-label { opacity: 1; }
+.btn-animation-icon { position: absolute; top: -5px; right: 10px; opacity: 0.7; transition: right 300ms, opacity 300ms; }
+.btn-animation-label { opacity: 0; margin-left: 5px; transition: opacity 300ms, margin-left 300ms; }
+.btn:hover .btn-animation .btn-animation-icon { right: 70%; opacity: 1; }
+.btn:hover .btn-animation .btn-animation-label { opacity: 1; margin-left: 35px; }
 

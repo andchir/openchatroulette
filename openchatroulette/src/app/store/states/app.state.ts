@@ -134,6 +134,7 @@ export class AppState {
                 ctx.dispatch(new AppAction.SetReadyToConnect(true));
             })
             .catch((err) => {
+                console.log(err);
                 ctx.patchState({localStream: null});
                 ctx.dispatch(new AppAction.SetReadyToConnect(false));
             });
