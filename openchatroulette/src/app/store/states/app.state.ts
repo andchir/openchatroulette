@@ -74,7 +74,7 @@ export class AppState {
                     //     .pipe(takeUntil(this.peerjsService.connected$))
                     //     .subscribe({
                     //         next: (remotePeerId) => {
-                    //             if (ctx.getState().connected && ctx.getState().remotePeerId) {
+                    //             if (ctx.getState().connected/* && ctx.getState().remotePeerId*/) {
                     //                 this.peerjsService.callAnswer(ctx.getState().remotePeerId);
                     //             }
                     //         }
@@ -158,11 +158,12 @@ export class AppState {
             .pipe(tap(result => {
                 if (result.peerId) {
                     ctx.dispatch(new AppAction.SetRemotePeerId(result.peerId));
-                } else if (this.peerjsService.getIsConnected()) {
-                    setTimeout(() => {
-                        ctx.dispatch(new AppAction.NextPeer());
-                    }, 4000);
                 }
+                // else if (this.peerjsService.getIsConnected()) {
+                //     setTimeout(() => {
+                //         ctx.dispatch(new AppAction.NextPeer());
+                //     }, 4000);
+                // }
             }));
     }
 

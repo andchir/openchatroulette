@@ -110,32 +110,16 @@ export class AppComponent implements OnInit, OnDestroy {
             return;
         }
         this.isStarted = true;
-        this.store.dispatch(new AppAction.SetConnected(true));
+        if (this.store.snapshot().connected) {
+            this.store.dispatch(new AppAction.NextPeer());
+        } else {
+            this.store.dispatch(new AppAction.SetConnected(true));
+        }
     }
 
     rouletteStop(): void {
         this.isStarted = false;
         this.store.dispatch(new AppAction.SetConnected(false));
-    }
-
-    getNextPeer(): void {
-        // if (!this.isStarted) {
-        //     return;
-        // }
-        // this.store.dispatch(new AppAction.NextPeer())
-        //     .pipe(take(1))
-        //     .subscribe({
-        //         next: (res) => {
-        //             if (res.app.remotePeerId) {
-        //                 this.store.dispatch(new AppAction.GetRemoteStream(res.app.remotePeerId));
-        //             }
-        //         },
-        //         error: (err) => {
-        //             if (this.isStarted) {
-        //                 setTimeout(this.getNextPeer.bind(this), 4000);
-        //             }
-        //         }
-        //     });
     }
 
     sendMessageAction(from: string, message: string) {

@@ -14,6 +14,7 @@ const peerServer = ExpressPeerServer(server, {
     debug: true,
     // allow_discovery: true,//Allow to use GET /:key/peers
     path: '/openchatroulette',
+    secure: false,
     key: 'peerjs',
     ssl: {
         // key: fs.readFileSync('/path/to/your/ssl/key/here.key'),
@@ -28,6 +29,7 @@ console.log('PeerServer initialized.');
 console.log(`Listening on: ${port}`);
 
 const peers = {};
+let peerWaiting = '';// TODO: create object with countries and purpose
 
 peerServer.on('connection', (client) => {
     console.log('connection', client.getId());
@@ -55,24 +57,37 @@ peerServer.on('error', (error) => {
 });
 
 app.get('/openchatroulette/random_peer/:id', (req, res) => {
-    const myPeerId = req.params.id;
-    const clientsIds = Object.keys(peers);
-    const myIndex = clientsIds.findIndex((id) => {
-        return id === myPeerId;
-    });
-    if (myIndex > -1) {
-        clientsIds.splice(myIndex, 1);
-    }
-    const randomPeerId = clientsIds.length > 0
-        ? clientsIds[Math.floor(Math.random() * clientsIds.length)]
-        : '';
 
-    console.log('/random_peer/:id', myPeerId, myIndex, clientsIds.length, randomPeerId);
+    if (peerWaiting && peerWaiting !== req.params.id) {
+        const output = {peerId: peerWaiting};
+        peerWaiting = '';
+        return res.json(output);
+    } else {
+        const myPeerId = peers[req.params.id] ? req.params.id : '';
+        if (myPeerId && !peerWaiting) {
+            peerWaiting = myPeerId;
+        }
+        return res.json({peerId: ''});
+    }
+
+    // const myPeerId = req.params.id;
+    // const clientsIds = Object.keys(peers);
+    // const myIndex = clientsIds.findIndex((id) => {
+    //     return id === myPeerId;
+    // });
+    // if (myIndex > -1) {
+    //     clientsIds.splice(myIndex, 1);
+    // }
+    // const randomPeerId = clientsIds.length > 0
+    //     ? clientsIds[Math.floor(Math.random() * clientsIds.length)]
+    //     : '';
+    //
+    // console.log('/random_peer/:id', myPeerId, myIndex, clientsIds.length, randomPeerId);
 
     // if (!randomPeerId) {
     //     return res.status(422).send('No peer found.');
     // }
-    return res.json({
-        peerId: randomPeerId
-    });
+    // return res.json({
+    //     peerId: nextPeerId
+    // });
 });
