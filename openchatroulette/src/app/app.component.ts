@@ -5,7 +5,7 @@ import {Store, Select, Actions} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 import {AppAction} from "./store/actions/app.actions";
-import {Observable, skip, Subject, take, takeUntil} from "rxjs";
+import {BehaviorSubject, Observable, skip, Subject, take, takeUntil} from "rxjs";
 import {AppState} from "./store/states/app.state";
 
 declare const window: Window;
@@ -25,10 +25,12 @@ export class AppComponent implements OnInit, OnDestroy {
     @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;
 
+    isLocalStreamReady = new BehaviorSubject(false);
+    isConnected = new BehaviorSubject(false);
+
     strangerPeerId: string;
     peerConnection: DataConnection;
     videoHeight = 400;
-    isLocalStreamReady = false;
     isStarted = false;
     messages: TextMessageInterface[] = [
         {type: TextMessageType.Question, message: 'Hi, friend!'},
@@ -39,9 +41,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     constructor(
         private store: Store
-    ) {
-
-    }
+    ) {}
 
     @HostListener('window:resize', ['$event.target'])
     onResize(window: Window): void {
@@ -56,38 +56,30 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.connectedState$.subscribe(this.isConnected);
+        this.readyToConnectState$.subscribe(this.isLocalStreamReady);
         this.onResize(window);
         this.connectionInit();
     }
 
     connectionInit(): void {
-        // this.connectedState$
-        //     .pipe(skip(1), take(1))
-        //     .subscribe({
-        //         next: (connected) => {
-        //             console.log('connectionInit', connected);
-        //             if (connected) {
-        //                 this.getNextPeer();
-        //             }
-        //         }
-        //     });
-
         this.store.dispatch(new AppAction.GetLocalStream());
 
         this.localStream$
+            .pipe(skip(1))
             .subscribe({
                 next: (stream) => {
-                    if (stream && this.myVideo) {
-                        this.isLocalStreamReady = true;
-                        this.myVideo.nativeElement.srcObject = stream;
-                        this.myVideo.nativeElement.autoplay = true;
-                    } else {
-                        this.isLocalStreamReady = false;
+                    if (stream) {
+                        if (this.myVideo) {
+                            this.myVideo.nativeElement.srcObject = stream;
+                            this.myVideo.nativeElement.autoplay = true;
+                        }
                     }
                 }
             });
 
         this.remoteStream$
+            .pipe(skip(1))
             .subscribe({
                 next: (stream) => {
                     console.log('this.remoteStream$', !!stream);
@@ -106,11 +98,11 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     rouletteStart(): void {
-        if (!this.isLocalStreamReady) {
+        if (!this.isLocalStreamReady.getValue()) {
             return;
         }
         this.isStarted = true;
-        if (this.store.snapshot().connected) {
+        if (this.isConnected.getValue()) {
             this.store.dispatch(new AppAction.NextPeer());
         } else {
             this.store.dispatch(new AppAction.SetConnected(true));
