@@ -4,6 +4,11 @@
 .round-0-top-left { border-top-left-radius: 0 !important; }
 .round-0-top-right { border-top-right-radius: 0 !important; }
 
+/* position */
+.left-top { left: 0; top: 0; }
+.right-top { right: 0; top: 0; }
+.center-middle { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+
 /* colors */
 .bg-primary { background-color: #63b9ee !important; }
 .bg-info { background-color: #bddcfa !important; }

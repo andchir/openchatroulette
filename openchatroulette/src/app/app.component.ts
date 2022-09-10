@@ -1,12 +1,12 @@
 import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
+import {BehaviorSubject, distinct, Observable, skip, Subject} from 'rxjs';
 import {DataConnection} from 'peerjs';
-import {Store, Select, Actions} from '@ngxs/store';
+import {Store, Select} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
-import {AppAction} from "./store/actions/app.actions";
-import {BehaviorSubject, Observable, skip, Subject, take, takeUntil} from "rxjs";
-import {AppState} from "./store/states/app.state";
+import {AppAction} from './store/actions/app.actions';
+import {AppState} from './store/states/app.state';
 
 declare const window: Window;
 
@@ -19,14 +19,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
     @Select(AppState.connected) connectedState$: Observable<boolean>;
     @Select(AppState.readyToConnect) readyToConnectState$: Observable<boolean>;
+    @Select(AppState.remotePeerConnected) remotePeerConnectedState$: Observable<boolean>;
     @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
 
     @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;
 
-    isLocalStreamReady = new BehaviorSubject(false);
-    isConnected = new BehaviorSubject(false);
+    isReadyToConnect$ = new BehaviorSubject(false);
+    isConnected$ = new BehaviorSubject(false);
+    isRemotePeerConnected$ = new BehaviorSubject(false);
 
     strangerPeerId: string;
     peerConnection: DataConnection;
@@ -56,8 +58,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.connectedState$.subscribe(this.isConnected);
-        this.readyToConnectState$.subscribe(this.isLocalStreamReady);
+        this.connectedState$.subscribe(this.isConnected$);
+        this.readyToConnectState$.subscribe(this.isReadyToConnect$);
+        this.remotePeerConnectedState$.subscribe(this.isRemotePeerConnected$);
+
         this.onResize(window);
         this.connectionInit();
     }
@@ -82,7 +86,6 @@ export class AppComponent implements OnInit, OnDestroy {
             .pipe(skip(1))
             .subscribe({
                 next: (stream) => {
-                    console.log('this.remoteStream$', !!stream);
                     if (!this.remoteVideo) {
                         return;
                     }
@@ -95,14 +98,23 @@ export class AppComponent implements OnInit, OnDestroy {
                     }
                 }
             });
+
+        this.remotePeerConnectedState$
+            // .pipe(skip(1), distinct())
+            .pipe(skip(1))
+            .subscribe({
+                next: (remotePeerConnectedState) => {
+                    console.log('remotePeerConnectedState', remotePeerConnectedState);
+                }
+            })
     }
 
     rouletteStart(): void {
-        if (!this.isLocalStreamReady.getValue()) {
+        if (!this.isReadyToConnect$.getValue()) {
             return;
         }
         this.isStarted = true;
-        if (this.isConnected.getValue()) {
+        if (this.isConnected$.getValue()) {
             this.store.dispatch(new AppAction.NextPeer());
         } else {
             this.store.dispatch(new AppAction.SetConnected(true));

@@ -1,11 +1,16 @@
 <div class="row g-0">
     <div class="col-lg-6 order-last order-lg-first">
-        <div class="bg-secondary" [style.height]="videoHeight + 'px'">
+        <div class="bg-secondary position-relative" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #remoteVideo></video>
+            <div class="position-absolute center-middle" *ngIf="!(remotePeerConnectedState$ | async) && (connectedState$ | async)">
+                <div class="spinner-border" role="status" style="width: 4rem; height: 4rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-lg-6">
-        <div [style.height]="videoHeight + 'px'" style="background-color: #000;">
+        <div class="position-relative" [style.height]="videoHeight + 'px'" style="background-color: #000;">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #myVideo></video>
         </div>
     </div>
@@ -22,8 +27,8 @@
                             (click)="rouletteStart()">
                         <div class="btn-animation">
                             <div class="btn-animation-icon"><i-tabler name="arrow-big-left" class="icon-big"></i-tabler></div>
-                            <span class="btn-animation-label" *ngIf="!isStarted">Start</span>
-                            <span class="btn-animation-label" *ngIf="isStarted">Next</span>
+                            <span class="btn-animation-label" *ngIf="!(connectedState$ | async)">Start</span>
+                            <span class="btn-animation-label" *ngIf="connectedState$ | async">Next</span>
                         </div>
                     </button>
                 </div>
@@ -76,13 +81,13 @@
             <div class="row g-2">
                 <div class="col-10">
                     <input type="text" class="form-control shadow-sm" placeholder="Enter your message"
-                           [disabled]="!isStarted"
+                           [disabled]="!(remotePeerConnectedState$ | async)"
                            (keyup)="onMessageFieldKeyUp($event)"
                            #messageField>
                 </div>
                 <div class="col-2">
                     <button type="button" class="btn btn-info d-block w-100"
-                            [disabled]="!isStarted"
+                            [disabled]="!(remotePeerConnectedState$ | async)"
                             (click)="sendMessage(messageField)">
                         Send
                     </button>

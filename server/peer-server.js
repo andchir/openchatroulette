@@ -43,6 +43,9 @@ peerServer.on('connection', (client) => {
 peerServer.on('disconnect', (client) => {
     console.log('disconnect', client.getId());
     if (peers[client.getId()]) {
+        if (peerWaiting === client.getId()) {
+            peerWaiting = '';
+        }
         delete peers[client.getId()];
     }
     console.log(peers);

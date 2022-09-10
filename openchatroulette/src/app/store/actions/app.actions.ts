@@ -41,4 +41,9 @@ export namespace AppAction {
         static readonly type = '[App] SetRemoteStream';
         constructor(public payload: MediaStream|null) {}
     }
+
+    export class SetRemotePeerConnected {
+        static readonly type = '[App] SetRemotePeerConnected';
+        constructor(public payload: boolean) {}
+    }
 }
