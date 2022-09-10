@@ -53,6 +53,11 @@ peerServer.on('disconnect', (client) => {
 
 peerServer.on('message', (client, message) => {
     console.log('message', client.getId(), message);
+    if (message.type === 'NEW_PEER_REQUEST') {
+        client.send({
+            peerId: getNextPeerId(client.getId())
+        });
+    }
 });
 
 peerServer.on('error', (error) => {
@@ -60,37 +65,21 @@ peerServer.on('error', (error) => {
 });
 
 app.get('/openchatroulette/random_peer/:id', (req, res) => {
+    return res.json({
+        peerId: getNextPeerId(req.params.id)
+    });
+});
 
-    if (peerWaiting && peerWaiting !== req.params.id) {
-        const output = {peerId: peerWaiting};
+const getNextPeerId = (myPeerId) => {
+    let output = '';
+    if (peerWaiting && peerWaiting !== myPeerId) {
+        output = peerWaiting;
         peerWaiting = '';
-        return res.json(output);
     } else {
-        const myPeerId = peers[req.params.id] ? req.params.id : '';
         if (myPeerId && !peerWaiting) {
             peerWaiting = myPeerId;
         }
-        return res.json({peerId: ''});
+        output = '';
     }
-
-    // const myPeerId = req.params.id;
-    // const clientsIds = Object.keys(peers);
-    // const myIndex = clientsIds.findIndex((id) => {
-    //     return id === myPeerId;
-    // });
-    // if (myIndex > -1) {
-    //     clientsIds.splice(myIndex, 1);
-    // }
-    // const randomPeerId = clientsIds.length > 0
-    //     ? clientsIds[Math.floor(Math.random() * clientsIds.length)]
-    //     : '';
-    //
-    // console.log('/random_peer/:id', myPeerId, myIndex, clientsIds.length, randomPeerId);
-
-    // if (!randomPeerId) {
-    //     return res.status(422).send('No peer found.');
-    // }
-    // return res.json({
-    //     peerId: nextPeerId
-    // });
-});
+    return output;
+};

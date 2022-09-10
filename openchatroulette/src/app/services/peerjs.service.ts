@@ -52,6 +52,10 @@ export class PeerjsService {
     }
 
     onConnected(): void {
+        this.peer.socket.on('message', (data) => {
+            console.log('message from server', data);
+        });
+
         this.peer.on('disconnected', (currentId: string) => {
             if (this.mediaConnection) {
                 this.mediaConnection.close();
@@ -132,6 +136,13 @@ export class PeerjsService {
             .pipe(
                 catchError(this.handleError)
             );
+    }
+
+    requestNextPear(): void {
+        console.log('requestNextPear');
+        if (this.peer.socket) {
+            (this.peer.socket as any)._socket.send('{"type": "NEW_PEER_REQUEST"}');
+        }
     }
 
     connectToPeer(remotePeerId: string): Promise<any> {

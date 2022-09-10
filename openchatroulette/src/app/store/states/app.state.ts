@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 
 import {State, Action, Selector, StateContext} from '@ngxs/store';
-import {take, takeUntil} from 'rxjs';
+import {skip, take, takeUntil} from 'rxjs';
 
 import {AppAction} from '../actions/app.actions';
 import {TextMessageInterface} from '../../models/textmessage.interface';
@@ -82,9 +82,10 @@ export class AppState {
                     ctx.dispatch([new AppAction.SetPeerId(peerId), new AppAction.NextPeer()]);
 
                     this.peerjsService.remotePeerConnected$
-                        .pipe(takeUntil(this.peerjsService.connected$))
+                        .pipe(skip(1), takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (remotePeerConnected) => {
+                                console.log('remotePeerConnected', remotePeerConnected);
                                 ctx.dispatch([
                                     new AppAction.SetRemotePeerConnected(remotePeerConnected),
                                     new AppAction.MessagesClear()
@@ -177,18 +178,20 @@ export class AppState {
 
     @Action(AppAction.NextPeer)
     nextPeer(ctx: StateContext<AppStateModel>, action: AppAction.NextPeer) {
+        console.log('nextPeer');
         if (ctx.getState().remotePeerId) {
             this.peerjsService.disconnect();
         } else {
-            this.peerjsService.nextPeer()
-                .pipe(take(1))
-                .subscribe({
-                    next: (result) => {
-                        if (result.peerId) {
-                            ctx.dispatch(new AppAction.GetRemoteStream(result.peerId));
-                        }
-                    }
-                });
+            this.peerjsService.requestNextPear();
+            // this.peerjsService.nextPeer()
+            //     .pipe(take(1))
+            //     .subscribe({
+            //         next: (result) => {
+            //             if (result.peerId) {
+            //                 ctx.dispatch(new AppAction.GetRemoteStream(result.peerId));
+            //             }
+            //         }
+            //     });
         }
     }
 
