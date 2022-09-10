@@ -29,7 +29,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     isReadyToConnect$ = new BehaviorSubject(false);
     isConnected$ = new BehaviorSubject(false);
-    isRemotePeerConnected$ = new BehaviorSubject(false);
 
     strangerPeerId: string;
     peerConnection: DataConnection;
@@ -61,7 +60,6 @@ export class AppComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.connectedState$.subscribe(this.isConnected$);
         this.readyToConnectState$.subscribe(this.isReadyToConnect$);
-        this.remotePeerConnectedState$.subscribe(this.isRemotePeerConnected$);
 
         this.onResize(window);
         this.connectionInit();
@@ -106,7 +104,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 next: (remotePeerConnectedState) => {
                     console.log('remotePeerConnectedState', remotePeerConnectedState);
                 }
-            })
+            });
     }
 
     rouletteStart(): void {
