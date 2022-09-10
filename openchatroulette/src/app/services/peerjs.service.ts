@@ -83,7 +83,7 @@ export class PeerjsService {
             this.messageStream$.next(String(data));
         });
         this.dataConnection.on('open', () => {
-            // this.dataConnection.send('hello!');
+            // his.dataConnection?.send('hello!');t
         });
         this.dataConnection.on('close', () => {
             if (this.remotePeerConnected$.getValue()) {
@@ -170,6 +170,13 @@ export class PeerjsService {
             .catch((err) => {
                 console.error('Failed to get local stream', err);
             });
+    }
+
+    sendMessage(message: string): void {
+        if (!this.dataConnection) {
+            return;
+        }
+        this.dataConnection.send(message);
     }
 
     disconnect(all = false): void {

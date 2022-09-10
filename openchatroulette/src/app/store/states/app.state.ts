@@ -63,6 +63,11 @@ export class AppState {
         return state.remoteStream;
     }
 
+    @Selector()
+    static messages(state: AppStateModel) {
+        return state.messages;
+    }
+
     @Action(AppAction.SetConnected)
     setConnected(ctx: StateContext<AppStateModel>, action: AppAction.SetConnected): Promise<any> {
         if (action.payload && ctx.getState().readyToConnect) {
@@ -81,7 +86,10 @@ export class AppState {
                         // .pipe(takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (remotePeerConnected) => {
-                                ctx.dispatch(new AppAction.SetRemotePeerConnected(remotePeerConnected));
+                                ctx.dispatch([
+                                    new AppAction.SetRemotePeerConnected(remotePeerConnected),
+                                    new AppAction.MessagesClear()
+                                ]);
                                 if (remotePeerConnected) {
                                     if (this.peerjsService.dataConnection?.peer) {
                                         ctx.dispatch(new AppAction.SetRemotePeerId(this.peerjsService.dataConnection.peer));
@@ -103,6 +111,16 @@ export class AppState {
                                         }
                                     }, 1);
                                 }
+                            }
+                        });
+
+                    this.peerjsService.messageStream$
+                        .subscribe({
+                            next: (message) => {
+                                ctx.dispatch(new AppAction.MessageAdd({
+                                    type: 'question',
+                                    message
+                                }));
                             }
                         });
 
@@ -200,6 +218,33 @@ export class AppState {
     setRemotePeerConnected(ctx: StateContext<AppStateModel>, action: AppAction.SetRemotePeerConnected) {
         ctx.patchState({
             remotePeerConnected: action.payload
+        });
+    }
+
+    @Action(AppAction.MessageSend)
+    messageSend(ctx: StateContext<AppStateModel>, action: AppAction.MessageSend) {
+        if (!this.peerjsService.dataConnection) {
+            return;
+        }
+        this.peerjsService.sendMessage(action.payload.message);
+        ctx.dispatch(new AppAction.MessageAdd(action.payload));
+    }
+
+    @Action(AppAction.MessageAdd)
+    messageAdd(ctx: StateContext<AppStateModel>, action: AppAction.MessageAdd) {
+        const state = ctx.getState();
+        ctx.patchState({
+            messages: [
+                ...state.messages,
+                action.payload
+            ]
+        });
+    }
+
+    @Action(AppAction.MessagesClear)
+    messagesClear(ctx: StateContext<AppStateModel>, action: AppAction.MessagesClear) {
+        ctx.patchState({
+            messages: []
         });
     }
 }

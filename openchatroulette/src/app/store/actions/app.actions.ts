@@ -1,3 +1,5 @@
+import {TextMessageInterface} from '../../models/textmessage.interface';
+
 export namespace AppAction {
 
     export class SetConnected {
@@ -45,5 +47,19 @@ export namespace AppAction {
     export class SetRemotePeerConnected {
         static readonly type = '[App] SetRemotePeerConnected';
         constructor(public payload: boolean) {}
+    }
+
+    export class MessageSend {
+        static readonly type = '[App] MessageSend';
+        constructor(public payload: TextMessageInterface) {}
+    }
+
+    export class MessageAdd {
+        static readonly type = '[App] MessageAdd';
+        constructor(public payload: TextMessageInterface) {}
+    }
+
+    export class MessagesClear {
+        static readonly type = '[App] MessagesClear';
     }
 }

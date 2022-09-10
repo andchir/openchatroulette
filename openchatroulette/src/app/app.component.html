@@ -64,7 +64,7 @@
 
         <div class="card mb-3 shadow-sm rounded-0">
             <div class="card-body app-message-container">
-                <ng-container *ngFor="let msg of messages">
+                <ng-container *ngFor="let msg of messages$ | async">
                     <div [class.text-end]="msg.type === 'answer'">
                         <div class="card d-inline-block border-0 rounded-pill mb-3"
                              [ngClass]="{'bg-info round-0-top-right': msg.type === 'answer', 'bg-primary text-white round-0-top-left': msg.type === 'question'}">

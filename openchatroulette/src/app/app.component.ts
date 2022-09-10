@@ -1,6 +1,6 @@
 import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
-import {BehaviorSubject, distinct, Observable, skip, Subject} from 'rxjs';
+import {BehaviorSubject, distinct, Observable, skip, Subject, takeUntil} from 'rxjs';
 import {DataConnection} from 'peerjs';
 import {Store, Select} from '@ngxs/store';
 
@@ -20,6 +20,7 @@ export class AppComponent implements OnInit, OnDestroy {
     @Select(AppState.connected) connectedState$: Observable<boolean>;
     @Select(AppState.readyToConnect) readyToConnectState$: Observable<boolean>;
     @Select(AppState.remotePeerConnected) remotePeerConnectedState$: Observable<boolean>;
+    @Select(AppState.messages) messages$: Observable<TextMessageInterface[]>;
     @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
 
@@ -70,7 +71,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.store.dispatch(new AppAction.GetLocalStream());
 
         this.localStream$
-            .pipe(skip(1))
+            .pipe(skip(1), takeUntil(this.destroyed$))
             .subscribe({
                 next: (stream) => {
                     if (stream) {
@@ -83,7 +84,7 @@ export class AppComponent implements OnInit, OnDestroy {
             });
 
         this.remoteStream$
-            .pipe(skip(1))
+            .pipe(skip(1), takeUntil(this.destroyed$))
             .subscribe({
                 next: (stream) => {
                     if (!this.remoteVideo) {
@@ -100,8 +101,7 @@ export class AppComponent implements OnInit, OnDestroy {
             });
 
         this.remotePeerConnectedState$
-            // .pipe(skip(1), distinct())
-            .pipe(skip(1))
+            .pipe(skip(1), takeUntil(this.destroyed$))
             .subscribe({
                 next: (remotePeerConnectedState) => {
                     console.log('remotePeerConnectedState', remotePeerConnectedState);
@@ -127,13 +127,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     sendMessageAction(from: string, message: string) {
-        // const event = new SendWebSocketMessage({
-        //     type: 'message',
-        //     from,
-        //     message
-        // });
-        // this.store.dispatch(event);
-        console.log('sendMessageAction', from, message);
+        this.store.dispatch(new AppAction.MessageSend({
+            type: 'answer',
+            message
+        }));
     }
 
     sendMessage(fieldEl: HTMLInputElement): void {
@@ -142,17 +139,6 @@ export class AppComponent implements OnInit, OnDestroy {
         }
         const message = fieldEl.value;
         fieldEl.value = '';
-        // if (!this.strangerPeerId && this.peerjsService.peerConnection) {
-        //     this.strangerPeerId = this.peerjsService.peerConnection.peer;
-        //     this.peerConnection = this.peerjsService.peerConnection;
-        // }
-        // if (!this.strangerPeerId) {
-        //     this.strangerPeerId = message;
-        //     this.peerConnection = this.peerjsService.connectToPeer(this.strangerPeerId);
-        //     return;
-        // }
-        // this.messages.push({message, type: 'question'});
-        // this.peerConnection.send(message);
         this.sendMessageAction('me', message);
     }
 
@@ -162,17 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
     }
 
-    messagesInit(): void {
-        // this.peerjsService.messageStream$.subscribe({
-        //     next: (message) => {
-        //         console.log('New message received:', message);
-        //         this.messages.push({message, type: 'answer'});
-        //     }
-        // });
-    }
-
     ngOnDestroy(): void {
-        // this.peerjsService.messageStream$.unsubscribe();
         this.destroyed$.next();
         this.destroyed$.complete();
     }
