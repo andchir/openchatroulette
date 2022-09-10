@@ -1,6 +1,6 @@
 import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
-import {BehaviorSubject, distinct, Observable, skip, Subject, takeUntil} from 'rxjs';
+import {BehaviorSubject, Observable, skip, Subject, takeUntil} from 'rxjs';
 import {DataConnection} from 'peerjs';
 import {Store, Select} from '@ngxs/store';
 

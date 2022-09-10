@@ -13,8 +13,8 @@ export class PeerjsService {
     private peer: Peer;
     dataConnection: DataConnection|null;
     mediaConnection: MediaConnection|null;
+    connected$: Subject<boolean>;
     messageStream$ = new Subject<string>();
-    connected$ = new BehaviorSubject<boolean>(false);
     remotePeerConnected$ = new BehaviorSubject<boolean>(false);
     timer: any;
     public headers = new HttpHeaders({
@@ -27,6 +27,7 @@ export class PeerjsService {
     ) {}
 
     connect(): Promise<string> {
+        this.connected$ = new Subject<boolean>();
         return new Promise((resolve, reject) => {
             // const peerId = uuidv4();
             const peerId = Math.floor(Math.random() * 2 ** 18).toString(36).padStart(4, '0');
@@ -61,6 +62,7 @@ export class PeerjsService {
                 this.dataConnection = null;
             }
             this.connected$.next(false);
+            this.connected$.complete();
         });
         this.peer.on('connection', (dataConnection) => {
             this.dataConnection = dataConnection;
@@ -79,7 +81,6 @@ export class PeerjsService {
             return;
         }
         this.dataConnection.on('data', (data) => {
-            console.log(`received: ${data}`);
             this.messageStream$.next(String(data));
         });
         this.dataConnection.on('open', () => {

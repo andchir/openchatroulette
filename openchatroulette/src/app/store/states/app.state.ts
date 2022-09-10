@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 
 import {State, Action, Selector, StateContext} from '@ngxs/store';
-import {distinct, Observable, take, takeUntil, tap} from 'rxjs';
+import {take, takeUntil} from 'rxjs';
 
 import {AppAction} from '../actions/app.actions';
 import {TextMessageInterface} from '../../models/textmessage.interface';
@@ -82,8 +82,7 @@ export class AppState {
                     ctx.dispatch([new AppAction.SetPeerId(peerId), new AppAction.NextPeer()]);
 
                     this.peerjsService.remotePeerConnected$
-                        // .pipe(distinct(), takeUntil(this.peerjsService.connected$))
-                        // .pipe(takeUntil(this.peerjsService.connected$))
+                        .pipe(takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (remotePeerConnected) => {
                                 ctx.dispatch([
@@ -115,6 +114,7 @@ export class AppState {
                         });
 
                     this.peerjsService.messageStream$
+                        .pipe(takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (message) => {
                                 ctx.dispatch(new AppAction.MessageAdd({
