@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 
 import {State, Action, Selector, StateContext} from '@ngxs/store';
-import {skip, take, takeUntil} from 'rxjs';
+import {skip, takeUntil} from 'rxjs';
 
 import {AppAction} from '../actions/app.actions';
 import {TextMessageInterface, TextMessageType} from '../../models/textmessage.interface';
@@ -16,7 +16,6 @@ export class AppStateModel {
     public localStream: MediaStream|null;
     public remoteStream: MediaStream|null;
     public messages: TextMessageInterface[];
-    public devices: InputDeviceInfo[];
 }
 
 const defaults = {
@@ -27,8 +26,7 @@ const defaults = {
     remotePeerId: '',
     localStream: null,
     remoteStream: null,
-    messages: [],
-    devices: []
+    messages: []
 };
 
 @State<AppStateModel>({
@@ -68,11 +66,6 @@ export class AppState {
     @Selector()
     static messages(state: AppStateModel) {
         return state.messages;
-    }
-
-    @Selector()
-    static devices(state: AppStateModel) {
-        return state.devices;
     }
 
     @Action(AppAction.SetConnected)
@@ -165,10 +158,10 @@ export class AppState {
                 ctx.dispatch(new AppAction.SetReadyToConnect(true));
                 return this.peerjsService.enumerateDevices();
             })
-            .then((devices: InputDeviceInfo[]) => {
-                ctx.dispatch(new AppAction.DevicesUpdate(devices));
-                return Promise.resolve();
-            })
+            // .then((devices: InputDeviceInfo[]) => {
+            //     ctx.dispatch(new AppAction.DevicesUpdate(devices));
+            //     return Promise.resolve();
+            // })
             .catch((err) => {
                 console.log(err);
                 ctx.patchState({localStream: null});
@@ -249,13 +242,6 @@ export class AppState {
     messagesClear(ctx: StateContext<AppStateModel>, action: AppAction.MessagesClear) {
         ctx.patchState({
             messages: []
-        });
-    }
-
-    @Action(AppAction.DevicesUpdate)
-    devicesUpdate(ctx: StateContext<AppStateModel>, action: AppAction.DevicesUpdate) {
-        ctx.patchState({
-            devices: action.payload
         });
     }
 }

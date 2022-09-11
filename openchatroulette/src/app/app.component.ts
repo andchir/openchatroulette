@@ -5,9 +5,11 @@ import {DataConnection} from 'peerjs';
 import {Store, Select} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
-import {AppAction} from './store/actions/app.actions';
-import {AppState} from './store/states/app.state';
 import {AnimationService} from './services/animation.service';
+import {AppState} from './store/states/app.state';
+import {UserMediaState} from './store/states/user-media.state';
+import {AppAction} from './store/actions/app.actions';
+import {UserMediaAction} from "./store/actions/user-media.actions";
 
 declare const window: Window;
 
@@ -24,7 +26,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @Select(AppState.messages) messages$: Observable<TextMessageInterface[]>;
     @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
-    @Select(AppState.devices) devices$: Observable<InputDeviceInfo[]>;
+
+    @Select(UserMediaState.devices) devices$: Observable<InputDeviceInfo[]>;
+    @Select(UserMediaState.audioInputDeviceCurrent) audioInputDeviceCurrent$: Observable<string>;
+    @Select(UserMediaState.videoInputDeviceCurrent) videoInputDeviceCurrent$: Observable<string>;
 
     @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;
@@ -87,6 +92,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     connectionInit(): void {
         this.store.dispatch(new AppAction.GetLocalStream());
+        this.store.dispatch(new UserMediaAction.EnumerateDevices());
 
         this.localStream$
             .pipe(skip(1), takeUntil(this.destroyed$))

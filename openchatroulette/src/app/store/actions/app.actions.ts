@@ -62,9 +62,4 @@ export namespace AppAction {
     export class MessagesClear {
         static readonly type = '[App] MessagesClear';
     }
-
-    export class DevicesUpdate {
-        static readonly type = '[App] DevicesUpdate';
-        constructor(public payload: InputDeviceInfo[]) {}
-    }
 }
