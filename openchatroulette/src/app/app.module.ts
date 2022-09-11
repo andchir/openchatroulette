@@ -7,21 +7,32 @@ import {NgxsModule} from '@ngxs/store';
 import {NgxsLoggerPluginModule} from '@ngxs/logger-plugin';
 
 import {TablerIconsModule} from 'angular-tabler-icons';
-import {IconChevronDown, IconChevronUp, IconHandStop, IconArrowBigLeft} from 'angular-tabler-icons/icons';
+import {
+    IconChevronDown,
+    IconChevronUp,
+    IconHandStop,
+    IconArrowBigLeft,
+    IconDeviceComputerCamera,
+    IconMicrophone
+} from 'angular-tabler-icons/icons';
 const icons = {
     IconChevronDown,
     IconChevronUp,
     IconHandStop,
-    IconArrowBigLeft
+    IconArrowBigLeft,
+    IconDeviceComputerCamera,
+    IconMicrophone
 };
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {AppState} from './store/states/app.state';
+import {FilterArrayPipe} from './pipes/filter-array.pipe';
 
 @NgModule({
     declarations: [
-        AppComponent
+        AppComponent,
+        FilterArrayPipe
     ],
     imports: [
         BrowserModule,

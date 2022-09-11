@@ -16,6 +16,7 @@ export class AppStateModel {
     public localStream: MediaStream|null;
     public remoteStream: MediaStream|null;
     public messages: TextMessageInterface[];
+    public devices: InputDeviceInfo[];
 }
 
 const defaults = {
@@ -26,7 +27,8 @@ const defaults = {
     remotePeerId: '',
     localStream: null,
     remoteStream: null,
-    messages: []
+    messages: [],
+    devices: []
 };
 
 @State<AppStateModel>({
@@ -66,6 +68,11 @@ export class AppState {
     @Selector()
     static messages(state: AppStateModel) {
         return state.messages;
+    }
+
+    @Selector()
+    static devices(state: AppStateModel) {
+        return state.devices;
     }
 
     @Action(AppAction.SetConnected)
@@ -156,6 +163,11 @@ export class AppState {
             .then((stream) => {
                 ctx.patchState({localStream: stream});
                 ctx.dispatch(new AppAction.SetReadyToConnect(true));
+                return this.peerjsService.enumerateDevices();
+            })
+            .then((devices: InputDeviceInfo[]) => {
+                ctx.dispatch(new AppAction.DevicesUpdate(devices));
+                return Promise.resolve();
             })
             .catch((err) => {
                 console.log(err);
@@ -237,6 +249,13 @@ export class AppState {
     messagesClear(ctx: StateContext<AppStateModel>, action: AppAction.MessagesClear) {
         ctx.patchState({
             messages: []
+        });
+    }
+
+    @Action(AppAction.DevicesUpdate)
+    devicesUpdate(ctx: StateContext<AppStateModel>, action: AppAction.DevicesUpdate) {
+        ctx.patchState({
+            devices: action.payload
         });
     }
 }

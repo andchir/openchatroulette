@@ -24,6 +24,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @Select(AppState.messages) messages$: Observable<TextMessageInterface[]>;
     @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
+    @Select(AppState.devices) devices$: Observable<InputDeviceInfo[]>;
 
     @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;

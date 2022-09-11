@@ -56,9 +56,11 @@
 .icon-big { height: 50px !important; width: 50px !important; }
 
 /* show-on-hover */
-.show-on-hover-parent .show-on-hover { display: none; }
 .show-on-hover-parent:hover .show-on-hover.show-on-hover-block { display: block; }
 .show-on-hover-parent:hover .show-on-hover.show-on-hover-inline-block { display: inline-block; }
+.show-on-hover { opacity: 0; transition: opacity 300ms; pointer-events: none; user-select: none; }
+.show-on-hover-bg { background-color: rgba(0, 0, 0, 0.5); }
+.show-on-hover-parent:hover .show-on-hover { opacity: 1; pointer-events: all; }
 
 .btn-animation { position: relative; display: inline-block; }
 .btn-animation div,

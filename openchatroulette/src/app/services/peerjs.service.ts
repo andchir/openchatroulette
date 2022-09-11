@@ -18,6 +18,7 @@ export class PeerjsService {
     connected$: Subject<boolean>;
     messageStream$ = new Subject<string>();
     remotePeerConnected$ = new BehaviorSubject<boolean>(false);
+    devices$ = new BehaviorSubject<InputDeviceInfo[]>([]);
     timer: any;
     public headers = new HttpHeaders({
         'Content-Type': 'application/json',
@@ -29,7 +30,6 @@ export class PeerjsService {
     ) {}
 
     connect(): Promise<string> {
-        console.log(environment);
         this.connected$ = new Subject<boolean>();
         return new Promise((resolve, reject) => {
             const peerId = uuidv4();
@@ -132,6 +132,14 @@ export class PeerjsService {
 
     getUserMedia(): Promise<MediaStream> {
         return navigator.mediaDevices.getUserMedia({video: true, audio: true});
+    }
+
+    enumerateDevices(): Promise<InputDeviceInfo[]> {
+        return navigator.mediaDevices.enumerateDevices();
+    }
+
+    setDevices(devices: InputDeviceInfo[]): void {
+        this.devices$.next(devices);
     }
 
     getRequestUrl(method: string): string {

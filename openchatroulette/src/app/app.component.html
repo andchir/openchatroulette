@@ -6,8 +6,38 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="position-relative" [style.height]="videoHeight + 'px'" style="background-color: #000;">
+        <div class="position-relative show-on-hover-parent" [style.height]="videoHeight + 'px'" style="background-color: #000;">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #myVideo></video>
+            <div class="position-absolute left-top w-100 h-100 show-on-hover show-on-hover-bg">
+                <div class="p-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectDeviceCamera">
+                                    <i-tabler name="device-computer-camera" title="Camera"></i-tabler>
+                                </label>
+                                <select class="form-select form-select-lg" id="selectDeviceCamera">
+                                    <option [value]="device.deviceId" *ngFor="let device of devices$ | async | filter: {kind: 'videoinput'}">
+                                        {{ device.label }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectDeviceMicrophone">
+                                    <i-tabler name="microphone" title="Microphone"></i-tabler>
+                                </label>
+                                <select class="form-select form-select-lg" id="selectDeviceMicrophone">
+                                    <option [value]="device.deviceId" *ngFor="let device of devices$ | async | filter: {kind: 'audioinput'}">
+                                        {{ device.label }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
