@@ -1,4 +1,4 @@
-import {Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {BehaviorSubject, Observable, skip, Subject, takeUntil} from 'rxjs';
 import {DataConnection} from 'peerjs';
@@ -7,6 +7,7 @@ import {Store, Select} from '@ngxs/store';
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 import {AppAction} from './store/actions/app.actions';
 import {AppState} from './store/states/app.state';
+import {AnimationService} from './services/animation.service';
 
 declare const window: Window;
 
@@ -15,7 +16,7 @@ declare const window: Window;
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @Select(AppState.connected) connectedState$: Observable<boolean>;
     @Select(AppState.readyToConnect) readyToConnectState$: Observable<boolean>;
@@ -26,12 +27,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
     @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;
+    @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
 
     isReadyToConnect$ = new BehaviorSubject(false);
+    isRemotePeerConnected$ = new BehaviorSubject(false);
     isConnected$ = new BehaviorSubject(false);
 
     strangerPeerId: string;
     peerConnection: DataConnection;
+    videoWidth = 400;
     videoHeight = 400;
     isStarted = false;
     messages: TextMessageInterface[] = [
@@ -42,7 +46,8 @@ export class AppComponent implements OnInit, OnDestroy {
     destroyed$ = new Subject<void>();
 
     constructor(
-        private store: Store
+        private store: Store,
+        private animationService: AnimationService
     ) {}
 
     @HostListener('window:resize', ['$event.target'])
@@ -51,18 +56,32 @@ export class AppComponent implements OnInit, OnDestroy {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         if (windowWidth < 992) {
+            this.videoWidth = windowWidth;
             this.videoHeight = 300;
         } else {
+            this.videoWidth = windowWidth / 2;
             this.videoHeight = Math.floor(windowHeight - footerHeight);
+        }
+        if (this.canvas) {
+            this.canvas.nativeElement.width = this.videoWidth;
+            this.canvas.nativeElement.height = this.videoHeight;
+            this.canvas.nativeElement.style.width = windowWidth / 2 + 'px';
+            this.canvas.nativeElement.style.height = this.videoHeight + 'px';
+            this.animationService.canvasSizeUpdate(this.canvas.nativeElement);
         }
     }
 
     ngOnInit(): void {
         this.connectedState$.subscribe(this.isConnected$);
         this.readyToConnectState$.subscribe(this.isReadyToConnect$);
-
-        this.onResize(window);
         this.connectionInit();
+    }
+
+    ngAfterViewInit(): void {
+        setTimeout(() => {
+            this.onResize(window);
+            this.animationService.init(this.canvas.nativeElement);
+        }, 0);
     }
 
     connectionInit(): void {
@@ -98,11 +117,32 @@ export class AppComponent implements OnInit, OnDestroy {
                 }
             });
 
+        this.connectedState$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe({
+                next: (connected) => {
+                    if (!connected) {
+                        this.animationService.particlesStop();
+                        return;
+                    }
+                    if (this.isRemotePeerConnected$.getValue()) {
+                        this.animationService.particlesStop();
+                    } else {
+                        this.animationService.particlesStart();
+                    }
+                }
+            });
+
         this.remotePeerConnectedState$
-            .pipe(skip(1), takeUntil(this.destroyed$))
+            .pipe(takeUntil(this.destroyed$))
             .subscribe({
                 next: (remotePeerConnectedState) => {
-                    console.log('remotePeerConnectedState', remotePeerConnectedState);
+                    console.log('remotePeerConnectedState', this.isConnected$.getValue(), remotePeerConnectedState);
+                    if (!this.isConnected$.getValue() || remotePeerConnectedState) {
+                        this.animationService.particlesStop();
+                    } else if (this.isConnected$.getValue() && !remotePeerConnectedState) {
+                        this.animationService.particlesStart();
+                    }
                 }
             });
     }
@@ -117,6 +157,7 @@ export class AppComponent implements OnInit, OnDestroy {
         } else {
             this.store.dispatch(new AppAction.SetConnected(true));
         }
+        this.animationService.particlesStart();
     }
 
     rouletteStop(): void {

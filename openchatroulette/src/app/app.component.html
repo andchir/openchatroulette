@@ -1,7 +1,8 @@
 <div class="row g-0">
     <div class="col-lg-6 order-last order-lg-first">
-        <div class="bg-secondary position-relative" [style.height]="videoHeight + 'px'">
+        <div class="bg-secondary position-relative overflow-hidden" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #remoteVideo></video>
+            <canvas class="position-absolute left-top" #canvas></canvas>
             <div class="position-absolute center-middle" *ngIf="!(remotePeerConnectedState$ | async) && (connectedState$ | async)">
                 <div class="spinner-border text-light" role="status" style="width: 4rem; height: 4rem;">
                     <span class="visually-hidden">Loading...</span>

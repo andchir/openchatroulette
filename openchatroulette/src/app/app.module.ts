@@ -33,7 +33,7 @@ import {AppState} from './store/states/app.state';
         }),
         NgxsLoggerPluginModule.forRoot({
             disabled: environment.production,
-            collapsed: true
+            collapsed: false
         }),
         TablerIconsModule.pick(icons)
     ],
