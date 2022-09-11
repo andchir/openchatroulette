@@ -1,11 +1,16 @@
+'use strict';
+
 const express = require('express');
 const http = require('http');
-const path = require('path');
+var ip = require('ip');
 const {ExpressPeerServer, PeerServer} = require('peer');
+
+require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 8000;
+const environment = process.env.NODE_ENV || 'prod';
 
 app.get('/', (req, res) => res.send('Welcome to OpenChatRoulette!'));
 
@@ -32,9 +37,9 @@ const peers = {};
 let peerWaiting = '';// TODO: create object with countries and purpose
 
 peerServer.on('connection', (client) => {
-    console.log('connection', client.getId());
+    console.log('connection', client.getId(), ip.address());
     peers[client.getId()] = {
-        country: '',
+        country: 'unknown',
         purpose: ''
     };
     console.log(peers);

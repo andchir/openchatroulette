@@ -53,9 +53,13 @@ export class PeerjsService {
 
     onConnected(): void {
         this.peer.socket.on('message', (data) => {
-            console.log('message from server', data);
-            if (data.peerId) {// Auto connect to peer
-                this.connectToPeer(data.peerId);
+            switch (data.type) {
+                case 'NEW_REMOTE_PEER':
+                    console.log('message from server', data);
+                    if (data.peerId) {// Auto connect to peer
+                        this.connectToPeer(data.peerId);
+                    }
+                    break;
             }
         });
 
@@ -142,9 +146,7 @@ export class PeerjsService {
     }
 
     requestNextPear(): void {
-        if (this.peer.socket) {
-            (this.peer.socket as any)._socket.send('{"type": "NEW_REMOTE_PEER_REQUEST"}');
-        }
+        this.sendMessageToServer('NEW_REMOTE_PEER_REQUEST');
     }
 
     connectToPeer(remotePeerId: string): Promise<any> {
@@ -191,6 +193,15 @@ export class PeerjsService {
             return;
         }
         this.dataConnection.send(message);
+    }
+
+    sendMessageToServer(type: string, message = ''): void {
+        if (this.peer.socket) {
+            (this.peer.socket as any)._socket.send(JSON.stringify({
+                type,
+                message
+            }));
+        }
     }
 
     disconnect(all = false): void {
