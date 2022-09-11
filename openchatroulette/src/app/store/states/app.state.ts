@@ -152,11 +152,11 @@ export class AppState {
 
     @Action(AppAction.GetLocalStream)
     getLocalStream(ctx: StateContext<AppStateModel>) {
-        this.peerjsService.getUserMedia()
+        return this.peerjsService.getUserMedia()
             .then((stream) => {
                 ctx.patchState({localStream: stream});
                 ctx.dispatch(new AppAction.SetReadyToConnect(true));
-                return this.peerjsService.enumerateDevices();
+                // return this.peerjsService.enumerateDevices();
             })
             // .then((devices: InputDeviceInfo[]) => {
             //     ctx.dispatch(new AppAction.DevicesUpdate(devices));

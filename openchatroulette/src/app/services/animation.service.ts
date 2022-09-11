@@ -56,19 +56,19 @@ export class AnimationService {
     particleDraw(p: any): void {
         this.ctx.fillStyle = 'rgba(' + p.red + ',' + p.green + ',' + p.blue + ',' + p.opacity + ')';
         this.ctx.rect(p.x, p.y, p.radius, p.radius);
-    };
+    }
 
     particleMove(p: any): void {
         p.x += p.xVel;
         p.y += p.yVel;
         p.xVel *= 1.03;
         p.yVel *= 1.03;
-    };
+    }
 
     particleFade(p: any): void {
         p.radius *= 1.01;
         p.opacity *= 1.15;
-    };
+    }
 
     particleLoop() {
         this.clearCanvas();
@@ -87,7 +87,7 @@ export class AnimationService {
         } else {
             this.clearCanvas();
         }
-    };
+    }
 
     particlesStart(): void {
         if (!this.particlesStopped) {

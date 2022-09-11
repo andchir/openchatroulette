@@ -16,7 +16,9 @@
                                 <label class="input-group-text bg-transparent border-0" for="selectDeviceCamera">
                                     <i-tabler name="device-computer-camera" style="color: white;" title="Camera"></i-tabler>
                                 </label>
-                                <select class="form-select form-select-lg rounded" id="selectDeviceCamera">
+                                <select class="form-select form-select-lg rounded" id="selectDeviceCamera"
+                                        [value]="videoInputDeviceCurrent$ | async"
+                                        (change)="onDeviceChange('videoinput', $event)">
                                     <option [value]="device.deviceId" *ngFor="let device of devices$ | async | filter: {kind: 'videoinput'}">
                                         {{ device.label }}
                                     </option>
@@ -28,7 +30,9 @@
                                 <label class="input-group-text bg-transparent border-0" for="selectDeviceMicrophone">
                                     <i-tabler name="microphone" style="color: white;" title="Microphone"></i-tabler>
                                 </label>
-                                <select class="form-select form-select-lg rounded" id="selectDeviceMicrophone">
+                                <select class="form-select form-select-lg rounded" id="selectDeviceMicrophone"
+                                        [value]="audioInputDeviceCurrent$ | async"
+                                        (change)="onDeviceChange('audioinput', $event)">
                                     <option [value]="device.deviceId" *ngFor="let device of devices$ | async | filter: {kind: 'audioinput'}">
                                         {{ device.label }}
                                     </option>

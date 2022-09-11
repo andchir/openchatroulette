@@ -44,7 +44,7 @@ export class UserMediaState {
         });
     }
 
-    @Action(UserMediaAction.SetAudioInputDeviceCurrent)
+    @Action(UserMediaAction.SetVideoInputDeviceCurrent)
     setVideoInputDeviceCurrent(ctx: StateContext<UserMediaStateModel>, action: UserMediaAction.SetVideoInputDeviceCurrent) {
         ctx.patchState({
             videoInputDeviceCurrent: action.payload
@@ -59,13 +59,13 @@ export class UserMediaState {
     }
 
     @Action(UserMediaAction.EnumerateDevices)
-    enumerateDevices(ctx: StateContext<UserMediaStateModel>, action: UserMediaAction.EnumerateDevices) {
+    enumerateDevices(ctx: StateContext<UserMediaStateModel>) {
         return navigator.mediaDevices.enumerateDevices()
             .then((devices: MediaDeviceInfo[]) => {
-                console.log(devices);
+                ctx.dispatch(new UserMediaAction.DevicesUpdate(devices));
             })
             .catch((e) => {
-                console.log('enumerateDevices ERROR');
+                console.log('enumerateDevices ERROR', e);
             });
     }
 }

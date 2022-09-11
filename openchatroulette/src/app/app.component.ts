@@ -39,8 +39,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     isRemotePeerConnected$ = new BehaviorSubject(false);
     isConnected$ = new BehaviorSubject(false);
 
-    strangerPeerId: string;
-    peerConnection: DataConnection;
     videoWidth = 400;
     videoHeight = 400;
     isStarted = false;
@@ -102,6 +100,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                         if (this.myVideo) {
                             this.myVideo.nativeElement.srcObject = stream;
                             this.myVideo.nativeElement.autoplay = true;
+                            stream.getTracks().forEach((track) => {
+                                if (track.kind === 'audio') {
+                                    this.store.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent(track.getSettings().deviceId || ''));
+                                } else {
+                                    this.store.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent(track.getSettings().deviceId || ''));
+                                }
+                            });
                         }
                     }
                 }
@@ -190,6 +195,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     onMessageFieldKeyUp(event: KeyboardEvent): void {
         if ((event.key || event.code) === 'Enter') {
             this.sendMessage(event.target as HTMLInputElement);
+        }
+    }
+
+    onDeviceChange(kind: string, event: Event): void {
+        if (kind === 'audioinput') {
+            this.store.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent((event.target as HTMLInputElement).value));
+        } else {
+            this.store.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent((event.target as HTMLInputElement).value));
         }
     }
 

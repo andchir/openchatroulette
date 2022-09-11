@@ -17,6 +17,6 @@ export namespace UserMediaAction {
     }
 
     export class EnumerateDevices {
-        static readonly type = '[AUserMedia] EnumerateDevices';
+        static readonly type = '[UserMedia] EnumerateDevices';
     }
 }

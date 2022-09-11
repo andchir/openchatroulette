@@ -27,6 +27,7 @@ const icons = {
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {AppState} from './store/states/app.state';
+import {UserMediaState} from './store/states/user-media.state';
 import {FilterArrayPipe} from './pipes/filter-array.pipe';
 
 @NgModule({
@@ -39,7 +40,7 @@ import {FilterArrayPipe} from './pipes/filter-array.pipe';
         AppRoutingModule,
         HttpClientModule,
 
-        NgxsModule.forRoot([AppState], {
+        NgxsModule.forRoot([AppState, UserMediaState], {
             developmentMode: !environment.production
         }),
         NgxsLoggerPluginModule.forRoot({
