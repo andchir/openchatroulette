@@ -19,4 +19,27 @@ export namespace UserMediaAction {
     export class EnumerateDevices {
         static readonly type = '[UserMedia] EnumerateDevices';
     }
+
+    export class GetLocalStream {
+        static readonly type = '[UserMedia] GetLocalStream';
+        constructor(public payload: MediaStreamConstraints) {}
+    }
+
+    export class SetLocalStream {
+        static readonly type = '[UserMedia] SetLocalStream';
+        constructor(public payload: MediaStream|null) {}
+    }
+
+    export class StopLocalStream {
+        static readonly type = '[UserMedia] StopLocalStream';
+    }
+
+    export class GetRemoteStream {
+        static readonly type = '[UserMedia] GetRemoteStream';
+    }
+
+    export class SetRemoteStream {
+        static readonly type = '[UserMedia] SetRemoteStream';
+        constructor(public payload: MediaStream|null) {}
+    }
 }

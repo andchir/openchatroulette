@@ -24,9 +24,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @Select(AppState.readyToConnect) readyToConnectState$: Observable<boolean>;
     @Select(AppState.remotePeerConnected) remotePeerConnectedState$: Observable<boolean>;
     @Select(AppState.messages) messages$: Observable<TextMessageInterface[]>;
-    @Select(AppState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
 
+    @Select(UserMediaState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(UserMediaState.devices) devices$: Observable<InputDeviceInfo[]>;
     @Select(UserMediaState.audioInputDeviceCurrent) audioInputDeviceCurrent$: Observable<string>;
     @Select(UserMediaState.videoInputDeviceCurrent) videoInputDeviceCurrent$: Observable<string>;
@@ -89,14 +89,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     connectionInit(): void {
-        this.store.dispatch(new AppAction.GetLocalStream());
-        this.store.dispatch(new UserMediaAction.EnumerateDevices());
+        this.store.dispatch(new UserMediaAction.GetLocalStream({
+            audio: true,
+            video: true
+        }));
 
         this.localStream$
             .pipe(skip(1), takeUntil(this.destroyed$))
             .subscribe({
                 next: (stream) => {
                     if (stream) {
+                        this.store.dispatch(new UserMediaAction.EnumerateDevices());
                         if (this.myVideo) {
                             this.myVideo.nativeElement.srcObject = stream;
                             this.myVideo.nativeElement.autoplay = true;

@@ -7,12 +7,16 @@ export class UserMediaStateModel {
     public videoInputDeviceCurrent: string;
     public audioInputDeviceCurrent: string;
     public devices: InputDeviceInfo[];
+    public localStream: MediaStream|null;
+    public remoteStream: MediaStream|null;
 }
 
 const defaults = {
     videoInputDeviceCurrent: '',
     audioInputDeviceCurrent: '',
-    devices: []
+    devices: [],
+    localStream: null,
+    remoteStream: null
 };
 
 @State<UserMediaStateModel>({
@@ -35,6 +39,16 @@ export class UserMediaState {
     @Selector()
     static devices(state: UserMediaStateModel) {
         return state.devices;
+    }
+
+    @Selector()
+    static localStream(state: UserMediaStateModel) {
+        return state.localStream;
+    }
+
+    @Selector()
+    static remoteStream(state: UserMediaStateModel) {
+        return state.remoteStream;
     }
 
     @Action(UserMediaAction.SetAudioInputDeviceCurrent)
@@ -67,5 +81,28 @@ export class UserMediaState {
             .catch((e) => {
                 console.log('enumerateDevices ERROR', e);
             });
+    }
+
+    @Action(UserMediaAction.GetLocalStream)
+    getLocalStream(ctx: StateContext<UserMediaStateModel>, action: UserMediaAction.GetLocalStream) {
+        return navigator.mediaDevices.getUserMedia(action.payload)
+            .then((stream) => {
+                ctx.patchState({localStream: stream});
+            })
+            .catch((err) => {
+                console.log(err);
+                ctx.patchState({localStream: null});
+            });
+    }
+
+    @Action(UserMediaAction.StopLocalStream)
+    stopLocalStream(ctx: StateContext<UserMediaStateModel>) {
+        const {localStream} = ctx.getState();
+        if (localStream) {
+            localStream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+        }
+        ctx.patchState({localStream: null});
     }
 }
