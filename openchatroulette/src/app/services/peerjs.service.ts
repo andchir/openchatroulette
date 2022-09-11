@@ -5,6 +5,8 @@ import {BehaviorSubject, catchError, Observable, Subject, throwError} from 'rxjs
 import {DataConnection, MediaConnection, Peer} from 'peerjs';
 import {v4 as uuidv4} from 'uuid';
 
+import {environment} from '../../environments/environment';
+
 @Injectable({
     providedIn: 'root'
 })
@@ -27,14 +29,15 @@ export class PeerjsService {
     ) {}
 
     connect(): Promise<string> {
+        console.log(environment);
         this.connected$ = new Subject<boolean>();
         return new Promise((resolve, reject) => {
             const peerId = uuidv4();
             // const peerId = Math.floor(Math.random() * 2 ** 18).toString(36).padStart(4, '0');
             this.peer = new Peer(peerId, {
-                port: 8000,
+                port: environment.port || 8000,
                 host: '/',
-                path: '/openchatroulette'
+                path: environment.peerServerPath || '/openchatroulette'
             });
             this.peer.on('open', (id) => {
                 this.connected$.next(true);
