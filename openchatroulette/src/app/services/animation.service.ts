@@ -19,7 +19,6 @@ export class AnimationService {
     init(canvasEl: HTMLCanvasElement): void {
         this.ctx = canvasEl.getContext('2d') as CanvasRenderingContext2D;
         this.canvasSizeUpdate(canvasEl);
-        console.log(this.canvasWidth, this.canvasHeight);
     }
 
     canvasSizeUpdate(canvasEl: HTMLCanvasElement): void {
@@ -56,7 +55,6 @@ export class AnimationService {
 
     particleDraw(p: any): void {
         this.ctx.fillStyle = 'rgba(' + p.red + ',' + p.green + ',' + p.blue + ',' + p.opacity + ')';
-        // ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         this.ctx.rect(p.x, p.y, p.radius, p.radius);
     };
 

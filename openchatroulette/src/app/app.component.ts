@@ -65,7 +65,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.canvas) {
             this.canvas.nativeElement.width = this.videoWidth;
             this.canvas.nativeElement.height = this.videoHeight;
-            this.canvas.nativeElement.style.width = windowWidth / 2 + 'px';
+            this.canvas.nativeElement.style.width = this.videoWidth + 'px';
             this.canvas.nativeElement.style.height = this.videoHeight + 'px';
             this.animationService.canvasSizeUpdate(this.canvas.nativeElement);
         }
@@ -121,13 +121,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             .pipe(takeUntil(this.destroyed$))
             .subscribe({
                 next: (connected) => {
-                    if (!connected) {
+                    if (!connected || this.isRemotePeerConnected$.getValue()) {
                         this.animationService.particlesStop();
                         return;
                     }
-                    if (this.isRemotePeerConnected$.getValue()) {
-                        this.animationService.particlesStop();
-                    } else {
+                    if (!this.isRemotePeerConnected$.getValue()) {
                         this.animationService.particlesStart();
                     }
                 }
@@ -137,10 +135,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             .pipe(takeUntil(this.destroyed$))
             .subscribe({
                 next: (remotePeerConnectedState) => {
-                    console.log('remotePeerConnectedState', this.isConnected$.getValue(), remotePeerConnectedState);
                     if (!this.isConnected$.getValue() || remotePeerConnectedState) {
                         this.animationService.particlesStop();
-                    } else if (this.isConnected$.getValue() && !remotePeerConnectedState) {
+                        return;
+                    }
+                    if (!remotePeerConnectedState) {
                         this.animationService.particlesStart();
                     }
                 }

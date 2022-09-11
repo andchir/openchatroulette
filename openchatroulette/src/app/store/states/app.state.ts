@@ -85,7 +85,6 @@ export class AppState {
                         .pipe(skip(1), takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (remotePeerConnected) => {
-                                console.log('remotePeerConnected', remotePeerConnected);
                                 ctx.dispatch([
                                     new AppAction.SetRemotePeerConnected(remotePeerConnected),
                                     new AppAction.MessagesClear()
@@ -178,20 +177,10 @@ export class AppState {
 
     @Action(AppAction.NextPeer)
     nextPeer(ctx: StateContext<AppStateModel>, action: AppAction.NextPeer) {
-        console.log('nextPeer');
         if (ctx.getState().remotePeerId) {
             this.peerjsService.disconnect();
         } else {
             this.peerjsService.requestNextPear();
-            // this.peerjsService.nextPeer()
-            //     .pipe(take(1))
-            //     .subscribe({
-            //         next: (result) => {
-            //             if (result.peerId) {
-            //                 ctx.dispatch(new AppAction.GetRemoteStream(result.peerId));
-            //             }
-            //         }
-            //     });
         }
     }
 
