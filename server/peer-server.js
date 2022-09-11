@@ -53,8 +53,9 @@ peerServer.on('disconnect', (client) => {
 
 peerServer.on('message', (client, message) => {
     console.log('message', client.getId(), message);
-    if (message.type === 'NEW_PEER_REQUEST') {
+    if (message.type === 'NEW_REMOTE_PEER_REQUEST') {
         client.send({
+            type: 'NEW_REMOTE_PEER',
             peerId: getNextPeerId(client.getId())
         });
     }

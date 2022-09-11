@@ -29,8 +29,8 @@ export class PeerjsService {
     connect(): Promise<string> {
         this.connected$ = new Subject<boolean>();
         return new Promise((resolve, reject) => {
-            // const peerId = uuidv4();
-            const peerId = Math.floor(Math.random() * 2 ** 18).toString(36).padStart(4, '0');
+            const peerId = uuidv4();
+            // const peerId = Math.floor(Math.random() * 2 ** 18).toString(36).padStart(4, '0');
             this.peer = new Peer(peerId, {
                 port: 8000,
                 host: '/',
@@ -54,6 +54,9 @@ export class PeerjsService {
     onConnected(): void {
         this.peer.socket.on('message', (data) => {
             console.log('message from server', data);
+            if (data.peerId) {// Auto connect to peer
+                this.connectToPeer(data.peerId);
+            }
         });
 
         this.peer.on('disconnected', (currentId: string) => {
@@ -139,9 +142,8 @@ export class PeerjsService {
     }
 
     requestNextPear(): void {
-        console.log('requestNextPear');
         if (this.peer.socket) {
-            (this.peer.socket as any)._socket.send('{"type": "NEW_PEER_REQUEST"}');
+            (this.peer.socket as any)._socket.send('{"type": "NEW_REMOTE_PEER_REQUEST"}');
         }
     }
 
