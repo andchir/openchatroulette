@@ -126,7 +126,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     sendMessageAction(from: string, message: string) {
         this.store.dispatch(new AppAction.MessageSend({
-            type: 'answer',
+            type: TextMessageType.Answer,
             message
         }));
     }

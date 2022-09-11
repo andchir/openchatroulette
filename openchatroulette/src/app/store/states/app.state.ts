@@ -4,7 +4,7 @@ import {State, Action, Selector, StateContext} from '@ngxs/store';
 import {skip, take, takeUntil} from 'rxjs';
 
 import {AppAction} from '../actions/app.actions';
-import {TextMessageInterface} from '../../models/textmessage.interface';
+import {TextMessageInterface, TextMessageType} from '../../models/textmessage.interface';
 import {PeerjsService} from '../../services/peerjs.service';
 
 export class AppStateModel {
@@ -119,7 +119,7 @@ export class AppState {
                         .subscribe({
                             next: (message) => {
                                 ctx.dispatch(new AppAction.MessageAdd({
-                                    type: 'question',
+                                    type: TextMessageType.Question,
                                     message
                                 }));
                             }
