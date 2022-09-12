@@ -103,14 +103,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                         if (this.myVideo) {
                             this.myVideo.nativeElement.srcObject = stream;
                             this.myVideo.nativeElement.autoplay = true;
-                            stream.getTracks().forEach((track) => {
-                                if (track.kind === 'audio') {
-                                    this.store.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent(track.getSettings().deviceId || ''));
-                                } else {
-                                    this.store.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent(track.getSettings().deviceId || ''));
-                                }
-                            });
                         }
+                        this.store.dispatch(new AppAction.SetReadyToConnect(true));
+                    } else {
+                        this.store.dispatch(new AppAction.SetReadyToConnect(false));
                     }
                 }
             });

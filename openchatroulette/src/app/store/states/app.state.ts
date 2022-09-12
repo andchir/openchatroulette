@@ -13,7 +13,6 @@ export class AppStateModel {
     public readyToConnect: boolean;
     public localPeerId: string;
     public remotePeerId: string;
-    public localStream: MediaStream|null;
     public remoteStream: MediaStream|null;
     public messages: TextMessageInterface[];
 }
@@ -24,7 +23,6 @@ const defaults = {
     readyToConnect: false,
     localPeerId: '',
     remotePeerId: '',
-    localStream: null,
     remoteStream: null,
     messages: []
 };
@@ -51,11 +49,6 @@ export class AppState {
     @Selector()
     static remotePeerConnected(state: AppStateModel) {
         return state.remotePeerConnected;
-    }
-
-    @Selector()
-    static localStream(state: AppStateModel) {
-        return state.localStream;
     }
 
     @Selector()
@@ -148,36 +141,6 @@ export class AppState {
         ctx.patchState({
             localPeerId: action.payload
         });
-    }
-
-    @Action(AppAction.GetLocalStream)
-    getLocalStream(ctx: StateContext<AppStateModel>) {
-        return this.peerjsService.getUserMedia()
-            .then((stream) => {
-                ctx.patchState({localStream: stream});
-                ctx.dispatch(new AppAction.SetReadyToConnect(true));
-                // return this.peerjsService.enumerateDevices();
-            })
-            // .then((devices: InputDeviceInfo[]) => {
-            //     ctx.dispatch(new AppAction.DevicesUpdate(devices));
-            //     return Promise.resolve();
-            // })
-            .catch((err) => {
-                console.log(err);
-                ctx.patchState({localStream: null});
-                ctx.dispatch(new AppAction.SetReadyToConnect(false));
-            });
-    }
-
-    @Action(AppAction.StopLocalStream)
-    stopLocalStream(ctx: StateContext<AppStateModel>) {
-        const {localStream} = ctx.getState();
-        if (localStream) {
-            localStream.getTracks().forEach(function(track) {
-                track.stop();
-            });
-        }
-        ctx.patchState({localStream: null});
     }
 
     @Action(AppAction.NextPeer)

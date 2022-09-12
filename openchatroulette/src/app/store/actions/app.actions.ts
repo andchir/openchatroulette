@@ -17,14 +17,6 @@ export namespace AppAction {
         constructor(public payload: string) {}
     }
 
-    export class GetLocalStream {
-        static readonly type = '[App] GetLocalStream';
-    }
-
-    export class StopLocalStream {
-        static readonly type = '[App] StopLocalStream';
-    }
-
     export class NextPeer {
         static readonly type = '[App] NextPeer';
     }

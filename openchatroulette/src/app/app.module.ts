@@ -1,4 +1,5 @@
 import {NgModule} from '@angular/core';
+import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserModule} from '@angular/platform-browser';
 import {environment} from '../environments/environment';
@@ -39,6 +40,7 @@ import {FilterArrayPipe} from './pipes/filter-array.pipe';
         BrowserModule,
         AppRoutingModule,
         HttpClientModule,
+        FormsModule,
 
         NgxsModule.forRoot([AppState, UserMediaState], {
             developmentMode: !environment.production

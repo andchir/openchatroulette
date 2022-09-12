@@ -87,12 +87,26 @@ export class UserMediaState {
     getLocalStream(ctx: StateContext<UserMediaStateModel>, action: UserMediaAction.GetLocalStream) {
         return navigator.mediaDevices.getUserMedia(action.payload)
             .then((stream) => {
-                ctx.patchState({localStream: stream});
+                ctx.dispatch(new UserMediaAction.SetLocalStream(stream));
             })
             .catch((err) => {
                 console.log(err);
                 ctx.patchState({localStream: null});
             });
+    }
+
+    @Action(UserMediaAction.SetLocalStream)
+    setLocalStream(ctx: StateContext<UserMediaStateModel>, action: UserMediaAction.SetLocalStream) {
+        ctx.patchState({localStream: action.payload});
+        if (action.payload) {
+            action.payload.getTracks().forEach((track) => {
+                if (track.kind === 'audio') {
+                    ctx.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent(track.getSettings().deviceId || ''));
+                } else {
+                    ctx.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent(track.getSettings().deviceId || ''));
+                }
+            });
+        }
     }
 
     @Action(UserMediaAction.StopLocalStream)
