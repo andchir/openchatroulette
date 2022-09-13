@@ -38,6 +38,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     isReadyToConnect$ = new BehaviorSubject(false);
     isRemotePeerConnected$ = new BehaviorSubject(false);
     isConnected$ = new BehaviorSubject(false);
+    devicesList$ = new BehaviorSubject<InputDeviceInfo[]>([]);
 
     videoWidth = 400;
     videoHeight = 400;
@@ -78,6 +79,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     ngOnInit(): void {
         this.connectedState$.subscribe(this.isConnected$);
         this.readyToConnectState$.subscribe(this.isReadyToConnect$);
+        this.devices$.subscribe(this.devicesList$);
         this.connectionInit();
     }
 
@@ -99,7 +101,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             .subscribe({
                 next: (stream) => {
                     if (stream) {
-                        this.store.dispatch(new UserMediaAction.EnumerateDevices());
+                        if (this.devicesList$.getValue().length === 0) {
+                            this.store.dispatch(new UserMediaAction.EnumerateDevices());
+                        }
                         if (this.myVideo) {
                             this.myVideo.nativeElement.srcObject = stream;
                             this.myVideo.nativeElement.autoplay = true;
@@ -198,11 +202,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onDeviceChange(kind: string, event: Event): void {
-        if (kind === 'audioinput') {
-            this.store.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent((event.target as HTMLInputElement).value));
-        } else {
-            this.store.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent((event.target as HTMLInputElement).value));
+        if (this.isConnected$.getValue() || this.isRemotePeerConnected$.getValue()) {
+            this.rouletteStop();
         }
+        setTimeout(() => {
+            this.store.dispatch(new UserMediaAction.SwitchMediaInput({
+                kind,
+                deviceId: (event.target as HTMLInputElement).value
+            }));
+        }, 1);
     }
 
     ngOnDestroy(): void {

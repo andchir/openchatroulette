@@ -42,4 +42,9 @@ export namespace UserMediaAction {
         static readonly type = '[UserMedia] SetRemoteStream';
         constructor(public payload: MediaStream|null) {}
     }
+
+    export class SwitchMediaInput {
+        static readonly type = '[UserMedia] SwitchMediaSource';
+        constructor(public payload: {kind: string; deviceId: string;}) {}
+    }
 }

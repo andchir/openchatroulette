@@ -51,6 +51,32 @@ export class UserMediaState {
         return state.remoteStream;
     }
 
+    @Action(UserMediaAction.SwitchMediaInput)
+    switchMediaInput(ctx: StateContext<UserMediaStateModel>, action: UserMediaAction.SwitchMediaInput) {
+        const {videoInputDeviceCurrent, audioInputDeviceCurrent} = ctx.getState();
+        if (
+            (action.payload.kind === 'audioinput' && audioInputDeviceCurrent === action.payload.deviceId)
+            || (action.payload.kind === 'videoinput' && videoInputDeviceCurrent === action.payload.deviceId)
+        ) {
+            return;
+        }
+        ctx.dispatch(new UserMediaAction.StopLocalStream());
+        setTimeout(() => {
+            ctx.dispatch(new UserMediaAction.GetLocalStream({
+                audio: {
+                    deviceId: action.payload.kind === 'audioinput'
+                        ? {exact: action.payload.deviceId}
+                        : (audioInputDeviceCurrent || undefined)
+                },
+                video: {
+                    deviceId: action.payload.kind === 'videoinput'
+                        ? {exact: action.payload.deviceId}
+                        : (videoInputDeviceCurrent || undefined)
+                }
+            }));
+        }, 1);
+    }
+
     @Action(UserMediaAction.SetAudioInputDeviceCurrent)
     setAudioInputDeviceCurrent(ctx: StateContext<UserMediaStateModel>, action: UserMediaAction.SetAudioInputDeviceCurrent) {
         ctx.patchState({
@@ -88,10 +114,11 @@ export class UserMediaState {
         return navigator.mediaDevices.getUserMedia(action.payload)
             .then((stream) => {
                 ctx.dispatch(new UserMediaAction.SetLocalStream(stream));
+                return stream;
             })
             .catch((err) => {
-                console.log(err);
-                ctx.patchState({localStream: null});
+                // console.log(err);
+                ctx.dispatch(new UserMediaAction.SetLocalStream(null));
             });
     }
 
@@ -106,6 +133,9 @@ export class UserMediaState {
                     ctx.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent(track.getSettings().deviceId || ''));
                 }
             });
+        } else {
+            ctx.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent(''));
+            ctx.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent(''));
         }
     }
 
@@ -116,7 +146,7 @@ export class UserMediaState {
             localStream.getTracks().forEach(function(track) {
                 track.stop();
             });
+            ctx.patchState({localStream: null});
         }
-        ctx.patchState({localStream: null});
     }
 }
