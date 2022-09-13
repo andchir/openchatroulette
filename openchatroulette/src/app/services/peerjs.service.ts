@@ -18,7 +18,6 @@ export class PeerjsService {
     connected$: Subject<boolean>;
     messageStream$ = new Subject<string>();
     remotePeerConnected$ = new BehaviorSubject<boolean>(false);
-    devices$ = new BehaviorSubject<InputDeviceInfo[]>([]);
     timer: any;
     public headers = new HttpHeaders({
         'Content-Type': 'application/json',
@@ -128,18 +127,6 @@ export class PeerjsService {
         this.mediaConnection.on('error', (e) => {
             console.log('MediaConnection ERROR', e);
         });
-    }
-
-    getUserMedia(): Promise<MediaStream> {
-        return navigator.mediaDevices.getUserMedia({video: true, audio: true});
-    }
-
-    enumerateDevices(): Promise<InputDeviceInfo[]> {
-        return navigator.mediaDevices.enumerateDevices();
-    }
-
-    setDevices(devices: InputDeviceInfo[]): void {
-        this.devices$.next(devices);
     }
 
     getRequestUrl(method: string): string {
