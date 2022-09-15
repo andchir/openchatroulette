@@ -74,37 +74,55 @@ export class AppState {
                     ctx.patchState({connected: true});
                     ctx.dispatch([new AppAction.SetPeerId(peerId), new AppAction.NextPeer()]);
 
-                    this.peerjsService.remotePeerConnected$
+                    this.peerjsService.dataConnectionCreated$
                         .pipe(skip(1), takeUntil(this.peerjsService.connected$))
                         .subscribe({
-                            next: (remotePeerConnected) => {
-                                ctx.dispatch([
-                                    new AppAction.SetRemotePeerConnected(remotePeerConnected),
-                                    new AppAction.MessagesClear()
-                                ]);
-                                if (remotePeerConnected) {
-                                    if (this.peerjsService.dataConnection?.peer) {
-                                        ctx.dispatch(new AppAction.SetRemotePeerId(this.peerjsService.dataConnection.peer));
-                                    }
-                                    if (this.peerjsService.mediaConnection?.remoteStream) {
-                                        ctx.dispatch(new AppAction.SetRemoteStream(this.peerjsService.mediaConnection.remoteStream));
-                                    }
-                                } else {
-                                    if (ctx.getState().remotePeerId) {
-                                        ctx.dispatch([
-                                            new AppAction.SetRemotePeerId(''),
-                                            new AppAction.SetRemoteStream(null)
-                                        ]);
-                                    }
-                                    this.peerjsService.disconnect();
-                                    setTimeout(() => {
-                                        if (this.peerjsService.getIsConnected()) {
-                                            ctx.dispatch(new AppAction.NextPeer());
-                                        }
-                                    }, 1);
-                                }
+                            next: (v) => {
+                                console.log('dataConnectionCreated', v);
                             }
                         });
+
+                    this.peerjsService.mediaConnectionCreated$
+                        .pipe(skip(1), takeUntil(this.peerjsService.connected$))
+                        .subscribe({
+                            next: (v) => {
+                                console.log('mediaConnectionCreated', v);
+                                ctx.dispatch(new AppAction.SetRemoteStream(this.peerjsService.mediaConnection?.remoteStream || null));
+                            }
+                        });
+
+                    // this.peerjsService.remotePeerConnected$
+                    //     .pipe(skip(1), takeUntil(this.peerjsService.connected$))
+                    //     .subscribe({
+                    //         next: (remotePeerId) => {
+                    //             ctx.dispatch([
+                    //                 new AppAction.SetRemotePeerConnected(!!remotePeerId),
+                    //                 new AppAction.MessagesClear()
+                    //             ]);
+                    //             console.log('remotePeerConnected$', remotePeerId);
+                    //             if (remotePeerId) {
+                    //                 if (this.peerjsService.dataConnection?.peer) {
+                    //                     ctx.dispatch(new AppAction.SetRemotePeerId(this.peerjsService.dataConnection.peer));
+                    //                 }
+                    //                 if (this.peerjsService.mediaConnection?.remoteStream) {
+                    //                     ctx.dispatch(new AppAction.SetRemoteStream(this.peerjsService.mediaConnection.remoteStream));
+                    //                 }
+                    //             } else {
+                    //                 if (ctx.getState().remotePeerId) {
+                    //                     ctx.dispatch([
+                    //                         new AppAction.SetRemotePeerId(''),
+                    //                         new AppAction.SetRemoteStream(null)
+                    //                     ]);
+                    //                 }
+                    //                 this.peerjsService.disconnect();
+                    //                 setTimeout(() => {
+                    //                     if (this.peerjsService.getIsConnected()) {
+                    //                         ctx.dispatch(new AppAction.NextPeer());
+                    //                     }
+                    //                 }, 1);
+                    //             }
+                    //         }
+                    //     });
 
                     this.peerjsService.messageStream$
                         .pipe(takeUntil(this.peerjsService.connected$))

@@ -17,7 +17,9 @@ export class PeerjsService {
     mediaConnection: MediaConnection|null;
     connected$: Subject<boolean>;
     messageStream$ = new Subject<string>();
-    remotePeerConnected$ = new BehaviorSubject<boolean>(false);
+    remotePeerConnected$ = new BehaviorSubject<string>('');
+    dataConnectionCreated$ = new BehaviorSubject<boolean>(false);
+    mediaConnectionCreated$ = new BehaviorSubject<boolean>(false);
     timer: any;
     public headers = new HttpHeaders({
         'Content-Type': 'application/json',
@@ -68,11 +70,9 @@ export class PeerjsService {
         this.peer.on('disconnected', (currentId: string) => {
             if (this.mediaConnection) {
                 this.mediaConnection.close();
-                this.mediaConnection = null;
             }
             if (this.dataConnection) {
                 this.dataConnection.close();
-                this.dataConnection = null;
             }
             this.connected$.next(false);
             this.connected$.complete();
@@ -97,15 +97,21 @@ export class PeerjsService {
             this.messageStream$.next(String(data));
         });
         this.dataConnection.on('open', () => {
-            // his.dataConnection?.send('hello!');t
+            this.dataConnectionCreated$.next(true);
         });
         this.dataConnection.on('close', () => {
             if (this.remotePeerConnected$.getValue()) {
-                this.remotePeerConnected$.next(false);
+                this.remotePeerConnected$.next('');
             }
+            this.dataConnectionCreated$.next(false);
+            if (this.mediaConnection) {
+                this.mediaConnection.close();
+            }
+            this.dataConnection = null;
         });
         this.dataConnection.on('error', (e) => {
             console.log('DataConnection ERROR', e);
+            this.dataConnectionCreated$.next(false);
         });
     }
 
@@ -116,13 +122,17 @@ export class PeerjsService {
         this.mediaConnection?.on('stream', (remoteStream) => {
             clearTimeout(this.timer);
             this.timer = setTimeout(() => {
-                this.remotePeerConnected$.next(true);
+                console.log('ON STREAM', this.dataConnection?.peer);
+                this.remotePeerConnected$.next(this.dataConnection?.peer || '');
+                this.mediaConnectionCreated$.next(true);
             }, 1);
         });
         this.mediaConnection.on('close', () => {
             if (this.remotePeerConnected$.getValue()) {
-                this.remotePeerConnected$.next(false);
+                this.remotePeerConnected$.next('');
             }
+            this.mediaConnectionCreated$.next(false);
+            this.mediaConnection = null;
         });
         this.mediaConnection.on('error', (e) => {
             console.log('MediaConnection ERROR', e);
@@ -159,6 +169,7 @@ export class PeerjsService {
         return new Promise((resolve, reject) => {
             navigator.mediaDevices.getUserMedia({video: true, audio: true})
                 .then((stream) => {
+                    console.log('CALL TO', remotePeerId);
                     this.mediaConnection = this.peer.call(remotePeerId, stream);
                     this.mediaConnection.on('stream', (remoteStream) => {
                         resolve(remoteStream);
@@ -173,11 +184,13 @@ export class PeerjsService {
     }
 
     callAnswer(remotePeerId: string): void {
+        console.log('callAnswer', remotePeerId, this.mediaConnection?.localStream);
         if (!this.mediaConnection) {
             return;
         }
         navigator.mediaDevices.getUserMedia({video: true, audio: true})
             .then((stream) => {
+                console.log('CALL ANSWER');
                 this.mediaConnection?.answer(stream);
                 this.onMediaConnectionCreated();
             })
@@ -208,11 +221,9 @@ export class PeerjsService {
         }
         if (this.mediaConnection) {
             this.mediaConnection.close();
-            this.mediaConnection = null;
         }
         if (this.dataConnection) {
             this.dataConnection.close();
-            this.dataConnection = null;
         }
         if (all) {
             this.peer.disconnect();
