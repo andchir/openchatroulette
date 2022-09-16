@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 
-import {State, Action, Selector, StateContext} from '@ngxs/store';
+import {State, Action, Selector, StateContext, Store} from '@ngxs/store';
 import {skip, takeUntil} from 'rxjs';
 
 import {AppAction} from '../actions/app.actions';
@@ -34,7 +34,10 @@ const defaults = {
 @Injectable()
 export class AppState {
 
-    constructor(private peerjsService: PeerjsService) {}
+    constructor(
+        private store: Store,
+        private peerjsService: PeerjsService
+    ) {}
 
     @Selector()
     static connected(state: AppStateModel) {
@@ -87,42 +90,49 @@ export class AppState {
                         .subscribe({
                             next: (v) => {
                                 console.log('mediaConnectionCreated', v);
-                                ctx.dispatch(new AppAction.SetRemoteStream(this.peerjsService.mediaConnection?.remoteStream || null));
+                                if (v) {
+                                    if (this.peerjsService.mediaConnection) {
+                                        const {user_media} = this.store.snapshot();
+                                        if (user_media.localStream) {
+                                            // this.peerjsService.mediaConnection.localStream = user_media.localStream;
+                                            this.peerjsService.localStream = user_media.localStream;
+                                        }
+                                    }
+                                }
                             }
                         });
 
-                    // this.peerjsService.remotePeerConnected$
-                    //     .pipe(skip(1), takeUntil(this.peerjsService.connected$))
-                    //     .subscribe({
-                    //         next: (remotePeerId) => {
-                    //             ctx.dispatch([
-                    //                 new AppAction.SetRemotePeerConnected(!!remotePeerId),
-                    //                 new AppAction.MessagesClear()
-                    //             ]);
-                    //             console.log('remotePeerConnected$', remotePeerId);
-                    //             if (remotePeerId) {
-                    //                 if (this.peerjsService.dataConnection?.peer) {
-                    //                     ctx.dispatch(new AppAction.SetRemotePeerId(this.peerjsService.dataConnection.peer));
-                    //                 }
-                    //                 if (this.peerjsService.mediaConnection?.remoteStream) {
-                    //                     ctx.dispatch(new AppAction.SetRemoteStream(this.peerjsService.mediaConnection.remoteStream));
-                    //                 }
-                    //             } else {
-                    //                 if (ctx.getState().remotePeerId) {
-                    //                     ctx.dispatch([
-                    //                         new AppAction.SetRemotePeerId(''),
-                    //                         new AppAction.SetRemoteStream(null)
-                    //                     ]);
-                    //                 }
-                    //                 this.peerjsService.disconnect();
-                    //                 setTimeout(() => {
-                    //                     if (this.peerjsService.getIsConnected()) {
-                    //                         ctx.dispatch(new AppAction.NextPeer());
-                    //                     }
-                    //                 }, 1);
-                    //             }
-                    //         }
-                    //     });
+                    this.peerjsService.remotePeerConnected$
+                        .pipe(skip(1), takeUntil(this.peerjsService.connected$))
+                        .subscribe({
+                            next: (remotePeerId) => {
+                                console.log('remotePeerConnected', remotePeerId);
+                                if (remotePeerId) {
+                                    if (this.peerjsService.dataConnection?.peer) {
+                                        ctx.dispatch(new AppAction.SetRemotePeerId(this.peerjsService.dataConnection.peer));
+                                    }
+                                    if (this.peerjsService.mediaConnection?.remoteStream) {
+                                        ctx.dispatch(new AppAction.SetRemoteStream(this.peerjsService.mediaConnection.remoteStream));
+                                    }
+                                } else {
+                                    if (ctx.getState().remotePeerId) {
+                                        ctx.dispatch([
+                                            new AppAction.SetRemotePeerId(''),
+                                            new AppAction.SetRemoteStream(null)
+                                        ]);
+                                    }
+                                    setTimeout(() => {
+                                        if (this.peerjsService.getIsConnected()) {
+                                            ctx.dispatch(new AppAction.NextPeer());
+                                        }
+                                    }, 1);
+                                }
+                                ctx.dispatch([
+                                    new AppAction.SetRemotePeerConnected(!!remotePeerId),
+                                    new AppAction.MessagesClear()
+                                ]);
+                            }
+                        });
 
                     this.peerjsService.messageStream$
                         .pipe(takeUntil(this.peerjsService.connected$))
@@ -141,8 +151,8 @@ export class AppState {
                 })
         } else {
             this.peerjsService.disconnect(true);
-            ctx.patchState({connected: false});
             ctx.dispatch(new AppAction.SetPeerId(''));
+            ctx.patchState({connected: false});
             return Promise.resolve(false);
         }
     }

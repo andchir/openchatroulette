@@ -20,6 +20,7 @@ export class PeerjsService {
     remotePeerConnected$ = new BehaviorSubject<string>('');
     dataConnectionCreated$ = new BehaviorSubject<boolean>(false);
     mediaConnectionCreated$ = new BehaviorSubject<boolean>(false);
+    localStream: MediaStream;
     timer: any;
     public headers = new HttpHeaders({
         'Content-Type': 'application/json',
@@ -124,7 +125,7 @@ export class PeerjsService {
             this.timer = setTimeout(() => {
                 console.log('ON STREAM', this.dataConnection?.peer);
                 this.remotePeerConnected$.next(this.dataConnection?.peer || '');
-                this.mediaConnectionCreated$.next(true);
+                // this.mediaConnectionCreated$.next(true);
             }, 1);
         });
         this.mediaConnection.on('close', () => {
@@ -184,19 +185,21 @@ export class PeerjsService {
     }
 
     callAnswer(remotePeerId: string): void {
-        console.log('callAnswer', remotePeerId, this.mediaConnection?.localStream);
         if (!this.mediaConnection) {
             return;
         }
-        navigator.mediaDevices.getUserMedia({video: true, audio: true})
-            .then((stream) => {
-                console.log('CALL ANSWER');
-                this.mediaConnection?.answer(stream);
-                this.onMediaConnectionCreated();
-            })
-            .catch((err) => {
-                console.error('Failed to get local stream', err);
-            });
+        this.onMediaConnectionCreated();
+        this.mediaConnectionCreated$.next(true);
+        console.log('CALL ANSWER', this.localStream);
+        this.mediaConnection.answer(this.localStream);
+        // navigator.mediaDevices.getUserMedia({video: true, audio: true})
+        //     .then((stream) => {
+        //         this.mediaConnection?.answer(stream);
+        //         this.onMediaConnectionCreated();
+        //     })
+        //     .catch((err) => {
+        //         console.error('Failed to get local stream', err);
+        //     });
     }
 
     sendMessage(message: string): void {
