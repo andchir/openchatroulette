@@ -20,7 +20,7 @@ export class PeerjsService {
     remotePeerConnected$ = new BehaviorSubject<string>('');
     dataConnectionCreated$ = new BehaviorSubject<boolean>(false);
     mediaConnectionCreated$ = new BehaviorSubject<boolean>(false);
-    localStream: MediaStream;
+    localStream: MediaStream|undefined;
     timer: any;
     public headers = new HttpHeaders({
         'Content-Type': 'application/json',
@@ -60,7 +60,6 @@ export class PeerjsService {
         this.peer.socket.on('message', (data) => {
             switch (data.type) {
                 case 'NEW_REMOTE_PEER':
-                    console.log('message from server', data);
                     if (data.peerId) {// Auto connect to peer
                         this.connectToPeer(data.peerId);
                     }
@@ -123,9 +122,7 @@ export class PeerjsService {
         this.mediaConnection?.on('stream', (remoteStream) => {
             clearTimeout(this.timer);
             this.timer = setTimeout(() => {
-                console.log('ON STREAM', this.dataConnection?.peer);
                 this.remotePeerConnected$.next(this.dataConnection?.peer || '');
-                // this.mediaConnectionCreated$.next(true);
             }, 1);
         });
         this.mediaConnection.on('close', () => {
@@ -158,30 +155,19 @@ export class PeerjsService {
         this.sendMessageToServer('NEW_REMOTE_PEER_REQUEST');
     }
 
-    connectToPeer(remotePeerId: string): Promise<any> {
+    connectToPeer(remotePeerId: string): void {
         if (this.peer.disconnected) {
-            return Promise.reject(null);
+            return;
         }
         this.dataConnection = this.peer.connect(remotePeerId);
         if (!this.dataConnection) {
-            return Promise.reject(null);
+            return;
         }
         this.onDataConnectionCreated();
-        return new Promise((resolve, reject) => {
-            navigator.mediaDevices.getUserMedia({video: true, audio: true})
-                .then((stream) => {
-                    console.log('CALL TO', remotePeerId);
-                    this.mediaConnection = this.peer.call(remotePeerId, stream);
-                    this.mediaConnection.on('stream', (remoteStream) => {
-                        resolve(remoteStream);
-                    });
-                    this.onMediaConnectionCreated();
-                })
-                .catch((err) => {
-                    console.log('Failed to get local stream', err);
-                    reject(null);
-                });
-        });
+        if (this.localStream) {
+            this.mediaConnection = this.peer.call(remotePeerId, this.localStream);
+            this.onMediaConnectionCreated();
+        }
     }
 
     callAnswer(remotePeerId: string): void {
@@ -190,16 +176,7 @@ export class PeerjsService {
         }
         this.onMediaConnectionCreated();
         this.mediaConnectionCreated$.next(true);
-        console.log('CALL ANSWER', this.localStream);
         this.mediaConnection.answer(this.localStream);
-        // navigator.mediaDevices.getUserMedia({video: true, audio: true})
-        //     .then((stream) => {
-        //         this.mediaConnection?.answer(stream);
-        //         this.onMediaConnectionCreated();
-        //     })
-        //     .catch((err) => {
-        //         console.error('Failed to get local stream', err);
-        //     });
     }
 
     sendMessage(message: string): void {

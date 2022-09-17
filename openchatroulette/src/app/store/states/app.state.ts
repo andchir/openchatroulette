@@ -74,39 +74,16 @@ export class AppState {
             return this.peerjsService.connect()
                 .then((peerId) => {
 
+                    const {user_media} = this.store.snapshot();
+                    this.peerjsService.localStream = user_media?.localStream;
+
                     ctx.patchState({connected: true});
                     ctx.dispatch([new AppAction.SetPeerId(peerId), new AppAction.NextPeer()]);
-
-                    this.peerjsService.dataConnectionCreated$
-                        .pipe(skip(1), takeUntil(this.peerjsService.connected$))
-                        .subscribe({
-                            next: (v) => {
-                                console.log('dataConnectionCreated', v);
-                            }
-                        });
-
-                    this.peerjsService.mediaConnectionCreated$
-                        .pipe(skip(1), takeUntil(this.peerjsService.connected$))
-                        .subscribe({
-                            next: (v) => {
-                                console.log('mediaConnectionCreated', v);
-                                if (v) {
-                                    if (this.peerjsService.mediaConnection) {
-                                        const {user_media} = this.store.snapshot();
-                                        if (user_media.localStream) {
-                                            // this.peerjsService.mediaConnection.localStream = user_media.localStream;
-                                            this.peerjsService.localStream = user_media.localStream;
-                                        }
-                                    }
-                                }
-                            }
-                        });
 
                     this.peerjsService.remotePeerConnected$
                         .pipe(skip(1), takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (remotePeerId) => {
-                                console.log('remotePeerConnected', remotePeerId);
                                 if (remotePeerId) {
                                     if (this.peerjsService.dataConnection?.peer) {
                                         ctx.dispatch(new AppAction.SetRemotePeerId(this.peerjsService.dataConnection.peer));
@@ -150,6 +127,7 @@ export class AppState {
                     console.log(error);
                 })
         } else {
+            this.peerjsService.localStream = undefined;
             this.peerjsService.disconnect(true);
             ctx.dispatch(new AppAction.SetPeerId(''));
             ctx.patchState({connected: false});
@@ -189,10 +167,7 @@ export class AppState {
 
     @Action(AppAction.GetRemoteStream)
     getRemoteStream(ctx: StateContext<AppStateModel>, action: AppAction.GetRemoteStream) {
-        this.peerjsService.connectToPeer(action.payload)
-            .catch((err) => {
-                console.log(err);
-            });
+        this.peerjsService.connectToPeer(action.payload);
     }
 
     @Action(AppAction.SetRemoteStream)
