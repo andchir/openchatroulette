@@ -277,7 +277,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             this.countrySearchTerm = '';
             this.optionsPanelToggle('');
-        }, 500);
+        }, 400);
     }
 
     ngOnDestroy(): void {
