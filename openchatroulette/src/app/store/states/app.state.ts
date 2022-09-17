@@ -69,6 +69,16 @@ export class AppState {
         return state.messages;
     }
 
+    @Selector()
+    static countryCode(state: AppStateModel) {
+        return state.countryCode;
+    }
+
+    @Selector()
+    static purpose(state: AppStateModel) {
+        return state.purpose;
+    }
+
     @Action(AppAction.SetConnected)
     setConnected(ctx: StateContext<AppStateModel>, action: AppAction.SetConnected): Promise<any> {
         if (action.payload && ctx.getState().readyToConnect) {

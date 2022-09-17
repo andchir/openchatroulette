@@ -8,7 +8,8 @@ import {AnimationService} from './services/animation.service';
 import {AppState} from './store/states/app.state';
 import {UserMediaState} from './store/states/user-media.state';
 import {AppAction} from './store/actions/app.actions';
-import {UserMediaAction} from "./store/actions/user-media.actions";
+import {UserMediaAction} from './store/actions/user-media.actions';
+import {Country, countries} from './models/countries';
 
 declare const window: Window;
 
@@ -24,6 +25,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @Select(AppState.remotePeerConnected) remotePeerConnectedState$: Observable<boolean>;
     @Select(AppState.messages) messages$: Observable<TextMessageInterface[]>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
+    @Select(AppState.countryCode) countryCode$: Observable<string>;
+    @Select(AppState.purpose) purpose$: Observable<string>;
 
     @Select(UserMediaState.localStream) localStream$: Observable<MediaStream|null>;
     @Select(UserMediaState.devices) devices$: Observable<InputDeviceInfo[]>;
@@ -39,6 +42,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     isConnected$ = new BehaviorSubject(false);
     devicesList$ = new BehaviorSubject<InputDeviceInfo[]>([]);
 
+    countries: Country[];
     optionsPanelOpened = '';
     videoWidth = 400;
     videoHeight = 400;
@@ -49,7 +53,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     constructor(
         private store: Store,
         private animationService: AnimationService
-    ) {}
+    ) {
+        this.countries = countries;
+    }
 
     @HostListener('window:resize', ['$event.target'])
     onResize(window: Window): void {

@@ -42,7 +42,8 @@ peerServer.on('connection', (client) => {
     Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
         let countryCode, countryName;
         try {
-            const response = reader.country(ip.address());
+            // const response = reader.country(ip.address());
+            const response = reader.country('212.109.29.29');
             countryCode = response.country.isoCode;
             countryName = response.country.names.en;
         } catch (e) {

@@ -85,28 +85,17 @@
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'left'">
                         <div class="card-body p-5">
                             <h3 class="mb-4">Country</h3>
-                            <form action="" method="post">
-                                <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-country1">
-                                    <label for="field-radio-country1">Albania</label>
-                                    <div class="check"></div>
-                                </div>
-                                <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-country2">
-                                    <label for="field-radio-country2">USA</label>
-                                    <div class="check"></div>
-                                </div>
-                                <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-country3" checked>
-                                    <label for="field-radio-country3">Russia</label>
-                                    <div class="check"></div>
-                                </div>
-                                <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-country4">
-                                    <label for="field-radio-country4">Ukraine</label>
-                                    <div class="check"></div>
-                                </div>
-                            </form>
+                            <div class="options-panel-body">
+                                <form action="" method="post">
+                                    <div class="form-radio-button" *ngFor="let country of countries">
+                                        <input type="radio" name="purpose" id="field-radio-country-{{ country.code }}"
+                                               [value]="country.code"
+                                               [ngModel]="countryCode$ | async">
+                                        <label for="field-radio-country-{{ country.code }}">{{ country.name }}</label>
+                                        <div class="check"></div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -123,22 +112,30 @@
                             <h3 class="mb-4">Purpose</h3>
                             <form action="" method="post">
                                 <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-purpose1">
+                                    <input type="radio" name="purpose" id="field-radio-purpose1"
+                                           value="dating"
+                                           [ngModel]="purpose$ | async">
                                     <label for="field-radio-purpose1">Dating < 18</label>
                                     <div class="check"></div>
                                 </div>
                                 <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-purpose2">
+                                    <input type="radio" name="purpose" id="field-radio-purpose2"
+                                           value="dating18"
+                                           [ngModel]="purpose$ | async">
                                     <label for="field-radio-purpose2">Dating 18+</label>
                                     <div class="check"></div>
                                 </div>
                                 <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-purpose3" checked>
+                                    <input type="radio" name="purpose" id="field-radio-purpose3"
+                                           value="discussion"
+                                           [ngModel]="purpose$ | async">
                                     <label for="field-radio-purpose3">Discussions</label>
                                     <div class="check"></div>
                                 </div>
                                 <div class="form-radio-button">
-                                    <input type="radio" name="purpose" id="field-radio-purpose4">
+                                    <input type="radio" name="purpose" id="field-radio-purpose4"
+                                           value="broadcast"
+                                           [ngModel]="purpose$ | async">
                                     <label for="field-radio-purpose4">Broadcast</label>
                                     <div class="check"></div>
                                 </div>
