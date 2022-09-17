@@ -117,7 +117,7 @@ export class UserMediaState {
                 return stream;
             })
             .catch((err) => {
-                // console.log(err);
+                console.log(err);
                 ctx.dispatch(new UserMediaAction.SetLocalStream(null));
             });
     }

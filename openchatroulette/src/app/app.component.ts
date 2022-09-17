@@ -1,7 +1,6 @@
 import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {BehaviorSubject, Observable, skip, Subject, takeUntil} from 'rxjs';
-import {DataConnection} from 'peerjs';
 import {Store, Select} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
@@ -40,14 +39,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     isConnected$ = new BehaviorSubject(false);
     devicesList$ = new BehaviorSubject<InputDeviceInfo[]>([]);
 
+    optionsPanelOpened = '';
     videoWidth = 400;
     videoHeight = 400;
     isStarted = false;
-    messages: TextMessageInterface[] = [
-        {type: TextMessageType.Question, message: 'Hi, friend!'},
-        {type: TextMessageType.Answer, message: 'Hi! What city are you from?'},
-        {type: TextMessageType.Question, message: 'I\'m from London.'}
-    ];
+    messages: TextMessageInterface[] = [];
     destroyed$ = new Subject<void>();
 
     constructor(
@@ -211,6 +207,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                 deviceId: (event.target as HTMLInputElement).value
             }));
         }, 1);
+    }
+
+    optionsPanelToggle(type: string): void {
+        if (this.optionsPanelOpened === type) {
+            this.optionsPanelOpened = '';
+            return;
+        }
+        this.optionsPanelOpened = type;
     }
 
     ngOnDestroy(): void {

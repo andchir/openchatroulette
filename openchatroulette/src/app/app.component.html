@@ -1,12 +1,12 @@
 <div class="row g-0">
     <div class="col-lg-6 order-last order-lg-first">
-        <div class="bg-secondary position-relative overflow-hidden" [style.height]="videoHeight + 'px'">
+        <div class="position-relative overflow-hidden bg-black border" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #remoteVideo></video>
             <canvas class="position-absolute left-top" #canvas></canvas>
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="position-relative show-on-hover-parent" [style.height]="videoHeight + 'px'" style="background-color: #000;">
+        <div class="position-relative show-on-hover-parent bg-black border" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #myVideo></video>
             <div class="position-absolute left-top w-100 h-100 show-on-hover show-on-hover-bg">
                 <div class="p-4">
@@ -52,7 +52,7 @@
         <div class="container-fluid">
             <div class="row mb-3">
                 <div class="col-6">
-                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5"
+                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5 px-0"
                             [disabled]="!(readyToConnectState$ | async) || !(remotePeerConnectedState$ | async) && (connectedState$ | async)"
                             (click)="rouletteStart()">
                         <div class="btn-animation">
@@ -63,7 +63,7 @@
                     </button>
                 </div>
                 <div class="col-6">
-                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 show-on-hover-parent"
+                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 px-0 show-on-hover-parent"
                             [disabled]="!(connectedState$ | async)"
                             (click)="rouletteStop()">
                         <div class="btn-animation">
@@ -75,16 +75,55 @@
             </div>
             <div class="row mb-3">
                 <div class="col-6">
-                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
-                        <span class="fs-5">Country:</span> All
+                    <button type="button" class="btn btn-secondary btn-options-panel btn-options-panel-left btn-lg d-block w-100 px-0"
+                        [ngClass]="{'active': optionsPanelOpened === 'left'}"
+                        (click)="optionsPanelToggle('left')">
+                        <span class="fs-6 me-2">Country:</span>
+                        <span class="fs-5 me-2">All</span>
                         <i-tabler name="chevron-up"></i-tabler>
                     </button>
+                    <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'left'">
+                        <div class="card-body p-5">
+                            <h3 class="mb-4">Country</h3>
+
+                        </div>
+                    </div>
                 </div>
                 <div class="col-6">
-                    <button type="button" class="btn btn-secondary btn-lg d-block w-100 fs-4">
-                        <span class="fs-5">Purpose:</span> Dating
+                    <button type="button" class="btn btn-secondary btn-options-panel btn-options-panel-right btn-lg d-block w-100 px-0"
+                        [ngClass]="{'active': optionsPanelOpened === 'right'}"
+                        (click)="optionsPanelToggle('right')">
+                        <span class="fs-6 me-2">Purpose:</span>
+                        <span class="fs-5 me-2">Dating</span>
                         <i-tabler name="chevron-up"></i-tabler>
                     </button>
+                    <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'right'">
+                        <div class="card-body p-5">
+                            <h3 class="mb-4">Purpose</h3>
+                            <form>
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-purpose1">
+                                    <label for="field-radio-purpose1">Dating 0 &mdash; 18</label>
+                                    <div class="check"></div>
+                                </div>
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-purpose2">
+                                    <label for="field-radio-purpose2">Dating 18+</label>
+                                    <div class="check"></div>
+                                </div>
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-purpose3" checked>
+                                    <label for="field-radio-purpose3">Discussions</label>
+                                    <div class="check"></div>
+                                </div>
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-purpose4">
+                                    <label for="field-radio-purpose4">Broadcast</label>
+                                    <div class="check"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,7 +155,7 @@
                            #messageField>
                 </div>
                 <div class="col-2">
-                    <button type="button" class="btn btn-info d-block w-100"
+                    <button type="button" class="btn btn-info d-block w-100 px-0"
                             [disabled]="!(remotePeerConnectedState$ | async)"
                             (click)="sendMessage(messageField)">
                         Send
@@ -128,4 +167,4 @@
     </div>
 </div>
 
-
+<div class="options-panel-backdrop" [ngClass]="{'active': optionsPanelOpened}" (click)="optionsPanelToggle('')"></div>
