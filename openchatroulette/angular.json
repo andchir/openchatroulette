@@ -9,6 +9,17 @@
             "root": "",
             "sourceRoot": "src",
             "prefix": "app",
+            "i18n": {
+                "sourceLocale": "en",
+                "locales": {
+                    "ru": {
+                        "translation": "src/locale/messages.ru.json"
+                    },
+                    "fr": {
+                        "translation": "src/locale/messages.fr.json"
+                    }
+                }
+            },
             "architect": {
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
@@ -37,6 +48,9 @@
                         ]
                     },
                     "configurations": {
+                        "ru": {
+                            "localize": ["ru"]
+                        },
                         "production": {
                             "budgets": [
                                 {
@@ -77,6 +91,9 @@
                         },
                         "development": {
                             "browserTarget": "openchatroulette:build:development"
+                        },
+                        "ru": {
+                            "browserTarget": "openchatroulette:build:development,ru"
                         }
                     },
                     "defaultConfiguration": "development"

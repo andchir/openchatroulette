@@ -57,8 +57,8 @@
                             (click)="rouletteStart()">
                         <div class="btn-animation">
                             <div class="btn-animation-icon"><i-tabler name="arrow-big-left" class="icon-big"></i-tabler></div>
-                            <span class="btn-animation-label" *ngIf="!(connectedState$ | async)">Start</span>
-                            <span class="btn-animation-label" *ngIf="connectedState$ | async">Next</span>
+                            <span class="btn-animation-label" *ngIf="!(connectedState$ | async)" i18n>Start</span>
+                            <span class="btn-animation-label" *ngIf="connectedState$ | async" i18n>Next</span>
                         </div>
                     </button>
                 </div>
@@ -68,7 +68,7 @@
                             (click)="rouletteStop()">
                         <div class="btn-animation">
                             <div class="btn-animation-icon"><i-tabler name="hand-stop" class="icon-big"></i-tabler></div>
-                            <span class="btn-animation-label">Stop</span>
+                            <span class="btn-animation-label" i18n>Stop</span>
                         </div>
                     </button>
                 </div>
@@ -78,7 +78,7 @@
                     <button type="button" class="btn btn-secondary btn-options-panel btn-options-panel-left btn-lg d-block w-100 px-0"
                         [ngClass]="{'active': optionsPanelOpened === 'left'}"
                         (click)="optionsPanelToggle('left')">
-                        <span class="fs-6 me-2">Country:</span>
+                        <span class="fs-6 me-2" i18n>Country:</span>
                         <span class="fs-5 me-2 f32" [title]="currentCountryName">
                             <span class="align-middle flag" [ngClass]="countryCode$ | async | lowercase"></span>
                         </span>
@@ -88,11 +88,11 @@
                         <div class="card-body p-5">
                             <div class="row mb-3">
                                 <div class="col-md-5">
-                                    <h3>Country</h3>
+                                    <h3 i18n>Country</h3>
                                 </div>
                                 <div class="col-md-7">
                                     <div>
-                                        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="countrySearchTerm">
+                                        <input type="text" class="form-control" i18n-placeholder placeholder="Search..." [(ngModel)]="countrySearchTerm">
                                     </div>
                                 </div>
                             </div>
@@ -118,13 +118,13 @@
                     <button type="button" class="btn btn-secondary btn-options-panel btn-options-panel-right btn-lg d-block w-100 px-0"
                         [ngClass]="{'active': optionsPanelOpened === 'right'}"
                         (click)="optionsPanelToggle('right')">
-                        <span class="fs-6 me-2">Purpose:</span>
+                        <span class="fs-6 me-2" i18n>Purpose:</span>
                         <span class="fs-5 me-2">{{ currentPurposeName }}</span>
                         <i-tabler name="chevron-up"></i-tabler>
                     </button>
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'right'">
                         <div class="card-body p-5">
-                            <h3 class="mb-4">Purpose</h3>
+                            <h3 class="mb-4" i18n>Purpose</h3>
                             <div class="options-panel-body">
                                 <form action="" method="post">
                                     <div class="form-radio-button" *ngFor="let purpose of purposeList; index as index">
@@ -164,7 +164,7 @@
         <div class="container-fluid">
             <div class="row g-2">
                 <div class="col-10">
-                    <input type="text" class="form-control shadow-sm" placeholder="Enter your message"
+                    <input type="text" class="form-control shadow-sm" i18n-placeholder placeholder="Enter your message"
                            [disabled]="!(remotePeerConnectedState$ | async)"
                            (keyup)="onMessageFieldKeyUp($event)"
                            #messageField>
@@ -172,7 +172,7 @@
                 <div class="col-2">
                     <button type="button" class="btn btn-info d-block w-100 px-0"
                             [disabled]="!(remotePeerConnectedState$ | async)"
-                            (click)="sendMessage(messageField)">
+                            (click)="sendMessage(messageField)" i18n>
                         Send
                     </button>
                 </div>
