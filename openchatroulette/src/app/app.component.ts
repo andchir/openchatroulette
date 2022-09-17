@@ -45,10 +45,10 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     countries: Country[];
     purposeList = [
-        {name: Purpose.Dating, title: 'Dating < 18'},
-        {name: Purpose.Dating18, title: 'Dating 18+'},
-        {name: Purpose.Discussion, title: 'Discussion'},
-        {name: Purpose.Broadcast, title: 'Broadcast'}
+        {name: Purpose.Dating, title: $localize `Dating < 18`},
+        {name: Purpose.Dating18, title: $localize `Dating 18+`},
+        {name: Purpose.Discussion, title: $localize `Discussion`},
+        {name: Purpose.Broadcast, title: $localize `Broadcast`}
     ];
     currentPurposeName = '';
     currentCountryName = '';
@@ -117,9 +117,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                     const index = this.countries.findIndex((country) => {
                         return country.code === res;
                     });
-                    this.currentCountryName = index > -1 ? this.countries[index].name : 'All';
+                    this.currentCountryName = index > -1 ? this.countries[index].name : $localize `All`;
                 } else {
-                    this.currentCountryName = 'All';
+                    this.currentCountryName = $localize `All`;
                 }
             }
         });

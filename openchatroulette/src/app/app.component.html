@@ -132,7 +132,7 @@
                                                [value]="purpose.name"
                                                [ngModel]="purpose$ | async"
                                                (click)="setOptions('purpose', purpose.name)">
-                                        <label for="field-radio-purpose{{ index }}">{{ purpose.title }}</label>
+                                        <label for="field-radio-purpose{{ index }}" i18n="">{{ purpose.title }}</label>
                                         <div class="check"></div>
                                     </div>
                                 </form>

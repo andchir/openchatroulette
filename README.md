@@ -1,5 +1,8 @@
 # OpenChatRoulette
 
+# How to install
+
+... will be later...   
 
 # Development
 
