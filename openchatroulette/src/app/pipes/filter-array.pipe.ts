@@ -1,10 +1,10 @@
-import {Pipe} from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
     name: 'filter',
     pure: false
 })
-export class FilterArrayPipe {
+export class FilterArrayPipe implements PipeTransform {
     transform(value: any, filter: {[key: string]: string|boolean}, skipEmpty = false): any {
         if (filter && Array.isArray(value)) {
             const filterKeys = Object.keys(filter);
@@ -21,6 +21,21 @@ export class FilterArrayPipe {
                 }, true));
         } else {
             return value;
+        }
+    }
+}
+
+@Pipe({
+    name: 'filterItems'
+})
+export class FilterItemsPipe implements PipeTransform {
+    transform(items: any[], key: string, value: string) {
+        if (key && value) {
+            return items.filter(item => {
+                return item[key].toUpperCase().indexOf(value.toUpperCase()) > -1;
+            });
+        } else {
+            return items;
         }
     }
 }

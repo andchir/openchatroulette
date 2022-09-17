@@ -75,7 +75,7 @@
 
 /* options-panel */
 .options-panel { left: 12px; top: 12px; width: calc(50% - 24px); height: calc(100% - 94px); background-color: #e9e9e9; border: 1px solid #348feb; z-index: 100; }
-.options-panel-body { width: 89%; height: calc(100% - 130px); overflow: hidden; overflow-y: auto; position: absolute; }
+.options-panel-body { width: calc(100% - 100px); height: calc(100% - 160px); overflow: hidden; overflow-y: auto; position: absolute; }
 .btn-options-panel { transition: padding 300ms, margin 300ms; }
 .btn-options-panel.active { padding-top: 25px; margin-top: -29px; padding-bottom: 20px; background: linear-gradient(to bottom, #e9e9e9 35%, #fff 90%); position: relative; z-index: 100; }
 .btn-options-panel.active,

@@ -86,10 +86,19 @@
                     </button>
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'left'">
                         <div class="card-body p-5">
-                            <h3 class="mb-4">Country</h3>
+                            <div class="row mb-3">
+                                <div class="col-md-5">
+                                    <h3>Country</h3>
+                                </div>
+                                <div class="col-md-7">
+                                    <div>
+                                        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="countrySearchTerm">
+                                    </div>
+                                </div>
+                            </div>
                             <div class="options-panel-body">
                                 <form action="" method="post">
-                                    <div class="form-radio-button" *ngFor="let country of countries">
+                                    <div class="form-radio-button" *ngFor="let country of countries | filterItems : 'name' : countrySearchTerm | sortSelected: 'name' : currentCountryName">
                                         <input type="radio" name="purpose" id="field-radio-country-{{ country.code }}"
                                                [value]="country.code"
                                                [ngModel]="countryCode$ | async"
@@ -116,16 +125,18 @@
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'right'">
                         <div class="card-body p-5">
                             <h3 class="mb-4">Purpose</h3>
-                            <form action="" method="post">
-                                <div class="form-radio-button" *ngFor="let purpose of purposeList; index as index">
-                                    <input type="radio" name="purpose" id="field-radio-purpose{{ index }}"
-                                           [value]="purpose.name"
-                                           [ngModel]="purpose$ | async"
-                                           (click)="setOptions('purpose', purpose.name)">
-                                    <label for="field-radio-purpose{{ index }}">{{ purpose.title }}</label>
-                                    <div class="check"></div>
-                                </div>
-                            </form>
+                            <div class="options-panel-body">
+                                <form action="" method="post">
+                                    <div class="form-radio-button" *ngFor="let purpose of purposeList; index as index">
+                                        <input type="radio" name="purpose" id="field-radio-purpose{{ index }}"
+                                               [value]="purpose.name"
+                                               [ngModel]="purpose$ | async"
+                                               (click)="setOptions('purpose', purpose.name)">
+                                        <label for="field-radio-purpose{{ index }}">{{ purpose.title }}</label>
+                                        <div class="check"></div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

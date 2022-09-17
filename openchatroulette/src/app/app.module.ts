@@ -29,12 +29,15 @@ import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {AppState} from './store/states/app.state';
 import {UserMediaState} from './store/states/user-media.state';
-import {FilterArrayPipe} from './pipes/filter-array.pipe';
+import {FilterArrayPipe, FilterItemsPipe} from './pipes/filter-array.pipe';
+import {SortSelectedPipe} from './pipes/sort-selected.pipe';
 
 @NgModule({
     declarations: [
         AppComponent,
-        FilterArrayPipe
+        FilterArrayPipe,
+        FilterItemsPipe,
+        SortSelectedPipe
     ],
     imports: [
         BrowserModule,

@@ -52,11 +52,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     ];
     currentPurposeName = '';
     currentCountryName = '';
+    countrySearchTerm = '';
     optionsPanelOpened = '';
     videoWidth = 400;
     videoHeight = 400;
     isStarted = false;
     messages: TextMessageInterface[] = [];
+    timer: any;
     destroyed$ = new Subject<void>();
 
     constructor(
@@ -263,15 +265,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     setOptions(optionName: string, value: string): void {
-        switch (optionName) {
-            case 'country':
-                this.store.dispatch(new AppAction.UpdateCountryCode(value));
-                break;
-            case 'purpose':
-                this.store.dispatch(new AppAction.UpdatePurpose(value));
-                break;
-        }
-        this.optionsPanelToggle('');
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+            switch (optionName) {
+                case 'country':
+                    this.store.dispatch(new AppAction.UpdateCountryCode(value));
+                    break;
+                case 'purpose':
+                    this.store.dispatch(new AppAction.UpdatePurpose(value));
+                    break;
+            }
+            this.countrySearchTerm = '';
+            this.optionsPanelToggle('');
+        }, 500);
     }
 
     ngOnDestroy(): void {
