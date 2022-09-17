@@ -7,6 +7,13 @@ import {v4 as uuidv4} from 'uuid';
 
 import {environment} from '../../environments/environment';
 
+export enum ServerMessageType {
+    NewRemotePear = 'NEW_REMOTE_PEER',
+    CountryDetected = 'COUNTRY_DETECTED',
+    CountrySet = 'COUNTRY_SET',
+    PurposeSet = 'PURPOSE_SET'
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -61,18 +68,18 @@ export class PeerjsService {
         this.peer.socket.on('message', (data) => {
             console.log('MESSAGE', data);
             switch (data.type) {
-                case 'NEW_REMOTE_PEER':
+                case ServerMessageType.NewRemotePear:
                     if (data.peerId) {// Auto connect to peer
                         this.connectToPeer(data.peerId);
                     }
                     break;
-                case 'COUNTRY_DETECTED':
+                case ServerMessageType.CountryDetected:
                     this.countryDetected$.next(data.countryCode || '');
                     break;
             }
         });
 
-        this.peer.on('disconnected', (currentId: string) => {
+        this.peer.on('disconnected', () => {
             if (this.mediaConnection) {
                 this.mediaConnection.close();
             }
@@ -124,7 +131,7 @@ export class PeerjsService {
         if (!this.mediaConnection) {
             return;
         }
-        this.mediaConnection?.on('stream', (remoteStream) => {
+        this.mediaConnection?.on('stream', () => {
             clearTimeout(this.timer);
             this.timer = setTimeout(() => {
                 this.remotePeerConnected$.next(this.dataConnection?.peer || '');
@@ -144,7 +151,7 @@ export class PeerjsService {
 
     getRequestUrl(method: string): string {
         const protocol = this.peer.options.secure ? 'https' : 'http';
-        const { host, port, path, key } = this.peer.options;
+        const { host, port, path } = this.peer.options;
         return `${protocol}://${host}:${port}${path}${method}`;
     }
 
@@ -156,7 +163,14 @@ export class PeerjsService {
             );
     }
 
-    requestNextPear(): void {
+    requestNextPear(countryCode?: string, purpose?: string): void {
+        if (countryCode || purpose) {
+            this.sendMessageToServer('NEW_REMOTE_PEER_REQUEST', JSON.stringify({
+                countryCode,
+                purpose
+            }));
+            return;
+        }
         this.sendMessageToServer('NEW_REMOTE_PEER_REQUEST');
     }
 
@@ -175,7 +189,7 @@ export class PeerjsService {
         }
     }
 
-    callAnswer(remotePeerId: string): void {
+    callAnswer(remotePeerId?: string): void {
         if (!this.mediaConnection) {
             return;
         }
@@ -192,10 +206,10 @@ export class PeerjsService {
     }
 
     sendMessageToServer(type: string, message = ''): void {
-        if (this.peer.socket) {
+        if (this.peer && this.peer.socket) {
             (this.peer.socket as any)._socket.send(JSON.stringify({
                 type,
-                message
+                payload: message
             }));
         }
     }

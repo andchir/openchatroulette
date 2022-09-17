@@ -5,7 +5,7 @@ import {skip, takeUntil} from 'rxjs';
 
 import {AppAction} from '../actions/app.actions';
 import {TextMessageInterface, TextMessageType} from '../../models/textmessage.interface';
-import {PeerjsService} from '../../services/peerjs.service';
+import {PeerjsService, ServerMessageType} from '../../services/peerjs.service';
 import {Purpose} from '../../models/purpose.enum';
 
 export class AppStateModel {
@@ -177,7 +177,8 @@ export class AppState {
         if (ctx.getState().remotePeerId) {
             this.peerjsService.disconnect();
         } else {
-            this.peerjsService.requestNextPear();
+            const {countryCode, purpose} = ctx.getState();
+            this.peerjsService.requestNextPear(countryCode, purpose);
         }
     }
 
@@ -246,5 +247,17 @@ export class AppState {
         ctx.patchState({
             purpose: action.payload
         });
+    }
+
+    @Action(AppAction.UpdateCountryCode)
+    updateCountryCode(ctx: StateContext<AppStateModel>, action: AppAction.UpdateCountryCode) {
+        this.peerjsService.sendMessageToServer(ServerMessageType.CountrySet, action.payload);
+        ctx.dispatch(new AppAction.SetCountryCode(action.payload));
+    }
+
+    @Action(AppAction.UpdatePurpose)
+    updatePurpose(ctx: StateContext<AppStateModel>, action: AppAction.UpdatePurpose) {
+        this.peerjsService.sendMessageToServer(ServerMessageType.PurposeSet, action.payload);
+        ctx.dispatch(new AppAction.SetPurpose(action.payload));
     }
 }

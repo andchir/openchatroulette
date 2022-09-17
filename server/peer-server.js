@@ -42,8 +42,7 @@ peerServer.on('connection', (client) => {
     Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
         let countryCode, countryName;
         try {
-            // const response = reader.country(ip.address());
-            const response = reader.country('212.109.29.29');
+            const response = reader.country(ip.address());
             countryCode = response.country.isoCode;
             countryName = response.country.names.en;
         } catch (e) {
@@ -78,11 +77,24 @@ peerServer.on('disconnect', (client) => {
 
 peerServer.on('message', (client, message) => {
     console.log('message', client.getId(), message);
-    if (message.type === 'NEW_REMOTE_PEER_REQUEST') {
-        client.send({
-            type: 'NEW_REMOTE_PEER',
-            peerId: getNextPeerId(client.getId())
-        });
+    switch (message.type) {
+        case 'NEW_REMOTE_PEER_REQUEST':
+            if (message.payload && peers[client.getId()]) {
+                const data = JSON.parse(message.payload);
+                peers[client.getId()].countryCode = data.countryCode || '';
+                peers[client.getId()].purpose = data.purpose || 'discussion';
+            }
+            client.send({
+                type: 'NEW_REMOTE_PEER',
+                peerId: getNextPeerId(client.getId())
+            });
+            break;
+        case 'COUNTRY_SET':
+            peers[client.getId()].countryCode = message;
+            break;
+        case 'PURPOSE_SET':
+            peers[client.getId()].purpose = message;
+            break;
     }
 });
 

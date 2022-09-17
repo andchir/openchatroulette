@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {BehaviorSubject, Observable, skip, Subject, takeUntil} from 'rxjs';
-import {Store, Select} from '@ngxs/store';
+import {Select, Store} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 import {AnimationService} from './services/animation.service';
@@ -9,7 +9,8 @@ import {AppState} from './store/states/app.state';
 import {UserMediaState} from './store/states/user-media.state';
 import {AppAction} from './store/actions/app.actions';
 import {UserMediaAction} from './store/actions/user-media.actions';
-import {Country, countries} from './models/countries';
+import {countries, Country} from './models/countries';
+import {Purpose} from "./models/purpose.enum";
 
 declare const window: Window;
 
@@ -43,6 +44,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     devicesList$ = new BehaviorSubject<InputDeviceInfo[]>([]);
 
     countries: Country[];
+    purposeList = [
+        {name: Purpose.Dating, title: 'Dating < 18'},
+        {name: Purpose.Dating18, title: 'Dating 18+'},
+        {name: Purpose.Discussion, title: 'Discussion'},
+        {name: Purpose.Broadcast, title: 'Broadcast'}
+    ];
+    currentPurposeName = '';
+    currentCountryName = '';
     optionsPanelOpened = '';
     videoWidth = 400;
     videoHeight = 400;
@@ -97,6 +106,36 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             audio: true,
             video: true
         }));
+
+        this.countryCode$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe({
+            next: (res) => {
+                if (res) {
+                    const index = this.countries.findIndex((country) => {
+                        return country.code === res;
+                    });
+                    this.currentCountryName = index > -1 ? this.countries[index].name : 'All';
+                } else {
+                    this.currentCountryName = 'All';
+                }
+            }
+        });
+
+        this.purpose$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe({
+                next: (res) => {
+                    if (res) {
+                        const index = this.purposeList.findIndex((purpose) => {
+                            return purpose.name === res;
+                        });
+                        this.currentPurposeName = index > -1 ? this.purposeList[index].title : this.purposeList[2].title;
+                    } else {
+                        this.currentPurposeName = this.purposeList[2].title;
+                    }
+                }
+            });
 
         this.localStream$
             .pipe(skip(1), takeUntil(this.destroyed$))
@@ -221,6 +260,18 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
         this.optionsPanelOpened = type;
+    }
+
+    setOptions(optionName: string, value: string): void {
+        switch (optionName) {
+            case 'country':
+                this.store.dispatch(new AppAction.UpdateCountryCode(value));
+                break;
+            case 'purpose':
+                this.store.dispatch(new AppAction.UpdatePurpose(value));
+                break;
+        }
+        this.optionsPanelToggle('');
     }
 
     ngOnDestroy(): void {
