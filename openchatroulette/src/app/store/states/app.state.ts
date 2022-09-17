@@ -6,6 +6,7 @@ import {skip, takeUntil} from 'rxjs';
 import {AppAction} from '../actions/app.actions';
 import {TextMessageInterface, TextMessageType} from '../../models/textmessage.interface';
 import {PeerjsService} from '../../services/peerjs.service';
+import {Purpose} from '../../models/purpose.enum';
 
 export class AppStateModel {
     public connected: boolean;
@@ -15,6 +16,8 @@ export class AppStateModel {
     public remotePeerId: string;
     public remoteStream: MediaStream|null;
     public messages: TextMessageInterface[];
+    public countryCode: string;
+    public purpose: string;
 }
 
 const defaults = {
@@ -24,7 +27,9 @@ const defaults = {
     localPeerId: '',
     remotePeerId: '',
     remoteStream: null,
-    messages: []
+    messages: [],
+    countryCode: '',
+    purpose: Purpose.Discussion
 };
 
 @State<AppStateModel>({
@@ -122,6 +127,14 @@ export class AppState {
                             }
                         });
 
+                    this.peerjsService.countryDetected$
+                        .pipe(takeUntil(this.peerjsService.connected$))
+                        .subscribe({
+                            next: (countryCode) => {
+                                ctx.dispatch(new AppAction.SetCountryCode(countryCode));
+                            }
+                        });
+
                 })
                 .catch((error) => {
                     console.log(error);
@@ -208,6 +221,20 @@ export class AppState {
     messagesClear(ctx: StateContext<AppStateModel>, action: AppAction.MessagesClear) {
         ctx.patchState({
             messages: []
+        });
+    }
+
+    @Action(AppAction.SetCountryCode)
+    setCountryCode(ctx: StateContext<AppStateModel>, action: AppAction.SetCountryCode) {
+        ctx.patchState({
+            countryCode: action.payload
+        });
+    }
+
+    @Action(AppAction.SetPurpose)
+    setPurpose(ctx: StateContext<AppStateModel>, action: AppAction.SetPurpose) {
+        ctx.patchState({
+            purpose: action.payload
         });
     }
 }

@@ -4,6 +4,7 @@ const express = require('express');
 const http = require('http');
 var ip = require('ip');
 const {ExpressPeerServer, PeerServer} = require('peer');
+const Reader = require('@maxmind/geoip2-node').Reader;
 
 require('dotenv').config();
 
@@ -38,11 +39,29 @@ let peerWaiting = '';// TODO: create object with countries and purpose
 
 peerServer.on('connection', (client) => {
     console.log('connection', client.getId(), ip.address());
-    peers[client.getId()] = {
-        country: 'unknown',
-        purpose: ''
-    };
-    console.log(peers);
+    Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
+        let countryCode, countryName;
+        try {
+            const response = reader.country(ip.address());
+            countryCode = response.country.isoCode;
+            countryName = response.country.names.en;
+        } catch (e) {
+            // console.log('ERROR', e);
+            countryCode = '';
+            countryName = 'Unknown';
+        }
+        peers[client.getId()] = {
+            countryCode,
+            countryName,
+            purpose: ''
+        };
+        client.send({
+            type: 'COUNTRY_DETECTED',
+            countryCode,
+            countryName
+        });
+        console.log(peers);
+    });
 });
 
 peerServer.on('disconnect', (client) => {

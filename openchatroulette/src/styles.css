@@ -87,13 +87,16 @@
 .btn-options-panel-left.active + .options-panel:before { left: -1px; }
 .options-panel-backdrop { position: fixed; left: 0; top: 0; background-color: rgba(0,0,0,0.2); }
 .options-panel-backdrop.active { width: 100%; height: 100%; }
+@media (max-width: 992px) {
+    .options-panel { top: 312px; width: calc(100% - 24px); height: 450px; }
+}
 
 /* form-radio-button */
 .form-radio-button { position: relative; }
 .form-radio-button input[type=radio] { position: absolute; visibility: hidden; }
 .form-radio-button label { color: #777; display: block; position: relative; font-weight: 300; font-size: 1.35rem; padding: 15px 0 15px 50px; margin: 10px auto; z-index: 9; cursor: pointer; transition: color 400ms; }
 .form-radio-button:hover label { color: #000; }
-.form-radio-button .check { display: block; box-sizing: content-box; position: absolute; border: 5px solid #aaa; border-radius: 50%; height: 25px; width: 25px; top: 15px; left: 0; z-index: 5; transition: border 400ms; }
+.form-radio-button .check { display: block; position: absolute; border: 5px solid #aaa; border-radius: 50%; height: 35px; width: 35px; top: 15px; left: 0; z-index: 5; transition: border 400ms; }
 .form-radio-button:hover .check { border: 5px solid #000; }
 .form-radio-button .check::before { content: ''; display: block; position: absolute; background: #348feb; border-radius: 50%; height: 15px; width: 15px; top: 5px; left: 5px; margin: auto; transform: scale(0); transition: background 300ms, transform 400ms; }
 .form-radio-button input[type=radio]:checked ~ .check { border: 5px solid #348feb; }

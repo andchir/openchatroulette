@@ -85,7 +85,28 @@
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'left'">
                         <div class="card-body p-5">
                             <h3 class="mb-4">Country</h3>
-
+                            <form action="" method="post">
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-country1">
+                                    <label for="field-radio-country1">Albania</label>
+                                    <div class="check"></div>
+                                </div>
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-country2">
+                                    <label for="field-radio-country2">USA</label>
+                                    <div class="check"></div>
+                                </div>
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-country3" checked>
+                                    <label for="field-radio-country3">Russia</label>
+                                    <div class="check"></div>
+                                </div>
+                                <div class="form-radio-button">
+                                    <input type="radio" name="purpose" id="field-radio-country4">
+                                    <label for="field-radio-country4">Ukraine</label>
+                                    <div class="check"></div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -100,10 +121,10 @@
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'right'">
                         <div class="card-body p-5">
                             <h3 class="mb-4">Purpose</h3>
-                            <form>
+                            <form action="" method="post">
                                 <div class="form-radio-button">
                                     <input type="radio" name="purpose" id="field-radio-purpose1">
-                                    <label for="field-radio-purpose1">Dating 0 &mdash; 18</label>
+                                    <label for="field-radio-purpose1">Dating < 18</label>
                                     <div class="check"></div>
                                 </div>
                                 <div class="form-radio-button">

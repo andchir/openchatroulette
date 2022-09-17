@@ -54,4 +54,14 @@ export namespace AppAction {
     export class MessagesClear {
         static readonly type = '[App] MessagesClear';
     }
+
+    export class SetCountryCode {
+        static readonly type = '[App] SetCountryCode';
+        constructor(public payload: string) {}
+    }
+
+    export class SetPurpose {
+        static readonly type = '[App] SetPurpose';
+        constructor(public payload: string) {}
+    }
 }

@@ -20,6 +20,7 @@ export class PeerjsService {
     remotePeerConnected$ = new BehaviorSubject<string>('');
     dataConnectionCreated$ = new BehaviorSubject<boolean>(false);
     mediaConnectionCreated$ = new BehaviorSubject<boolean>(false);
+    countryDetected$ = new BehaviorSubject<string>('');
     localStream: MediaStream|undefined;
     timer: any;
     public headers = new HttpHeaders({
@@ -58,11 +59,15 @@ export class PeerjsService {
 
     onConnected(): void {
         this.peer.socket.on('message', (data) => {
+            console.log('MESSAGE', data);
             switch (data.type) {
                 case 'NEW_REMOTE_PEER':
                     if (data.peerId) {// Auto connect to peer
                         this.connectToPeer(data.peerId);
                     }
+                    break;
+                case 'COUNTRY_DETECTED':
+                    this.countryDetected$.next(data.countryCode || '');
                     break;
             }
         });
