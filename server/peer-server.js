@@ -61,7 +61,7 @@ peerServer.on('connection', (client) => {
             countryCode,
             countryCodeDetected: countryCode,
             countryNameDetected: countryName,
-            purpose: ''
+            purpose: 'discussion'
         };
         client.send({
             type: 'COUNTRY_DETECTED',
