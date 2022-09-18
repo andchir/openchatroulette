@@ -32,7 +32,6 @@ server {
     
     ssl_certificate          /etc/letsencrypt/live/mydomain/fullchain.pem;
     ssl_certificate_key      /etc/letsencrypt/live/mydomain/privkey.pem;
-    ssl_trusted_certificate  /etc/letsencrypt/live/mydomain/chain.pem;
 
     location / {
         proxy_pass https://localhost:9000;
