@@ -30,7 +30,7 @@ npm run start
 
 Extract localization:
 ~~~
-ng extract-i18n --format=json --output-path src/locale
+npm run extract-i18n
 ~~~
 
 ### MIT License

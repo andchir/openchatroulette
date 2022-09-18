@@ -7,6 +7,7 @@
     "start-ru": "ng serve --configuration=ru --host 0.0.0.0 --disable-host-check",
     "build": "ng build --localize",
     "watch": "ng build --watch --configuration development",
+    "extract-i18n": "ng extract-i18n --format=json --output-path src/locale",
     "test": "ng test"
   },
   "private": true,
