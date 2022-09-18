@@ -8,9 +8,42 @@ Chat for a conversation with a random interlocutor. The WebRTC technology is use
 2. `cd openchatroulette` -> `npm install` -> `cd openchatroulette` -> `npm install`.
 3. Open and edit configuration files: "**.env**" and "**openchatroulette/src/environments/environment.prod.ts**".
 4. Build static production files: `npm build`.
-5. Download and unpack MaxMind's "**GeoLite2-Country_xxx.tar.gz**" to "**geoip**" folder.
-6. Start server: `cd ..` -> `npm run peer-server` or `node server/peer-server.js`.
-7. Open in browser: "**http://localhost:9000**".
+5. return to root folder: `cd ..`. Download and unpack MaxMind's "**GeoLite2-Country_xxx.tar.gz**" to "**geoip**" folder.
+6. Install process manager for NodeJS: `sudo npm install -g pm2`
+7. Start server: `pm2 start server/peer-server.js`.
+8. Open in browser: "**http://localhost:9000**".
+9. Look application status: `pm2 info peer-server` or `pm2 monit`.
+
+# Nginx configuration
+
+~~~
+server {
+    listen 80;
+    server_name website.domain.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name website.domain.com;
+    
+    client_max_body_size 250m;
+    
+    ssl_certificate          /etc/letsencrypt/live/mydomain/fullchain.pem;
+    ssl_certificate_key      /etc/letsencrypt/live/mydomain/privkey.pem;
+    ssl_trusted_certificate  /etc/letsencrypt/live/mydomain/chain.pem;
+
+    location / {
+        proxy_pass https://localhost:9000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+~~~
 
 # Libraries used
 - Angular with NGXS

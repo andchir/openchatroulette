@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 
 const express = require('express');
@@ -112,12 +114,6 @@ peerServer.on('message', (client, message) => {
 
 peerServer.on('error', (error) => {
     console.log('error', error);
-});
-
-app.get('/openchatroulette/random_peer/:id', (req, res) => {
-    return res.json({
-        peerId: getNextPeerId(req.params.id)
-    });
 });
 
 const logging = (...args) => {
