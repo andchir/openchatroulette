@@ -59,7 +59,8 @@ peerServer.on('connection', (client) => {
         }
         peers[client.getId()] = {
             countryCode,
-            countryName,
+            countryCodeDetected: countryCode,
+            countryNameDetected: countryName,
             purpose: ''
         };
         client.send({
