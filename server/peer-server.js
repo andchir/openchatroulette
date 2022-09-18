@@ -2,29 +2,36 @@
 
 const express = require('express');
 const http = require('http');
-const path    = require('path');
+const https = require('https');
+const path = require('path');
+const fs = require('fs');
 const ip = require('ip');
-const {ExpressPeerServer, PeerServer} = require('peer');
+const {ExpressPeerServer} = require('peer');
 const Reader = require('@maxmind/geoip2-node').Reader;
 
 require('dotenv').config();
 
-const app = express();
-const server = http.createServer(app);
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 9000;
 const environment = process.env.NODE_ENV || 'prod';
+const app = express();
+const server = process.env.SECURE === 'true'
+    ? https.createServer({
+        key: fs.readFileSync(process.env.SSL_KEY),
+        cert: fs.readFileSync(process.env.SSL_CERT)
+    }, app)
+    : http.createServer(app);
 
 const peerServer = ExpressPeerServer(server, {
     proxied: true,
     debug: true,
     // allow_discovery: true,//Allow to use GET /:key/peers
     path: '/openchatroulette',
-    secure: false,
+    secure: process.env.SECURE === 'true',
     key: 'peerjs',
-    ssl: {
-        // key: fs.readFileSync('/path/to/your/ssl/key/here.key'),
-        // cert: fs.readFileSync('/path/to/your/ssl/certificate/here.crt')
-    }
+    ssl: process.env.SECURE === 'true' ? {
+        key: fs.readFileSync(process.env.SSL_KEY),
+        cert: fs.readFileSync(process.env.SSL_CERT)
+    } : {}
 });
 
 app.use(express.static(path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette')));

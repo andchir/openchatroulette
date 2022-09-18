@@ -4,7 +4,7 @@
 
 export const environment = {
     production: false,
-    port: 8000,
+    port: 9000,
     peerServerPath: '/openchatroulette'
 };
 
