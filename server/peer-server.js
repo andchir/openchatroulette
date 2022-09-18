@@ -7,7 +7,6 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 const fs = require('fs');
-const ip = require('ip');
 const {ExpressPeerServer} = require('peer');
 const Reader = require('@maxmind/geoip2-node').Reader;
 
@@ -47,11 +46,12 @@ const peers = {};
 let peerWaiting = '';// TODO: create object with countries and purpose
 
 peerServer.on('connection', (client) => {
-    logging('connection', client.getId(), ip.address());
+    const clientIpAddress = client.getSocket()._socket.remoteAddress.replace('::ffff:', '');
+    logging('connection', client.getId(), clientIpAddress);
     Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
         let countryCode, countryName;
         try {
-            const response = reader.country(ip.address());
+            const response = reader.country(clientIpAddress);
             countryCode = response.country.isoCode;
             countryName = response.country.names.en;
         } catch (e) {
@@ -137,10 +137,12 @@ const getNextPeerId = (myPeerId) => {
 };
 
 app.get('/', (req, res) => {
+    const clientIpAddress = (req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress)
+        .replace('::ffff:', '');
     Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
         let countryCode;
         try {
-            const response = reader.country(ip.address());
+            const response = reader.country(clientIpAddress);
             countryCode = response.country.isoCode;
         } catch (e) {
             // console.log('ERROR', e);
