@@ -2,7 +2,8 @@
 
 const express = require('express');
 const http = require('http');
-var ip = require('ip');
+const path    = require('path');
+const ip = require('ip');
 const {ExpressPeerServer, PeerServer} = require('peer');
 const Reader = require('@maxmind/geoip2-node').Reader;
 
@@ -12,8 +13,6 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.PORT || 8000;
 const environment = process.env.NODE_ENV || 'prod';
-
-app.get('/', (req, res) => res.send('Welcome to OpenChatRoulette!'));
 
 const peerServer = ExpressPeerServer(server, {
     proxied: true,
@@ -28,6 +27,7 @@ const peerServer = ExpressPeerServer(server, {
     }
 });
 
+app.use(express.static(path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette')));
 app.use(peerServer);
 server.listen(port);
 
@@ -121,3 +121,22 @@ const getNextPeerId = (myPeerId) => {
     }
     return output;
 };
+
+app.get('/', (req, res) => {
+    Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
+        let countryCode;
+        try {
+            const response = reader.country(ip.address());
+            countryCode = response.country.isoCode;
+        } catch (e) {
+            // console.log('ERROR', e);
+            countryCode = 'en';
+        }
+        res.redirect(301, `/${countryCode.toLowerCase()}/`);
+    });
+});
+
+app.get('/:lang', (req, res) => {
+    // console.log(req.params);
+    res.redirect(301, '/en/');
+});

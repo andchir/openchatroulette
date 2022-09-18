@@ -66,7 +66,7 @@ export class PeerjsService {
 
     onConnected(): void {
         this.peer.socket.on('message', (data) => {
-            console.log('MESSAGE', data);
+            // console.log('MESSAGE', data);
             switch (data.type) {
                 case ServerMessageType.NewRemotePear:
                     if (data.peerId) {// Auto connect to peer
