@@ -45,7 +45,7 @@ const peers = {};
 let peerWaiting = '';// TODO: create object with countries and purpose
 
 peerServer.on('connection', (client) => {
-    console.log('connection', client.getId(), ip.address());
+    logging('connection', client.getId(), ip.address());
     Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
         let countryCode, countryName;
         try {
@@ -53,7 +53,7 @@ peerServer.on('connection', (client) => {
             countryCode = response.country.isoCode;
             countryName = response.country.names.en;
         } catch (e) {
-            // console.log('ERROR', e);
+            // logging('ERROR', e);
             countryCode = '';
             countryName = 'Unknown';
         }
@@ -67,23 +67,23 @@ peerServer.on('connection', (client) => {
             countryCode,
             countryName
         });
-        console.log(peers);
+        logging(peers);
     });
 });
 
 peerServer.on('disconnect', (client) => {
-    console.log('disconnect', client.getId());
+    logging('disconnect', client.getId());
     if (peers[client.getId()]) {
         if (peerWaiting === client.getId()) {
             peerWaiting = '';
         }
         delete peers[client.getId()];
     }
-    console.log(peers);
+    logging(peers);
 });
 
 peerServer.on('message', (client, message) => {
-    console.log('message', client.getId(), message);
+    logging('message', client.getId(), message);
     switch (message.type) {
         case 'NEW_REMOTE_PEER_REQUEST':
             if (message.payload && peers[client.getId()]) {
@@ -97,10 +97,14 @@ peerServer.on('message', (client, message) => {
             });
             break;
         case 'COUNTRY_SET':
-            peers[client.getId()].countryCode = message;
+            if (peers[client.getId()]) {
+                peers[client.getId()].countryCode = message;
+            }
             break;
         case 'PURPOSE_SET':
-            peers[client.getId()].purpose = message;
+            if (peers[client.getId()]) {
+                peers[client.getId()].purpose = message;
+            }
             break;
     }
 });
@@ -114,6 +118,12 @@ app.get('/openchatroulette/random_peer/:id', (req, res) => {
         peerId: getNextPeerId(req.params.id)
     });
 });
+
+const logging = (...args) => {
+    if (environment === 'dev') {
+        console.log(...args);
+    }
+};
 
 const getNextPeerId = (myPeerId) => {
     let output = '';
