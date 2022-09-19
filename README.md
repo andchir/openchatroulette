@@ -1,6 +1,6 @@
 # OpenChatRoulette
 
-Chat for a conversation with a random interlocutor. The WebRTC technology is used, which performs a peer-to-peer connection.
+Free, Open-source Chat for a conversation with a random interlocutor. The WebRTC technology is used, which performs a peer-to-peer connection.
 
 # How to install
 
