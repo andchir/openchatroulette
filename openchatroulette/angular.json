@@ -15,6 +15,9 @@
                     "ru": {
                         "translation": "src/locale/messages.ru.json"
                     },
+                    "ua": {
+                        "translation": "src/locale/messages.ua.json"
+                    },
                     "fr": {
                         "translation": "src/locale/messages.fr.json"
                     }
