@@ -150,6 +150,7 @@ app.get('/', (req, res) => {
         }
         res.redirect(301, `/${countryCode.toLowerCase()}/`);
     });
+    //res.sendFile(path.join(path.dirname(__dirname), '/openchatroulette/dist/openchatroulette/en/index.html'));
 });
 
 app.get('/:lang', (req, res) => {
