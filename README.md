@@ -7,12 +7,18 @@ Free, Open-source Chat for a conversation with a random interlocutor. The WebRTC
 1. `clone https://github.com/andchir/openchatroulette.git`
 2. `cd openchatroulette` -> `npm install` -> `cd openchatroulette` -> `npm install`.
 3. Open and edit configuration files: "**.env**" and "**openchatroulette/src/environments/environment.prod.ts**".
-4. Build static production files: `npm run build`.
+4. Build static production files (html, css, js): `npm run build`.
 5. return to root folder: `cd ..`. Download and unpack MaxMind's "**GeoLite2-Country_xxx.tar.gz**" to "**geoip**" folder.
 6. Install process manager for NodeJS: `sudo npm install -g pm2`
 7. Start server: `pm2 start server/peer-server.js`.
 8. Open in browser: "**http://localhost:9000**".
 9. Look application status: `pm2 info peer-server` or `pm2 monit`.
+
+## Optional
+10. Install STUN/TURN server. For example: [https://github.com/coturn/coturn](https://github.com/coturn/coturn)
+11. Open and edit file "openchatroulette/src/environments/environment.prod.ts".  
+    You can edit "stun_urls", "turn_urls", "turn_username", "turn_credential".
+12. Build production files again: `cd openchatroulette` -> `npm run build`.
 
 # Nginx configuration
 

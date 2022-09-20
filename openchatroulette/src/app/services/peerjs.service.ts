@@ -47,7 +47,19 @@ export class PeerjsService {
             this.peer = new Peer(peerId, {
                 port: environment.port || 9000,
                 host: '/',
-                path: environment.peerServerPath || '/openchatroulette'
+                path: environment.peerServerPath || '/openchatroulette',
+                secure: environment.secure || false,
+                config: {
+                    iceServers: [
+                        { urls: environment.stun_urls },
+                        {
+                            urls: environment.turn_urls,
+                            username: environment.turn_username,
+                            credential: environment.turn_credential,
+                        },
+                    ],
+                    sdpSemantics: 'unified-plan'
+                }
             });
             this.peer.on('open', (id) => {
                 this.connected$.next(true);
