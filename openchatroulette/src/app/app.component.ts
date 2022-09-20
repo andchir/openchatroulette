@@ -150,6 +150,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                         if (this.myVideo) {
                             this.myVideo.nativeElement.srcObject = stream;
                             this.myVideo.nativeElement.autoplay = true;
+                            this.myVideo.nativeElement.muted = true;
                         }
                         this.store.dispatch(new AppAction.SetReadyToConnect(true));
                     } else {
