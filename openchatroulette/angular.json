@@ -10,7 +10,10 @@
             "sourceRoot": "src",
             "prefix": "app",
             "i18n": {
-                "sourceLocale": "en",
+                "sourceLocale": {
+                    "code": "en",
+                    "baseHref": ""
+                },
                 "locales": {
                     "ru": {
                         "translation": "src/locale/messages.ru.json"

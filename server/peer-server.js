@@ -35,7 +35,11 @@ const peerServer = ExpressPeerServer(server, {
     } : {}
 });
 
-app.use(express.static(path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette')));
+app.set('views', path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette'))
+app.use(express.static(path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette/en')));
+app.use('/ru', express.static(path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette/ru')));
+app.use('/ua', express.static(path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette/ua')));
+app.use('/fr', express.static(path.join(path.dirname(__dirname), 'openchatroulette/dist/openchatroulette/fr')));
 app.use(peerServer);
 server.listen(port);
 
@@ -137,20 +141,9 @@ const getNextPeerId = (myPeerId) => {
 };
 
 app.get('/', (req, res) => {
-    const clientIpAddress = (req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress)
-        .replace('::ffff:', '');
-    Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
-        let countryCode;
-        try {
-            const response = reader.country(clientIpAddress);
-            countryCode = response.country.isoCode;
-        } catch (e) {
-            // console.log('ERROR', e);
-            countryCode = 'en';
-        }
-        res.redirect(301, `/${countryCode.toLowerCase()}/`);
+    res.sendFile('/en/index.html', {
+        root: app.get('views')
     });
-    //res.sendFile(path.join(path.dirname(__dirname), '/openchatroulette/dist/openchatroulette/en/index.html'));
 });
 
 app.get('/:lang', (req, res) => {
