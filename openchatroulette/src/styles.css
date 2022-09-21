@@ -7,6 +7,7 @@
 
 /* position */
 .left-top { left: 0; top: 0; }
+.left-bottom { left: 0; bottom: 0; }
 .right-top { right: 0; top: 0; }
 .center-middle { left: 50%; top: 50%; transform: translate(-50%, -50%); }
 

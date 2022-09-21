@@ -28,6 +28,7 @@
     "@types/uuid": "^8.3.4",
     "angular-tabler-icons": "^1.92.0",
     "bootstrap": "^5.2.0",
+    "ngx-bootstrap": "^9.0.0",
     "peerjs": "^1.4.7",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",

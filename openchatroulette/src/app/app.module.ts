@@ -2,10 +2,12 @@ import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {environment} from '../environments/environment';
 
 import {NgxsModule} from '@ngxs/store';
 import {NgxsLoggerPluginModule} from '@ngxs/logger-plugin';
+import {BsDropdownModule} from 'ngx-bootstrap/dropdown';
 
 import {TablerIconsModule} from 'angular-tabler-icons';
 import {
@@ -14,7 +16,8 @@ import {
     IconHandStop,
     IconArrowBigLeft,
     IconDeviceComputerCamera,
-    IconMicrophone
+    IconMicrophone,
+    IconMenu2
 } from 'angular-tabler-icons/icons';
 const icons = {
     IconChevronDown,
@@ -22,7 +25,8 @@ const icons = {
     IconHandStop,
     IconArrowBigLeft,
     IconDeviceComputerCamera,
-    IconMicrophone
+    IconMicrophone,
+    IconMenu2
 };
 
 import {AppRoutingModule} from './app-routing.module';
@@ -44,7 +48,9 @@ import {SortSelectedPipe} from './pipes/sort-selected.pipe';
         AppRoutingModule,
         HttpClientModule,
         FormsModule,
+        BrowserAnimationsModule,
 
+        BsDropdownModule.forRoot(),
         NgxsModule.forRoot([AppState, UserMediaState], {
             developmentMode: !environment.production
         }),

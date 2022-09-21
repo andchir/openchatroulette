@@ -9,7 +9,22 @@
         <div class="position-relative show-on-hover-parent bg-black border" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" muted #myVideo></video>
             <div class="position-absolute left-top w-100 h-100 show-on-hover show-on-hover-bg">
-                <div class="p-4">
+                <div class="position-absolute right-top p-4">
+                    <div class="btn-group" dropdown>
+                        <button id="button-basic" dropdownToggle type="button" class="btn btn-secondary rounded"
+                                aria-controls="dropdown-basic">
+                            <i-tabler name="menu-2" class="icon-big"></i-tabler>
+                        </button>
+                        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu dropdown-menu-right"
+                            role="menu" aria-labelledby="button-basic">
+                            <li role="menuitem"><a class="dropdown-item" href="/">English</a></li>
+                            <li role="menuitem"><a class="dropdown-item" href="/fr/">French</a></li>
+                            <li role="menuitem"><a class="dropdown-item" href="/ru/">Russian</a></li>
+                            <li role="menuitem"><a class="dropdown-item" href="/ua/">Ukrainian</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="position-absolute left-bottom p-4">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="input-group mb-3 text-white">
