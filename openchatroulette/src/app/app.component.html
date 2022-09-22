@@ -9,49 +9,71 @@
         <div class="position-relative show-on-hover-parent bg-black border" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" muted #myVideo></video>
             <div class="position-absolute left-top w-100 h-100 show-on-hover show-on-hover-bg">
-                <div class="position-absolute right-top p-4">
-                    <div class="btn-group" dropdown>
-                        <button id="button-basic" dropdownToggle type="button" class="btn btn-secondary rounded"
-                                aria-controls="dropdown-basic">
+                <div class="position-absolute right-top w-100 p-4">
+                    <div class="btn-group float-end" dropdown>
+                        <button id="button-lang" dropdownToggle type="button" class="btn btn-secondary rounded"
+                                aria-controls="dropdown-lang">
                             <i-tabler name="menu-2" class="icon-big"></i-tabler>
                         </button>
-                        <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu dropdown-menu-right"
-                            role="menu" aria-labelledby="button-basic">
-                            <li role="menuitem"><a class="dropdown-item" href="/">English</a></li>
-                            <li role="menuitem"><a class="dropdown-item" href="/fr/">French</a></li>
-                            <li role="menuitem"><a class="dropdown-item" href="/ru/">Russian</a></li>
-                            <li role="menuitem"><a class="dropdown-item" href="/ua/">Ukrainian</a></li>
+                        <ul id="dropdown-lang" *dropdownMenu class="dropdown-menu dropdown-menu-right"
+                            role="menu" aria-labelledby="button-lang">
+                            <li role="menuitem">
+                                <a class="dropdown-item" [ngClass]="{'active': locale === 'en'}" href="/" i18n>English</a>
+                            </li>
+                            <li role="menuitem">
+                                <a class="dropdown-item" [ngClass]="{'active': locale === 'fr'}" href="/fr/" i18n>French</a>
+                            </li>
+                            <li role="menuitem">
+                                <a class="dropdown-item" [ngClass]="{'active': locale === 'ru'}" href="/ru/" i18n>Russian</a>
+                            </li>
+                            <li role="menuitem">
+                                <a class="dropdown-item" [ngClass]="{'active': locale === 'ua'}" href="/ua/" i18n>Ukrainian</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
-                <div class="position-absolute left-bottom p-4">
+                <div class="position-absolute left-bottom w-100 p-4">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="input-group mb-3 text-white">
-                                <label class="input-group-text bg-transparent border-0" for="selectDeviceCamera">
-                                    <i-tabler name="device-computer-camera" style="color: white;" title="Camera"></i-tabler>
-                                </label>
-                                <select class="form-select form-select-lg rounded" id="selectDeviceCamera"
-                                        [ngModel]="videoInputDeviceCurrent$ | async"
-                                        (change)="onDeviceChange('videoinput', $event)">
-                                    <option [value]="device.deviceId" *ngFor="let device of devices$ | async | filter: {kind: 'videoinput'}">
-                                        {{ device.label }}
-                                    </option>
-                                </select>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="btn-group w-100" dropdown [dropup]="true">
+                                        <button id="button-camera" dropdownToggle type="button" class="btn btn-secondary btn-lg w-100 rounded"
+                                                aria-controls="dropdown-camera">
+                                            <i-tabler name="device-computer-camera"></i-tabler>
+                                            <span class="px-2" i18n>Camera</span>
+                                            <i-tabler name="chevron-up"></i-tabler>
+                                        </button>
+                                        <ul id="dropdown-camera" *dropdownMenu class="dropdown-menu w-100" role="menu" aria-labelledby="button-camera">
+                                            <li role="menuitem" *ngFor="let device of devices$ | async | filter: {kind: 'videoinput'}">
+                                                <a class="dropdown-item" [ngClass]="{'active': (videoInputDeviceCurrent$ | async) === device.deviceId}"
+                                                    href="#"
+                                                    (click)="onDeviceChange('videoinput', device)">
+                                                    {{ device.label }}
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="input-group mb-3">
-                                <label class="input-group-text bg-transparent border-0" for="selectDeviceMicrophone">
-                                    <i-tabler name="microphone" style="color: white;" title="Microphone"></i-tabler>
-                                </label>
-                                <select class="form-select form-select-lg rounded" id="selectDeviceMicrophone"
-                                        [ngModel]="audioInputDeviceCurrent$ | async"
-                                        (change)="onDeviceChange('audioinput', $event)">
-                                    <option [value]="device.deviceId" *ngFor="let device of devices$ | async | filter: {kind: 'audioinput'}">
-                                        {{ device.label }}
-                                    </option>
-                                </select>
+                            <div class="btn-group w-100" dropdown [dropup]="true">
+                                <button id="button-microphone" dropdownToggle type="button" class="btn btn-secondary btn-lg w-100 rounded"
+                                        aria-controls="dropdown-microphone">
+                                    <i-tabler name="microphone"></i-tabler>
+                                    <span class="px-2" i18n>Microphone</span>
+                                    <i-tabler name="chevron-up"></i-tabler>
+                                </button>
+                                <ul id="dropdown-microphone" *dropdownMenu class="dropdown-menu w-100" role="menu" aria-labelledby="button-microphone">
+                                    <li role="menuitem" *ngFor="let device of devices$ | async | filter: {kind: 'audioinput'}">
+                                        <a class="dropdown-item" [ngClass]="{'active': (audioInputDeviceCurrent$ | async) === device.deviceId}"
+                                            href="#"
+                                            (click)="onDeviceChange('audioinput', device)">
+                                            {{ device.label }}
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>

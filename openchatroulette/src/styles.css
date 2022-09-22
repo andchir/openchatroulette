@@ -105,3 +105,9 @@
 .form-radio-button input[type=radio]:checked ~ .check::before { transform: scale(1); }
 .form-radio-button input[type=radio]:checked ~ label { color: #348feb; }
 
+/* dropdown-menu */
+.dropdown-item { padding: 0.5rem 0.8rem; transition: background-color 300ms; }
+.dropdown-item.active { color: #000; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, #d9d9d9 100%) #ededed; }
+.dropdown-item:hover { color: #000; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, #d9d9d9 100%) #ededed; }
+.dropdown-menu { background: #ededed; box-shadow: 0 0 8px rgba(0,0,0,0.2); }
+

@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    HostListener,
+    Inject,
+    LOCALE_ID,
+    OnDestroy,
+    OnInit,
+    ViewChild
+} from '@angular/core';
 
 import {BehaviorSubject, Observable, skip, Subject, takeUntil} from 'rxjs';
 import {Select, Store} from '@ngxs/store';
@@ -62,6 +72,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     destroyed$ = new Subject<void>();
 
     constructor(
+        @Inject(LOCALE_ID) public locale: string,
         private store: Store,
         private animationService: AnimationService
     ) {
@@ -245,14 +256,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    onDeviceChange(kind: string, event: Event): void {
+    onDeviceChange(kind: string, device: InputDeviceInfo): void {
         if (this.isConnected$.getValue() || this.isRemotePeerConnected$.getValue()) {
             this.rouletteStop();
         }
         setTimeout(() => {
             this.store.dispatch(new UserMediaAction.SwitchMediaInput({
                 kind,
-                deviceId: (event.target as HTMLInputElement).value
+                deviceId: device.deviceId
             }));
         }, 1);
     }
