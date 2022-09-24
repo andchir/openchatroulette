@@ -101,6 +101,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        if (this.locale.indexOf('-') > -1) {
+            this.locale = this.locale.split('-')[0];
+        }
         this.connectedState$.subscribe(this.isConnected$);
         this.readyToConnectState$.subscribe(this.isReadyToConnect$);
         this.devices$.subscribe(this.devicesList$);
@@ -277,6 +280,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     setOptions(optionName: string, value: string): void {
+        if (!this.isReadyToConnect$.getValue()) {
+            return;
+        }
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {
             switch (optionName) {

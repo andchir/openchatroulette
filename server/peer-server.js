@@ -47,7 +47,7 @@ console.log('PeerServer initialized.');
 console.log(`Listening on: ${port}`);
 
 const peers = {};
-let peerWaiting = '';// TODO: create object with countries and purpose
+let peerWaiting = {};// TODO: create object with countries and purpose
 
 peerServer.on('connection', (client) => {
     const clientIpAddress = client.getSocket()._socket.remoteAddress.replace('::ffff:', '');
@@ -81,8 +81,9 @@ peerServer.on('connection', (client) => {
 peerServer.on('disconnect', (client) => {
     logging('disconnect', client.getId());
     if (peers[client.getId()]) {
-        if (peerWaiting === client.getId()) {
-            peerWaiting = '';
+        const peerWaitingValue = getPeerWaitingValue(client.getId());
+        if (peerWaitingValue === client.getId()) {
+            setPeerWaitingValue(client.getId(), '');
         }
         delete peers[client.getId()];
     }
@@ -91,16 +92,18 @@ peerServer.on('disconnect', (client) => {
 
 peerServer.on('message', (client, message) => {
     logging('message', client.getId(), message);
-    switch (message.type) {
+    switch (String(message.type)) {
         case 'NEW_REMOTE_PEER_REQUEST':
             if (message.payload && peers[client.getId()]) {
                 const data = JSON.parse(message.payload);
                 peers[client.getId()].countryCode = data.countryCode || '';
                 peers[client.getId()].purpose = data.purpose || 'discussion';
             }
+            const remotePeerId = getNextPeerId(client.getId());
             client.send({
                 type: 'NEW_REMOTE_PEER',
-                peerId: getNextPeerId(client.getId())
+                peerId: remotePeerId,
+                countryCode: getPeerData(remotePeerId, 'countryCodeDetected')
             });
             break;
         case 'COUNTRY_SET':
@@ -128,17 +131,52 @@ const logging = (...args) => {
 
 const getNextPeerId = (myPeerId) => {
     let output = '';
-    if (peerWaiting && peerWaiting !== myPeerId) {
-        output = peerWaiting;
-        peerWaiting = '';
+    const peerWaitingValue = getPeerWaitingValue(myPeerId);
+    if (peerWaitingValue && peerWaitingValue !== myPeerId) {
+        output = peerWaitingValue;
+        setPeerWaitingValue(myPeerId, '');
     } else {
-        if (myPeerId && !peerWaiting) {
-            peerWaiting = myPeerId;
+        if (myPeerId && !peerWaitingValue) {
+            setPeerWaitingValue(myPeerId);
         }
         output = '';
     }
     return output;
 };
+
+const getPeerWaitingValue = (myPeerId) => {
+    const myData = peers[myPeerId];
+    const countryCode = myData.countryCode || 'all';
+    const purpose = myData.purpose || 'all';
+    if (!peerWaiting[countryCode]) {
+        peerWaiting[countryCode] = {};
+    }
+    if (!peerWaiting[countryCode][purpose]) {
+        peerWaiting[countryCode][purpose] = '';
+    }
+    return peerWaiting[countryCode][purpose];
+};
+
+const setPeerWaitingValue = (myPeerId, value) => {
+    const myData = peers[myPeerId];
+    const countryCode = myData.countryCode || 'all';
+    const purpose = myData.purpose || 'all';
+    if (!peerWaiting[countryCode]) {
+        peerWaiting[countryCode] = {};
+    }
+    if (!peerWaiting[countryCode][purpose]) {
+        peerWaiting[countryCode][purpose] = '';
+    }
+    peerWaiting[countryCode][purpose] = typeof value !== 'undefined' ? value : myPeerId;
+};
+
+const getPeerData = (peerId, key) => {
+    if (!peerId) {
+        return '';
+    }
+    const peerData = peers[peerId];
+    return peerData ? (peerData[key] || '') : '';
+}
 
 app.get('/', (req, res) => {
     res.sendFile('/en/index.html', {
