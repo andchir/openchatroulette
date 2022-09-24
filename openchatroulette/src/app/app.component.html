@@ -3,13 +3,18 @@
         <div class="position-relative overflow-hidden bg-black border" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #remoteVideo></video>
             <canvas class="position-absolute left-top" #canvas></canvas>
+            <div class="position-absolute right-top p-4">
+                <div class="float-end f32 no-pointer-events" *ngIf="remoteCountryCode$ | async">
+                    <span class="align-middle flag" [ngClass]="remoteCountryCode$ | async"></span>
+                </div>
+            </div>
         </div>
     </div>
     <div class="col-lg-6">
         <div class="position-relative show-on-hover-parent bg-black border" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" muted #myVideo></video>
             <div class="position-absolute left-top w-100 h-100 show-on-hover show-on-hover-bg">
-                <div class="position-absolute right-top w-100 p-4">
+                <div class="position-absolute left-top w-100 p-4">
                     <div class="btn-group float-end" dropdown>
                         <button id="button-lang" dropdownToggle type="button" class="btn btn-secondary rounded"
                                 aria-controls="dropdown-lang">
@@ -77,6 +82,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="position-absolute left-top p-4">
+                <div class="f32 no-pointer-events" *ngIf="countryCode$ | async">
+                    <span class="align-middle flag" [ngClass]="countryCode$ | async"></span>
                 </div>
             </div>
         </div>

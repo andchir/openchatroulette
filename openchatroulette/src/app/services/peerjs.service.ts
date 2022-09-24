@@ -28,6 +28,7 @@ export class PeerjsService {
     dataConnectionCreated$ = new BehaviorSubject<boolean>(false);
     mediaConnectionCreated$ = new BehaviorSubject<boolean>(false);
     countryDetected$ = new BehaviorSubject<string>('');
+    remoteCountryCode$ = new BehaviorSubject<string>('');
     localStream: MediaStream|undefined;
     timer: any;
     public headers = new HttpHeaders({
@@ -82,7 +83,7 @@ export class PeerjsService {
             switch (data.type) {
                 case ServerMessageType.NewRemotePear:
                     if (data.peerId) {// Auto connect to peer
-                        this.connectToPeer(data.peerId);
+                        this.connectToPeer(data.peerId, data.countryCode || '');
                     }
                     break;
                 case ServerMessageType.CountryDetected:
@@ -131,6 +132,7 @@ export class PeerjsService {
             if (this.mediaConnection) {
                 this.mediaConnection.close();
             }
+            this.remoteCountryCode$.next('');
             this.dataConnection = null;
         });
         this.dataConnection.on('error', (e) => {
@@ -154,6 +156,7 @@ export class PeerjsService {
                 this.remotePeerConnected$.next('');
             }
             this.mediaConnectionCreated$.next(false);
+            this.remoteCountryCode$.next('');
             this.mediaConnection = null;
         });
         this.mediaConnection.on('error', (e) => {
@@ -186,10 +189,11 @@ export class PeerjsService {
         this.sendMessageToServer('NEW_REMOTE_PEER_REQUEST');
     }
 
-    connectToPeer(remotePeerId: string): void {
+    connectToPeer(remotePeerId: string, remotePeerCountryCode = ''): void {
         if (this.peer.disconnected) {
             return;
         }
+        this.remoteCountryCode$.next(remotePeerCountryCode);
         this.dataConnection = this.peer.connect(remotePeerId);
         if (!this.dataConnection) {
             return;

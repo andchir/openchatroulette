@@ -4,6 +4,7 @@
 .opacity70 { opacity: 0.7; }
 .round-0-top-left { border-top-left-radius: 0 !important; }
 .round-0-top-right { border-top-right-radius: 0 !important; }
+.no-pointer-events { pointer-events: none; user-select: none; }
 
 /* position */
 .left-top { left: 0; top: 0; }

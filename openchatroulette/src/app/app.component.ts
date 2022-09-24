@@ -36,6 +36,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @Select(AppState.remotePeerConnected) remotePeerConnectedState$: Observable<boolean>;
     @Select(AppState.messages) messages$: Observable<TextMessageInterface[]>;
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
+    @Select(AppState.remoteCountryCode) remoteCountryCode$: Observable<string>;
     @Select(AppState.countryCode) countryCode$: Observable<string>;
     @Select(AppState.purpose) purpose$: Observable<string>;
 
@@ -280,7 +281,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     setOptions(optionName: string, value: string): void {
-        if (!this.isReadyToConnect$.getValue()) {
+        if (!this.isConnected$.getValue()) {
             return;
         }
         clearTimeout(this.timer);

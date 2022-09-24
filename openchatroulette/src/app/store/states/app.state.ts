@@ -15,6 +15,7 @@ export class AppStateModel {
     public localPeerId: string;
     public remotePeerId: string;
     public remoteStream: MediaStream|null;
+    public remoteCountryCode: string;
     public messages: TextMessageInterface[];
     public countryCode: string;
     public purpose: string;
@@ -27,6 +28,7 @@ const defaults = {
     localPeerId: '',
     remotePeerId: '',
     remoteStream: null,
+    remoteCountryCode: '',
     messages: [],
     countryCode: '',
     purpose: Purpose.Discussion
@@ -62,6 +64,11 @@ export class AppState {
     @Selector()
     static remoteStream(state: AppStateModel) {
         return state.remoteStream;
+    }
+
+    @Selector()
+    static remoteCountryCode(state: AppStateModel) {
+        return state.remoteCountryCode;
     }
 
     @Selector()
@@ -126,6 +133,23 @@ export class AppState {
                             }
                         });
 
+                    this.peerjsService.countryDetected$
+                        .pipe(takeUntil(this.peerjsService.connected$))
+                        .subscribe({
+                            next: (countryCode) => {
+                                ctx.dispatch(new AppAction.SetCountryCode(countryCode.toLowerCase()));
+                            }
+                        });
+
+                    this.peerjsService.remoteCountryCode$
+                        .pipe(takeUntil(this.peerjsService.connected$))
+                        .subscribe({
+                            next: (countryCode) => {
+                                console.log(countryCode);
+                                ctx.dispatch(new AppAction.SetRemoteCountryCode(countryCode.toLowerCase()));
+                            }
+                        });
+
                     this.peerjsService.messageStream$
                         .pipe(takeUntil(this.peerjsService.connected$))
                         .subscribe({
@@ -134,14 +158,6 @@ export class AppState {
                                     type: TextMessageType.Question,
                                     message
                                 }));
-                            }
-                        });
-
-                    this.peerjsService.countryDetected$
-                        .pipe(takeUntil(this.peerjsService.connected$))
-                        .subscribe({
-                            next: (countryCode) => {
-                                ctx.dispatch(new AppAction.SetCountryCode(countryCode));
                             }
                         });
 
@@ -205,6 +221,13 @@ export class AppState {
     setRemotePeerConnected(ctx: StateContext<AppStateModel>, action: AppAction.SetRemotePeerConnected) {
         ctx.patchState({
             remotePeerConnected: action.payload
+        });
+    }
+
+    @Action(AppAction.SetRemoteCountryCode)
+    setRemoteCountryCode(ctx: StateContext<AppStateModel>, action: AppAction.SetRemoteCountryCode) {
+        ctx.patchState({
+            remoteCountryCode: action.payload
         });
     }
 

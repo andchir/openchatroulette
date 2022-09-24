@@ -41,6 +41,11 @@ export namespace AppAction {
         constructor(public payload: boolean) {}
     }
 
+    export class SetRemoteCountryCode {
+        static readonly type = '[App] SetRemoteCountryCode';
+        constructor(public payload: string) {}
+    }
+
     export class MessageSend {
         static readonly type = '[App] MessageSend';
         constructor(public payload: TextMessageInterface) {}
