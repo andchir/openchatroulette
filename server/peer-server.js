@@ -79,21 +79,18 @@ peerServer.on('connection', (client) => {
 });
 
 peerServer.on('disconnect', (client) => {
-    logging('disconnect', client.getId());
+    logging('DISCONNECT', client.getId());
     if (peers[client.getId()]) {
-        const peerWaitingValue = getPeerWaitingValue(client.getId());
-        if (peerWaitingValue === client.getId()) {
-            setPeerWaitingValue(client.getId(), '');
-        }
+        clearWaitingData(client.getId());
         delete peers[client.getId()];
     }
-    logging(peers);
+    logging('ALL PEERS', peers, peerWaiting);
 });
 
 peerServer.on('message', (client, message) => {
-    logging('message', client.getId(), message);
     switch (String(message.type)) {
         case 'NEW_REMOTE_PEER_REQUEST':
+            logging('MESSAGE', message.type, client.getId(), message);
             clearWaitingData(client.getId());
             if (message.payload && peers[client.getId()]) {
                 const data = JSON.parse(message.payload);
@@ -109,12 +106,16 @@ peerServer.on('message', (client, message) => {
             logging('ALL PEERS', peers, peerWaiting);
             break;
         case 'COUNTRY_SET':
+            logging('MESSAGE', message.type, client.getId(), message);
+            clearWaitingData(client.getId());
             if (peers[client.getId()]) {
                 setPeerData(client.getId(), 'countryCode', message.payload);
             }
             logging('ALL PEERS', peers, peerWaiting);
             break;
         case 'PURPOSE_SET':
+            logging('MESSAGE', message.type, client.getId(), message);
+            clearWaitingData(client.getId());
             if (peers[client.getId()]) {
                 setPeerData(client.getId(), 'purpose', message.payload);
             }
@@ -157,7 +158,7 @@ const getNextPeerId = (myPeerId) => {
 
 const getPeerWaitingValue = (myPeerId) => {
     const countryCode = getPeerData(myPeerId, 'countryCode', 'all');
-    const purpose = getPeerData(myPeerId, 'purpose', 'all');
+    const purpose = getPeerData(myPeerId, 'purpose', 'discussion');
     if (!peerWaiting[countryCode]) {
         peerWaiting[countryCode] = {};
     }
@@ -169,7 +170,7 @@ const getPeerWaitingValue = (myPeerId) => {
 
 const setPeerWaitingValue = (myPeerId, value) => {
     const countryCode = getPeerData(myPeerId, 'countryCode', 'all');
-    const purpose = getPeerData(myPeerId, 'purpose', 'all');
+    const purpose = getPeerData(myPeerId, 'purpose', 'discussion');
     if (!peerWaiting[countryCode]) {
         peerWaiting[countryCode] = {};
     }
