@@ -50,7 +50,7 @@ const peers = {};
 const peerWaiting = {};
 
 peerServer.on('connection', (client) => {
-    const clientIpAddress = '212.109.29.29';// client.getSocket()._socket.remoteAddress.replace('::ffff:', '');
+    const clientIpAddress = client.getSocket()._socket.remoteAddress.replace('::ffff:', '');
     logging('connection', client.getId(), clientIpAddress);
     Reader.open('geoip/GeoLite2-Country.mmdb').then(reader => {
         let countryCode, countryName;
