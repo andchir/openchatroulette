@@ -127,7 +127,7 @@
                         (click)="optionsPanelToggle('left')">
                         <span class="fs-6 me-2" i18n>Country:</span>
                         <span class="fs-5 me-2 f32" [title]="currentCountryName">
-                            <span class="align-middle flag" [ngClass]="countryCode$ | async | lowercase"></span>
+                            <span class="align-middle flag" [ngClass]="countryCode$ | async"></span>
                         </span>
                         <i-tabler name="chevron-up"></i-tabler>
                     </button>
