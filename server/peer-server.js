@@ -193,5 +193,9 @@ app.get('/', (req, res) => {
 
 app.get('/:lang', (req, res) => {
     // console.log(req.params);
+    if (req.params.lang && req.params.lang === 'en') {
+        res.redirect(301, '/');
+        return;
+    }
     res.redirect(301, '/en/');
 });
