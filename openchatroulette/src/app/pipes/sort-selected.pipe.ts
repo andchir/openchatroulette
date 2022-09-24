@@ -6,18 +6,15 @@ import {Pipe, PipeTransform} from "@angular/core";
 export class SortSelectedPipe implements PipeTransform {
     transform(items: any[], key: string, value: string) {
         if (key && value) {
-            return [...items.sort((a, b) => {
-                if (!a[key] || a[key] === value) {
-                    return -1;
-                }
-                if (a[key] < b[key]) {
-                    return -1;
-                }
-                if (a[key] > b[key]) {
-                    return 1;
-                }
-                return 0;
-            })];
+            const index = items.findIndex((item: any) => {
+                return item[key] === value;
+            });
+            if (index > -1) {
+                const selectedItem = items[index];
+                return [selectedItem, ...items.slice(0, index), ...items.slice(index + 1)];
+            } else {
+                return items;
+            }
         } else {
             return items;
         }
