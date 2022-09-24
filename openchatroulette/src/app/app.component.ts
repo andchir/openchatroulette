@@ -108,6 +108,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             this.locale = this.locale.split('-')[0];
         }
         this.connectedState$.subscribe(this.isConnected$);
+        this.remotePeerConnectedState$.subscribe(this.isRemotePeerConnected$);
         this.readyToConnectState$.subscribe(this.isReadyToConnect$);
         this.devices$.subscribe(this.devicesList$);
         this.videoInputDeviceCurrent$.subscribe(this.videoInputDevice$);
@@ -299,6 +300,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             this.countrySearchTerm = '';
             this.optionsPanelToggle('');
+            if (this.isConnected$.getValue() && !this.isRemotePeerConnected$.getValue()) {
+                setTimeout(this.rouletteStart.bind(this), 500);
+            }
         }, 400);
     }
 
