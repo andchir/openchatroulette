@@ -54,6 +54,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     isRemotePeerConnected$ = new BehaviorSubject(false);
     isConnected$ = new BehaviorSubject(false);
     devicesList$ = new BehaviorSubject<InputDeviceInfo[]>([]);
+    videoInputDevice$ = new BehaviorSubject('');
 
     countries: Country[];
     purposeList = [
@@ -109,6 +110,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         this.connectedState$.subscribe(this.isConnected$);
         this.readyToConnectState$.subscribe(this.isReadyToConnect$);
         this.devices$.subscribe(this.devicesList$);
+        this.videoInputDeviceCurrent$.subscribe(this.videoInputDevice$);
         this.connectionInit();
     }
 
@@ -262,6 +264,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     onDeviceChange(kind: string, device: InputDeviceInfo): void {
+        if (this.videoInputDevice$.getValue() === device.deviceId) {
+            return;
+        }
         if (this.isConnected$.getValue() || this.isRemotePeerConnected$.getValue()) {
             this.rouletteStop();
         }
