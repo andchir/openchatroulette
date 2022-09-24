@@ -47,7 +47,7 @@ console.log('PeerServer initialized.');
 console.log(`Listening on: ${port}`);
 
 const peers = {};
-let peerWaiting = {};// TODO: create object with countries and purpose
+const peerWaiting = {};
 
 peerServer.on('connection', (client) => {
     const clientIpAddress = client.getSocket()._socket.remoteAddress.replace('::ffff:', '');
