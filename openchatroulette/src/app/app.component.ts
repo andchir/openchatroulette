@@ -281,11 +281,13 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     setOptions(optionName: string, value: string): void {
-        if (!this.isConnected$.getValue()) {
-            return;
-        }
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {
+            if (!this.isConnected$.getValue()) {
+                this.countrySearchTerm = '';
+                this.optionsPanelToggle('');
+                return;
+            }
             switch (optionName) {
                 case 'country':
                     this.store.dispatch(new AppAction.UpdateCountryCode(value));
