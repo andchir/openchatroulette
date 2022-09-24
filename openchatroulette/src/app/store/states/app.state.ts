@@ -145,7 +145,6 @@ export class AppState {
                         .pipe(takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (countryCode) => {
-                                console.log(countryCode);
                                 ctx.dispatch(new AppAction.SetRemoteCountryCode(countryCode.toLowerCase()));
                             }
                         });

@@ -116,6 +116,13 @@ peerServer.on('message', (client, message) => {
                 peers[client.getId()].purpose = message;
             }
             break;
+        case 'ANSWER':
+            client.send({
+                type: 'REMOTE_COUNTRY_SET',
+                peerId: message.dst,
+                countryCode: getPeerData(message.dst, 'countryCodeDetected')
+            });
+            break;
     }
 });
 

@@ -11,6 +11,7 @@ export enum ServerMessageType {
     NewRemotePear = 'NEW_REMOTE_PEER',
     CountryDetected = 'COUNTRY_DETECTED',
     CountrySet = 'COUNTRY_SET',
+    RemoteCountrySet = 'REMOTE_COUNTRY_SET',
     PurposeSet = 'PURPOSE_SET'
 }
 
@@ -88,6 +89,9 @@ export class PeerjsService {
                     break;
                 case ServerMessageType.CountryDetected:
                     this.countryDetected$.next(data.countryCode || '');
+                    break;
+                case ServerMessageType.RemoteCountrySet:
+                    this.remoteCountryCode$.next(data.countryCode || '');
                     break;
             }
         });
