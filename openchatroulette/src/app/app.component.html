@@ -85,8 +85,8 @@
                 </div>
             </div>
             <div class="position-absolute left-top p-4">
-                <div class="f32 no-pointer-events" *ngIf="countryCode$ | async">
-                    <span class="align-middle flag" [ngClass]="countryCode$ | async"></span>
+                <div class="f32 no-pointer-events" *ngIf="countryCodeDetected$ | async">
+                    <span class="align-middle flag" [ngClass]="countryCodeDetected$ | async"></span>
                 </div>
             </div>
         </div>
@@ -126,10 +126,12 @@
                         [ngClass]="{'active': optionsPanelOpened === 'left'}"
                         (click)="optionsPanelToggle('left')">
                         <span class="fs-6 me-2" i18n>Country:</span>
-                        <span class="fs-5 me-2 f32" [title]="currentCountryName">
-                            <span class="align-middle flag" [ngClass]="countryCode$ | async"></span>
-                        </span>
-                        <i-tabler name="chevron-up"></i-tabler>
+                        <div class="d-block d-md-inline-block">
+                            <span class="fs-5 me-2 f32" [title]="currentCountryName">
+                                <span class="align-middle flag" [ngClass]="countryCode$ | async | lowercase"></span>
+                            </span>
+                            <i-tabler name="chevron-up"></i-tabler>
+                        </div>
                     </button>
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'left'">
                         <div class="card-body p-5">
@@ -166,8 +168,10 @@
                         [ngClass]="{'active': optionsPanelOpened === 'right'}"
                         (click)="optionsPanelToggle('right')">
                         <span class="fs-6 me-2" i18n>Purpose:</span>
-                        <span class="fs-5 me-2">{{ currentPurposeName }}</span>
-                        <i-tabler name="chevron-up"></i-tabler>
+                        <div class="d-block d-md-inline-block">
+                            <span class="fs-5 me-2">{{ currentPurposeName }}</span>
+                            <i-tabler name="chevron-up"></i-tabler>
+                        </div>
                     </button>
                     <div class="card options-panel position-absolute shadow-sm" *ngIf="optionsPanelOpened === 'right'">
                         <div class="card-body p-5">

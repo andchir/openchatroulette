@@ -65,6 +65,11 @@ export namespace AppAction {
         constructor(public payload: string) {}
     }
 
+    export class SetCountryCodeDetected {
+        static readonly type = '[App] SetCountryCodeDetected';
+        constructor(public payload: string) {}
+    }
+
     export class SetPurpose {
         static readonly type = '[App] SetPurpose';
         constructor(public payload: string) {}

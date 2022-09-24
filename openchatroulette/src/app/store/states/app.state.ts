@@ -18,6 +18,7 @@ export class AppStateModel {
     public remoteCountryCode: string;
     public messages: TextMessageInterface[];
     public countryCode: string;
+    public countryCodeDetected: string;
     public purpose: string;
 }
 
@@ -31,6 +32,7 @@ const defaults = {
     remoteCountryCode: '',
     messages: [],
     countryCode: '',
+    countryCodeDetected: '',
     purpose: Purpose.Discussion
 };
 
@@ -79,6 +81,11 @@ export class AppState {
     @Selector()
     static countryCode(state: AppStateModel) {
         return state.countryCode;
+    }
+
+    @Selector()
+    static countryCodeDetected(state: AppStateModel) {
+        return state.countryCodeDetected;
     }
 
     @Selector()
@@ -137,7 +144,7 @@ export class AppState {
                         .pipe(takeUntil(this.peerjsService.connected$))
                         .subscribe({
                             next: (countryCode) => {
-                                ctx.dispatch(new AppAction.SetCountryCode(countryCode.toLowerCase()));
+                                ctx.dispatch(new AppAction.SetCountryCodeDetected(countryCode.toLowerCase()));
                             }
                         });
 
@@ -261,6 +268,13 @@ export class AppState {
     setCountryCode(ctx: StateContext<AppStateModel>, action: AppAction.SetCountryCode) {
         ctx.patchState({
             countryCode: action.payload
+        });
+    }
+
+    @Action(AppAction.SetCountryCodeDetected)
+    setCountryCodeDetected(ctx: StateContext<AppStateModel>, action: AppAction.SetCountryCodeDetected) {
+        ctx.patchState({
+            countryCodeDetected: action.payload
         });
     }
 

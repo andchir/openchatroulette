@@ -226,7 +226,7 @@ export class PeerjsService {
     }
 
     sendMessageToServer(type: string, message = ''): void {
-        if (this.peer && this.peer.socket) {
+        if (this.peer && this.peer.socket && (this.peer.socket as any)._socket) {
             (this.peer.socket as any)._socket.send(JSON.stringify({
                 type,
                 payload: message

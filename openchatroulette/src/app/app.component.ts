@@ -38,6 +38,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
     @Select(AppState.remoteCountryCode) remoteCountryCode$: Observable<string>;
     @Select(AppState.countryCode) countryCode$: Observable<string>;
+    @Select(AppState.countryCodeDetected) countryCodeDetected$: Observable<string>;
     @Select(AppState.purpose) purpose$: Observable<string>;
 
     @Select(UserMediaState.localStream) localStream$: Observable<MediaStream|null>;
@@ -283,11 +284,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     setOptions(optionName: string, value: string): void {
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {
-            if (!this.isConnected$.getValue()) {
-                this.countrySearchTerm = '';
-                this.optionsPanelToggle('');
-                return;
-            }
             switch (optionName) {
                 case 'country':
                     this.store.dispatch(new AppAction.UpdateCountryCode(value));
