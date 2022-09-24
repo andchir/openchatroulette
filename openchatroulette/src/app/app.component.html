@@ -14,7 +14,7 @@
         <div class="position-relative show-on-hover-parent bg-black border" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" muted #myVideo></video>
             <div class="position-absolute left-top w-100 h-100 show-on-hover show-on-hover-bg">
-                <div class="position-absolute left-top w-100 p-4">
+                <div class="position-absolute left-top w-100 p-2 p-md-4">
                     <div class="btn-group float-end" dropdown>
                         <button id="button-lang" dropdownToggle type="button" class="btn btn-secondary rounded"
                                 aria-controls="dropdown-lang">
@@ -37,7 +37,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="position-absolute left-bottom w-100 p-4">
+                <div class="position-absolute left-bottom w-100 p-2 p-md-4">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="row">
@@ -84,7 +84,7 @@
                     </div>
                 </div>
             </div>
-            <div class="position-absolute left-top p-4">
+            <div class="position-absolute left-top p-2 p-md-4">
                 <div class="f32 no-pointer-events" *ngIf="countryCodeDetected$ | async">
                     <span class="align-middle flag" [ngClass]="countryCodeDetected$ | async"></span>
                 </div>
