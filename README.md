@@ -2,7 +2,7 @@
 
 Free, Open-source Chat for a conversation with a random interlocutor. The WebRTC technology is used, which performs a peer-to-peer connection.
 
-![OpenChatRoulette - screenshot #1](https://github.com/andchir/openchatroulette/blob/master/openchatroulette/openchatroulette.png?raw=true "OpenChatRoulette - screenshot #1")
+![OpenChatRoulette - screenshot #1](https://raw.githubusercontent.com/andchir/openchatroulette/main/openchatroulette/openchatroulette.png "OpenChatRoulette - screenshot #1")
 
 # How to install
 
