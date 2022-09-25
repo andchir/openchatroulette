@@ -22,6 +22,11 @@ Free, Open-source Chat for a conversation with a random interlocutor. The WebRTC
     You can edit "stun_urls", "turn_urls", "turn_username", "turn_credential".
 12. Build production files again: `cd openchatroulette` -> `npm run build`.
 
+## Admin area
+
+URL: `https://yourdomain.com/chatadmin` or `http://localhost:9000/chatadmin`  
+Use **ADMIN_USERNAME** and **ADMIN_PASSWORD** from `.env`. 
+
 # Nginx configuration
 
 ~~~

@@ -22,6 +22,11 @@ const server = process.env.SECURE === 'true'
     }, app)
     : http.createServer(app);
 
+const auth = {
+    login: process.env.ADMIN_USERNAME,
+    password: process.env.ADMIN_PASSWORD
+};
+
 const peerServer = ExpressPeerServer(server, {
     proxied: true,
     debug: true,
@@ -135,6 +140,40 @@ peerServer.on('error', (error) => {
     console.log('error', error);
 });
 
+app.get('/', (req, res) => {
+    res.sendFile('/en/index.html', {
+        root: app.get('views')
+    });
+});
+
+app.get('/chatadmin', (req, res) => {
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+    const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+
+    if (login && password && login === auth.login && password === auth.password) {
+        res.set('Content-Type', 'text/plain; charset=UTF-8');
+        const output = `All peers (${Object.keys(peers).length}): \n\n`
+            + JSON.stringify(peers, null, 4)
+            + '\n\nWaiting: \n'
+            + JSON.stringify(peerWaiting, null, 4);
+        res.send(output);
+        return;
+    }
+
+    // Access denied
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    res.status(401).send('Authentication required.');
+});
+
+app.get('/:lang', (req, res) => {
+    // console.log(req.params);
+    if (req.params.lang && req.params.lang === 'en') {
+        res.redirect(301, '/');
+        return;
+    }
+    res.redirect(301, '/en/');
+});
+
 const logging = (...args) => {
     if (environment === 'dev') {
         console.log(...args);
@@ -204,18 +243,3 @@ const setPeerData = (peerId, key, value) => {
         peers[peerId][key] = value;
     }
 };
-
-app.get('/', (req, res) => {
-    res.sendFile('/en/index.html', {
-        root: app.get('views')
-    });
-});
-
-app.get('/:lang', (req, res) => {
-    // console.log(req.params);
-    if (req.params.lang && req.params.lang === 'en') {
-        res.redirect(301, '/');
-        return;
-    }
-    res.redirect(301, '/en/');
-});
