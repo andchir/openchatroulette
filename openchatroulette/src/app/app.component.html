@@ -205,7 +205,7 @@
     <div class="col-lg-6 mb-3">
 
         <div class="card mb-3 shadow-sm rounded-0">
-            <div class="card-body app-message-container">
+            <div class="card-body app-message-container" #messagesContainer>
                 <ng-container *ngFor="let msg of messages$ | async">
                     <div [class.text-end]="msg.type === 'answer'">
                         <div class="card d-inline-block border-0 rounded-pill mb-3"

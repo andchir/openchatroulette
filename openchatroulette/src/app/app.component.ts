@@ -49,6 +49,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
     @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;
     @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
+    @ViewChild('messagesContainer') messagesContainer: ElementRef<HTMLElement>;
 
     isReadyToConnect$ = new BehaviorSubject(false);
     isRemotePeerConnected$ = new BehaviorSubject(false);
@@ -220,6 +221,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                     if (!remotePeerConnectedState) {
                         this.animationService.particlesStart();
                     }
+                }
+            });
+
+        this.messages$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe({
+                next: (messages) => {
+                    setTimeout(() => {
+                        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
+                    }, 0);
                 }
             });
     }
