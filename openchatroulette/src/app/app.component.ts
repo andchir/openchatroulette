@@ -104,6 +104,16 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
+    @HostListener('window:blur', ['$event.target'])
+    onWindowBlur(): void {
+        this.animationService.particlesOnWindowBlur();
+    }
+
+    @HostListener('window:focus', ['$event.target'])
+    onWindowFocus(): void {
+        this.animationService.particlesOnWindowFocus();
+    }
+
     ngOnInit(): void {
         if (this.locale.indexOf('-') > -1) {
             this.locale = this.locale.split('-')[0];

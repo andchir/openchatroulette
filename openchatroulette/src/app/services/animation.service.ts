@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 
-const MAX_PARTICLES = 100;
+const MAX_PARTICLES = 150;
 
 @Injectable({
     providedIn: 'root'
@@ -49,8 +49,12 @@ export class AnimationService {
         this.particles.push(p);
     }
 
-    particleRemove(): void {
-        this.particles.shift();
+    particleRemove(maxNumber = 0): void {
+        if (maxNumber > 0) {
+            this.particles.splice(0, this.particles.length - maxNumber);
+        } else {
+            this.particles.shift();
+        }
     }
 
     particleDraw(p: any): void {
@@ -80,7 +84,7 @@ export class AnimationService {
             this.ctx.fill();
         });
         if (this.particles.length > MAX_PARTICLES || this.particlesStopped) {
-            this.particleRemove();
+            this.particleRemove(this.particlesStopped ? 0 : MAX_PARTICLES);
         }
         if (this.particles.length > 0) {
             window.requestAnimationFrame(this.particleLoop.bind(this));
@@ -110,6 +114,18 @@ export class AnimationService {
         }
         this.particlesStopped = true;
         clearInterval(this.interval);
+    }
+
+    particlesOnWindowFocus(): void {
+        if (!this.particlesStopped) {
+            this.interval = setInterval(this.particleCreate.bind(this), 10);
+        }
+    }
+
+    particlesOnWindowBlur(): void {
+        if (!this.particlesStopped) {
+            clearInterval(this.interval);
+        }
     }
 
     clearCanvas(): void {
