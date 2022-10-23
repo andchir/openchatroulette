@@ -15,14 +15,14 @@
                     "baseHref": ""
                 },
                 "locales": {
-                    "ru": {
-                        "translation": "src/locale/messages.ru.json"
+                    "fr": {
+                        "translation": "src/locale/messages.fr.json"
                     },
                     "ua": {
                         "translation": "src/locale/messages.ua.json"
                     },
-                    "fr": {
-                        "translation": "src/locale/messages.fr.json"
+                    "ru": {
+                        "translation": "src/locale/messages.ru.json"
                     }
                 }
             },
@@ -54,10 +54,29 @@
                         ]
                     },
                     "configurations": {
+                        "fr": {
+                            "localize": ["fr"],
+                            "index": {
+                                "input": "src/index-fr.html",
+                                "output": "index.html"
+                            }
+                        },
+                        "ua": {
+                            "localize": ["ua"],
+                            "index": {
+                                "input": "src/index-ua.html",
+                                "output": "index.html"
+                            }
+                        },
                         "ru": {
-                            "localize": ["ru"]
+                            "localize": ["ru"],
+                            "index": {
+                                "input": "src/index-ru.html",
+                                "output": "index.html"
+                            }
                         },
                         "production": {
+                            "localize": ["en", "fr", "ua", "ru"],
                             "budgets": [
                                 {
                                     "type": "initial",

@@ -1,5 +1,6 @@
 
 .overflow-hidden { overflow: hidden; }
+.text-overflow-ellipsis { width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .opacity50 { opacity: 0.5; }
 .opacity70 { opacity: 0.7; }
 .round-0-top-left { border-top-left-radius: 0 !important; }

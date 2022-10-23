@@ -58,7 +58,7 @@
                                         </button>
                                         <ul id="dropdown-camera" *dropdownMenu class="dropdown-menu w-100" role="menu" aria-labelledby="button-camera">
                                             <li role="menuitem" *ngFor="let device of devices$ | async | filter: {kind: 'videoinput'}">
-                                                <a class="dropdown-item" [ngClass]="{'active': (videoInputDeviceCurrent$ | async) === device.deviceId}"
+                                                <a class="dropdown-item text-overflow-ellipsis" [ngClass]="{'active': (videoInputDeviceCurrent$ | async) === device.deviceId}"
                                                     href="#"
                                                     (click)="onDeviceChange('videoinput', device)">
                                                     {{ device.label }}
@@ -79,7 +79,7 @@
                                 </button>
                                 <ul id="dropdown-microphone" *dropdownMenu class="dropdown-menu w-100" role="menu" aria-labelledby="button-microphone">
                                     <li role="menuitem" *ngFor="let device of devices$ | async | filter: {kind: 'audioinput'}">
-                                        <a class="dropdown-item" [ngClass]="{'active': (audioInputDeviceCurrent$ | async) === device.deviceId}"
+                                        <a class="dropdown-item text-overflow-ellipsis" [ngClass]="{'active': (audioInputDeviceCurrent$ | async) === device.deviceId}"
                                             href="#"
                                             (click)="onDeviceChange('audioinput', device)">
                                             {{ device.label }}
@@ -230,9 +230,7 @@
                 <div class="col-2">
                     <button type="button" class="btn btn-info d-block w-100 px-0"
                             [disabled]="!(remotePeerConnectedState$ | async)"
-                            (click)="sendMessage(messageField)" i18n>
-                        Send
-                    </button>
+                            (click)="sendMessage(messageField)" i18n>Send</button>
                 </div>
             </div>
         </div>
