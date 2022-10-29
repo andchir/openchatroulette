@@ -131,7 +131,7 @@ export class AppState {
                                         if (this.peerjsService.getIsConnected()) {
                                             ctx.dispatch(new AppAction.NextPeer());
                                         }
-                                    }, 1);
+                                    }, this.peerjsService.getReconnectionDelay());
                                 }
                                 ctx.dispatch([
                                     new AppAction.SetRemotePeerConnected(!!remotePeerId),
@@ -196,6 +196,7 @@ export class AppState {
 
     @Action(AppAction.NextPeer)
     nextPeer(ctx: StateContext<AppStateModel>, action: AppAction.NextPeer) {
+        this.peerjsService.setReconnectionDelay(action.payload);
         if (ctx.getState().remotePeerId) {
             this.peerjsService.disconnect();
         } else {

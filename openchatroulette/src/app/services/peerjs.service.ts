@@ -1,4 +1,3 @@
-import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 
 import {BehaviorSubject, catchError, Observable, Subject, throwError} from 'rxjs';
@@ -21,6 +20,8 @@ export enum ServerMessageType {
 export class PeerjsService {
 
     private peer: Peer;
+    private delayReconnect = false;
+    private timer: any;
     dataConnection: DataConnection|null;
     mediaConnection: MediaConnection|null;
     connected$: Subject<boolean>;
@@ -31,15 +32,8 @@ export class PeerjsService {
     countryDetected$ = new BehaviorSubject<string>('');
     remoteCountryCode$ = new BehaviorSubject<string>('');
     localStream: MediaStream|undefined;
-    timer: any;
-    public headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-    });
 
-    constructor(
-        private http: HttpClient
-    ) {}
+    constructor() {}
 
     connect(): Promise<string> {
         this.connected$ = new Subject<boolean>();
@@ -122,6 +116,7 @@ export class PeerjsService {
         if (!this.dataConnection) {
             return;
         }
+        this.delayReconnect = false;
         this.dataConnection.on('data', (data) => {
             this.messageStream$.next(String(data));
         });
@@ -172,14 +167,6 @@ export class PeerjsService {
         const protocol = this.peer.options.secure ? 'https' : 'http';
         const { host, port, path } = this.peer.options;
         return `${protocol}://${host}:${port}${path}${method}`;
-    }
-
-    nextPeer(): Observable<{"peerId": string}> {
-        const url = this.getRequestUrl(`random_peer/${this.peer.id}`);
-        return this.http.get<{"peerId": string}>(url, {headers: this.headers})
-            .pipe(
-                catchError(this.handleError)
-            );
     }
 
     requestNextPear(countryCode?: string, purpose?: string): void {
@@ -249,7 +236,11 @@ export class PeerjsService {
         }
     }
 
-    handleError<T>(error: HttpErrorResponse) {
-        return throwError(error.error);
+    setReconnectionDelay(delayReconnect: boolean): void {
+        this.delayReconnect = delayReconnect;
+    }
+
+    getReconnectionDelay(): number {
+        return this.delayReconnect ? 2000 : 1;
     }
 }

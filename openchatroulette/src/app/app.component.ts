@@ -251,7 +251,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.isStarted = true;
         if (this.isConnected$.getValue()) {
-            this.store.dispatch(new AppAction.NextPeer());
+            this.store.dispatch(new AppAction.NextPeer(true));
         } else {
             this.store.dispatch(new AppAction.SetConnected(true));
         }

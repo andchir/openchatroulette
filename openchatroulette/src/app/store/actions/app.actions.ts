@@ -19,6 +19,7 @@ export namespace AppAction {
 
     export class NextPeer {
         static readonly type = '[App] NextPeer';
+        constructor(public payload = false) {}
     }
 
     export class GetRemoteStream {
