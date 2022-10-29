@@ -106,9 +106,11 @@ export class PeerjsService {
         });
         this.peer.on('call', (mediaConnection: MediaConnection) => {
             this.mediaConnection = mediaConnection;
-            if (!this.remotePeerConnected$.getValue() && this.dataConnection) {
-                this.callAnswer(this.dataConnection?.peer);
-            }
+            setTimeout(() => {
+                if (!this.remotePeerConnected$.getValue() && this.dataConnection) {
+                    this.callAnswer(this.dataConnection?.peer);
+                }
+            }, 100);// Sometimes the "call" event occurs before the "connect" event, so a delay is needed
         });
     }
 
