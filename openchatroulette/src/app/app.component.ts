@@ -255,7 +255,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
             this.store.dispatch(new AppAction.SetConnected(true));
         }
-        this.animationService.particlesStart();
     }
 
     rouletteStop(): void {

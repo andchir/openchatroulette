@@ -109,15 +109,14 @@ export class AnimationService {
     }
 
     particlesStop(): void {
-        if (this.particlesStopped) {
-            return;
-        }
         this.particlesStopped = true;
         clearInterval(this.interval);
+        this.interval = null;
     }
 
     particlesOnWindowFocus(): void {
         if (!this.particlesStopped) {
+            clearInterval(this.interval);
             this.interval = setInterval(this.particleCreate.bind(this), 10);
         }
     }
