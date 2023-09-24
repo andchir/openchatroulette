@@ -90,7 +90,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         const windowHeight = window.innerHeight;
         if (windowWidth < 992) {
             this.videoWidth = windowWidth;
-            this.videoHeight = 300;
+            this.videoHeight = Math.max(210, Math.floor(windowHeight / 2 - 50));
         } else {
             this.videoWidth = windowWidth / 2;
             this.videoHeight = Math.floor(windowHeight - footerHeight);

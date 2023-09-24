@@ -1,0 +1,5 @@
+/* icons */
+:host .icon-big { height: 50px; width: 50px; }
+@media (max-width: 992px) {
+    :host .icon-big { height: 45px; width: 45px; }
+}

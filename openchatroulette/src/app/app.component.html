@@ -106,7 +106,7 @@
         <div class="container-fluid">
             <div class="row mb-3">
                 <div class="col-6">
-                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 py-5 px-0"
+                    <button type="button" class="btn btn-primary btn-lg d-block w-100 fs-2 px-0 py-3 py-lg-5"
                             [disabled]="!(readyToConnectState$ | async) || !(remotePeerConnectedState$ | async) && (connectedState$ | async)"
                             (click)="rouletteStart()">
                         <div class="btn-animation">
@@ -117,7 +117,7 @@
                     </button>
                 </div>
                 <div class="col-6">
-                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 py-5 px-0 show-on-hover-parent"
+                    <button type="button" class="btn btn-danger btn-lg d-block w-100 fs-2 px-0 py-3 py-lg-5 show-on-hover-parent"
                             [disabled]="!(connectedState$ | async)"
                             (click)="rouletteStop()">
                         <div class="btn-animation">
