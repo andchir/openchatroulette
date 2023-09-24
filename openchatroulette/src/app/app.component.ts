@@ -93,7 +93,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             this.videoHeight = Math.max(210, Math.floor(windowHeight / 2 - 50));
         } else {
             this.videoWidth = windowWidth / 2;
-            this.videoHeight = Math.floor(windowHeight - footerHeight);
+            this.videoHeight = Math.max(300, Math.floor(windowHeight - footerHeight));
         }
         if (this.canvas) {
             this.canvas.nativeElement.width = this.videoWidth;

@@ -1,6 +1,6 @@
 <div class="row g-0">
     <div class="col-lg-6 order-last order-lg-first">
-        <div class="position-relative overflow-hidden bg-black border" [style.height]="videoHeight + 'px'">
+        <div class="position-relative overflow-hidden bg-black" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" #remoteVideo></video>
             <canvas class="position-absolute left-top" #canvas></canvas>
             <div class="position-absolute right-top p-4">
@@ -14,7 +14,8 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="position-relative show-on-hover-parent bg-black border" [style.height]="videoHeight + 'px'">
+        <div class="position-relative show-on-hover-parent bg-black" [style.height]="videoHeight + 'px'">
+            <div class="screen-separator"></div>
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" muted #myVideo></video>
             <div class="position-absolute left-top w-100 h-100 show-on-hover show-on-hover-bg">
                 <div class="position-absolute left-top w-100 p-2 p-md-4">

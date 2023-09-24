@@ -110,3 +110,8 @@
 .dropdown-item:hover { color: #000; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, #d9d9d9 100%) #ededed; }
 .dropdown-menu { background: #ededed; box-shadow: 0 0 8px rgba(0,0,0,0.2); }
 
+/* screen-separator */
+.screen-separator { position: absolute; left: 0; top: 0; width: 1px; height: 100%; background-color: #fff; }
+@media (max-width: 992px) {
+    .screen-separator { width: 100%; height: 1px; top: auto; bottom: 0; }
+}
