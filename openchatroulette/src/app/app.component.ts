@@ -20,10 +20,33 @@ import {UserMediaState} from './store/states/user-media.state';
 import {AppAction} from './store/actions/app.actions';
 import {UserMediaAction} from './store/actions/user-media.actions';
 import {countries, Country} from './models/countries';
-import {Purpose} from "./models/purpose.enum";
+import {Purpose} from './models/purpose.enum';
 
 declare const window: Window;
 
+/** Layout constants for responsive video sizing */
+const LAYOUT = {
+    FOOTER_HEIGHT: 250,
+    MOBILE_BREAKPOINT: 992,
+    MIN_VIDEO_HEIGHT_MOBILE: 210,
+    MIN_VIDEO_HEIGHT_DESKTOP: 300,
+    MOBILE_HEIGHT_OFFSET: 50
+} as const;
+
+/** Delay constants in milliseconds */
+const DELAYS = {
+    /** Delay for device switch to prevent race conditions */
+    DEVICE_SWITCH_MS: 1,
+    /** Delay for debouncing option changes */
+    OPTIONS_DEBOUNCE_MS: 400,
+    /** Delay before auto-restarting roulette after option change */
+    ROULETTE_RESTART_MS: 500
+} as const;
+
+/**
+ * Main application component for the video chat roulette.
+ * Manages peer connections, video streams, and user interface state.
+ */
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -31,31 +54,34 @@ declare const window: Window;
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    @Select(AppState.connected) connectedState$: Observable<boolean>;
-    @Select(AppState.readyToConnect) readyToConnectState$: Observable<boolean>;
-    @Select(AppState.remotePeerConnected) remotePeerConnectedState$: Observable<boolean>;
-    @Select(AppState.messages) messages$: Observable<TextMessageInterface[]>;
-    @Select(AppState.remoteStream) remoteStream$: Observable<MediaStream|null>;
-    @Select(AppState.remoteCountryCode) remoteCountryCode$: Observable<string>;
-    @Select(AppState.countryCode) countryCode$: Observable<string>;
-    @Select(AppState.countryCodeDetected) countryCodeDetected$: Observable<string>;
-    @Select(AppState.purpose) purpose$: Observable<string>;
+    // State selectors from NGXS store
+    @Select(AppState.connected) connectedState$!: Observable<boolean>;
+    @Select(AppState.readyToConnect) readyToConnectState$!: Observable<boolean>;
+    @Select(AppState.remotePeerConnected) remotePeerConnectedState$!: Observable<boolean>;
+    @Select(AppState.messages) messages$!: Observable<TextMessageInterface[]>;
+    @Select(AppState.remoteStream) remoteStream$!: Observable<MediaStream | null>;
+    @Select(AppState.remoteCountryCode) remoteCountryCode$!: Observable<string>;
+    @Select(AppState.countryCode) countryCode$!: Observable<string>;
+    @Select(AppState.countryCodeDetected) countryCodeDetected$!: Observable<string>;
+    @Select(AppState.purpose) purpose$!: Observable<string>;
 
-    @Select(UserMediaState.localStream) localStream$: Observable<MediaStream|null>;
-    @Select(UserMediaState.devices) devices$: Observable<InputDeviceInfo[]>;
-    @Select(UserMediaState.audioInputDeviceCurrent) audioInputDeviceCurrent$: Observable<string>;
-    @Select(UserMediaState.videoInputDeviceCurrent) videoInputDeviceCurrent$: Observable<string>;
+    @Select(UserMediaState.localStream) localStream$!: Observable<MediaStream | null>;
+    @Select(UserMediaState.devices) devices$!: Observable<InputDeviceInfo[]>;
+    @Select(UserMediaState.audioInputDeviceCurrent) audioInputDeviceCurrent$!: Observable<string>;
+    @Select(UserMediaState.videoInputDeviceCurrent) videoInputDeviceCurrent$!: Observable<string>;
 
-    @ViewChild('myVideo') myVideo: ElementRef<HTMLVideoElement>;
-    @ViewChild('remoteVideo') remoteVideo: ElementRef<HTMLVideoElement>;
-    @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
-    @ViewChild('messagesContainer') messagesContainer: ElementRef<HTMLElement>;
+    // View references
+    @ViewChild('myVideo') myVideo!: ElementRef<HTMLVideoElement>;
+    @ViewChild('remoteVideo') remoteVideo!: ElementRef<HTMLVideoElement>;
+    @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
+    @ViewChild('messagesContainer') messagesContainer!: ElementRef<HTMLElement>;
 
-    isReadyToConnect$ = new BehaviorSubject(false);
-    isRemotePeerConnected$ = new BehaviorSubject(false);
-    isConnected$ = new BehaviorSubject(false);
+    // Local state subjects
+    isReadyToConnect$ = new BehaviorSubject<boolean>(false);
+    isRemotePeerConnected$ = new BehaviorSubject<boolean>(false);
+    isConnected$ = new BehaviorSubject<boolean>(false);
     devicesList$ = new BehaviorSubject<InputDeviceInfo[]>([]);
-    videoInputDevice$ = new BehaviorSubject('');
+    videoInputDevice$ = new BehaviorSubject<string>('');
 
     countries: Country[];
     purposeList = [
@@ -72,8 +98,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     videoHeight = 400;
     isStarted = false;
     messages: TextMessageInterface[] = [];
-    timer: any;
-    destroyed$ = new Subject<void>();
+    private optionsDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+    private destroyed$ = new Subject<void>();
 
     constructor(
         @Inject(LOCALE_ID) public locale: string,
@@ -83,18 +109,29 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         this.countries = countries;
     }
 
+    /**
+     * Handles window resize events to adjust video dimensions responsively.
+     * @param resizedWindow - The window object after resize
+     */
     @HostListener('window:resize', ['$event.target'])
-    onResize(window: Window): void {
-        const footerHeight = 250;
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        if (windowWidth < 992) {
+    onResize(resizedWindow: Window): void {
+        const windowWidth = resizedWindow.innerWidth;
+        const windowHeight = resizedWindow.innerHeight;
+
+        if (windowWidth < LAYOUT.MOBILE_BREAKPOINT) {
             this.videoWidth = windowWidth;
-            this.videoHeight = Math.max(210, Math.floor(windowHeight / 2 - 50));
+            this.videoHeight = Math.max(
+                LAYOUT.MIN_VIDEO_HEIGHT_MOBILE,
+                Math.floor(windowHeight / 2 - LAYOUT.MOBILE_HEIGHT_OFFSET)
+            );
         } else {
             this.videoWidth = windowWidth / 2;
-            this.videoHeight = Math.max(300, Math.floor(windowHeight - footerHeight));
+            this.videoHeight = Math.max(
+                LAYOUT.MIN_VIDEO_HEIGHT_DESKTOP,
+                Math.floor(windowHeight - LAYOUT.FOOTER_HEIGHT)
+            );
         }
+
         if (this.canvas) {
             this.canvas.nativeElement.width = this.videoWidth;
             this.canvas.nativeElement.height = this.videoHeight;
@@ -104,36 +141,61 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
+    /**
+     * Pauses particle animation when window loses focus to save resources.
+     */
     @HostListener('window:blur', ['$event.target'])
     onWindowBlur(): void {
         this.animationService.particlesOnWindowBlur();
     }
 
+    /**
+     * Resumes particle animation when window gains focus.
+     */
     @HostListener('window:focus', ['$event.target'])
     onWindowFocus(): void {
         this.animationService.particlesOnWindowFocus();
     }
 
     ngOnInit(): void {
-        if (this.locale.indexOf('-') > -1) {
+        // Normalize locale to base language code
+        if (this.locale.includes('-')) {
             this.locale = this.locale.split('-')[0];
         }
-        this.connectedState$.subscribe(this.isConnected$);
-        this.remotePeerConnectedState$.subscribe(this.isRemotePeerConnected$);
-        this.readyToConnectState$.subscribe(this.isReadyToConnect$);
-        this.devices$.subscribe(this.devicesList$);
-        this.videoInputDeviceCurrent$.subscribe(this.videoInputDevice$);
+
+        // Subscribe to store state changes with automatic cleanup
+        this.connectedState$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe(this.isConnected$);
+        this.remotePeerConnectedState$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe(this.isRemotePeerConnected$);
+        this.readyToConnectState$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe(this.isReadyToConnect$);
+        this.devices$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe(this.devicesList$);
+        this.videoInputDeviceCurrent$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe(this.videoInputDevice$);
+
         this.connectionInit();
     }
 
     ngAfterViewInit(): void {
+        // Use setTimeout to ensure view is fully initialized
         setTimeout(() => {
             this.onResize(window);
             this.animationService.init(this.canvas.nativeElement);
         }, 0);
     }
 
-    connectionInit(): void {
+    /**
+     * Initializes connection-related subscriptions and requests local media stream.
+     * Sets up listeners for country code, purpose, streams, and messages.
+     */
+    private connectionInit(): void {
         this.store.dispatch(new UserMediaAction.GetLocalStream({
             audio: true,
             video: true
@@ -141,110 +203,99 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.countryCode$
             .pipe(takeUntil(this.destroyed$))
-            .subscribe({
-            next: (res) => {
-                if (res) {
-                    const index = this.countries.findIndex((country) => {
-                        return country.code === res;
-                    });
-                    this.currentCountryName = index > -1 ? this.countries[index].name : $localize `All`;
+            .subscribe((countryCode) => {
+                if (countryCode) {
+                    const country = this.countries.find((c) => c.code === countryCode);
+                    this.currentCountryName = country?.name || $localize `All`;
                 } else {
                     this.currentCountryName = $localize `All`;
                 }
-            }
-        });
+            });
 
         this.purpose$
             .pipe(takeUntil(this.destroyed$))
-            .subscribe({
-                next: (res) => {
-                    if (res) {
-                        const index = this.purposeList.findIndex((purpose) => {
-                            return purpose.name === res;
-                        });
-                        this.currentPurposeName = index > -1 ? this.purposeList[index].title : this.purposeList[2].title;
-                    } else {
-                        this.currentPurposeName = this.purposeList[2].title;
-                    }
+            .subscribe((purpose) => {
+                if (purpose) {
+                    const purposeItem = this.purposeList.find((p) => p.name === purpose);
+                    this.currentPurposeName = purposeItem?.title || this.purposeList[2].title;
+                } else {
+                    this.currentPurposeName = this.purposeList[2].title;
                 }
             });
 
         this.localStream$
             .pipe(skip(1), takeUntil(this.destroyed$))
-            .subscribe({
-                next: (stream) => {
-                    if (stream) {
-                        if (this.devicesList$.getValue().length === 0) {
-                            this.store.dispatch(new UserMediaAction.EnumerateDevices());
-                        }
-                        if (this.myVideo) {
-                            this.myVideo.nativeElement.srcObject = stream;
-                            this.myVideo.nativeElement.autoplay = true;
-                            this.myVideo.nativeElement.muted = true;
-                        }
-                        this.store.dispatch(new AppAction.SetReadyToConnect(true));
-                    } else {
-                        this.store.dispatch(new AppAction.SetReadyToConnect(false));
+            .subscribe((stream) => {
+                if (stream) {
+                    if (this.devicesList$.getValue().length === 0) {
+                        this.store.dispatch(new UserMediaAction.EnumerateDevices());
                     }
+                    if (this.myVideo) {
+                        this.myVideo.nativeElement.srcObject = stream;
+                        this.myVideo.nativeElement.autoplay = true;
+                        this.myVideo.nativeElement.muted = true;
+                    }
+                    this.store.dispatch(new AppAction.SetReadyToConnect(true));
+                } else {
+                    this.store.dispatch(new AppAction.SetReadyToConnect(false));
                 }
             });
 
         this.remoteStream$
             .pipe(skip(1), takeUntil(this.destroyed$))
-            .subscribe({
-                next: (stream) => {
-                    if (!this.remoteVideo) {
-                        return;
-                    }
-                    this.remoteVideo.nativeElement.srcObject = stream;
-                    if (stream) {
-                        this.remoteVideo.nativeElement.autoplay = true;
-                    } else {
-                        this.remoteVideo.nativeElement.pause();
-                        this.remoteVideo.nativeElement.load();
-                    }
+            .subscribe((stream) => {
+                if (!this.remoteVideo) {
+                    return;
+                }
+                this.remoteVideo.nativeElement.srcObject = stream;
+                if (stream) {
+                    this.remoteVideo.nativeElement.autoplay = true;
+                } else {
+                    this.remoteVideo.nativeElement.pause();
+                    this.remoteVideo.nativeElement.load();
                 }
             });
 
         this.connectedState$
             .pipe(takeUntil(this.destroyed$))
-            .subscribe({
-                next: (connected) => {
-                    if (!connected || this.isRemotePeerConnected$.getValue()) {
-                        this.animationService.particlesStop();
-                        return;
-                    }
-                    if (!this.isRemotePeerConnected$.getValue()) {
-                        this.animationService.particlesStart();
-                    }
+            .subscribe((connected) => {
+                if (!connected || this.isRemotePeerConnected$.getValue()) {
+                    this.animationService.particlesStop();
+                    return;
+                }
+                if (!this.isRemotePeerConnected$.getValue()) {
+                    this.animationService.particlesStart();
                 }
             });
 
         this.remotePeerConnectedState$
             .pipe(takeUntil(this.destroyed$))
-            .subscribe({
-                next: (remotePeerConnectedState) => {
-                    if (!this.isConnected$.getValue() || remotePeerConnectedState) {
-                        this.animationService.particlesStop();
-                        return;
-                    }
-                    if (!remotePeerConnectedState) {
-                        this.animationService.particlesStart();
-                    }
+            .subscribe((remotePeerConnectedState) => {
+                if (!this.isConnected$.getValue() || remotePeerConnectedState) {
+                    this.animationService.particlesStop();
+                    return;
+                }
+                if (!remotePeerConnectedState) {
+                    this.animationService.particlesStart();
                 }
             });
 
         this.messages$
             .pipe(takeUntil(this.destroyed$))
-            .subscribe({
-                next: (messages) => {
-                    setTimeout(() => {
-                        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
-                    }, 0);
-                }
+            .subscribe(() => {
+                // Auto-scroll to latest message after DOM update
+                setTimeout(() => {
+                    if (this.messagesContainer) {
+                        this.messagesContainer.nativeElement.scrollTop =
+                            this.messagesContainer.nativeElement.scrollHeight;
+                    }
+                }, 0);
             });
     }
 
+    /**
+     * Starts the video chat roulette - connects to server or requests next peer.
+     */
     rouletteStart(): void {
         if (!this.isReadyToConnect$.getValue()) {
             return;
@@ -257,18 +308,30 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
+    /**
+     * Stops the video chat roulette and disconnects from server.
+     */
     rouletteStop(): void {
         this.isStarted = false;
         this.store.dispatch(new AppAction.SetConnected(false));
     }
 
-    sendMessageAction(from: string, message: string) {
+    /**
+     * Dispatches a message send action to the store.
+     * @param _from - Sender identifier (unused, kept for API compatibility)
+     * @param message - The message content to send
+     */
+    sendMessageAction(_from: string, message: string): void {
         this.store.dispatch(new AppAction.MessageSend({
             type: TextMessageType.Answer,
             message
         }));
     }
 
+    /**
+     * Sends a message from the input field and clears it.
+     * @param fieldEl - The input element containing the message
+     */
     sendMessage(fieldEl: HTMLInputElement): void {
         if (!fieldEl.value) {
             return;
@@ -278,12 +341,23 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         this.sendMessageAction('me', message);
     }
 
+    /**
+     * Handles keyboard events on the message input field.
+     * Sends message when Enter key is pressed.
+     * @param event - The keyboard event
+     */
     onMessageFieldKeyUp(event: KeyboardEvent): void {
         if ((event.key || event.code) === 'Enter') {
             this.sendMessage(event.target as HTMLInputElement);
         }
     }
 
+    /**
+     * Handles media input device changes (camera/microphone).
+     * Stops current session before switching devices.
+     * @param kind - The device type ('videoinput' or 'audioinput')
+     * @param device - The device info to switch to
+     */
     onDeviceChange(kind: string, device: InputDeviceInfo): void {
         if (this.videoInputDevice$.getValue() === device.deviceId) {
             return;
@@ -291,14 +365,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.isConnected$.getValue() || this.isRemotePeerConnected$.getValue()) {
             this.rouletteStop();
         }
+        // Small delay to prevent race conditions during device switch
         setTimeout(() => {
             this.store.dispatch(new UserMediaAction.SwitchMediaInput({
                 kind,
                 deviceId: device.deviceId
             }));
-        }, 1);
+        }, DELAYS.DEVICE_SWITCH_MS);
     }
 
+    /**
+     * Toggles the visibility of an options panel.
+     * @param type - The panel type to toggle ('country', 'purpose', etc.)
+     */
     optionsPanelToggle(type: string): void {
         if (this.optionsPanelOpened === type) {
             this.optionsPanelOpened = '';
@@ -307,9 +386,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         this.optionsPanelOpened = type;
     }
 
+    /**
+     * Sets an option value with debouncing to prevent rapid changes.
+     * Automatically restarts roulette if connected but not in a call.
+     * @param optionName - The option to update ('country' or 'purpose')
+     * @param value - The new value to set
+     */
     setOptions(optionName: string, value: string): void {
-        clearTimeout(this.timer);
-        this.timer = setTimeout(() => {
+        if (this.optionsDebounceTimer) {
+            clearTimeout(this.optionsDebounceTimer);
+        }
+        this.optionsDebounceTimer = setTimeout(() => {
             switch (optionName) {
                 case 'country':
                     this.store.dispatch(new AppAction.UpdateCountryCode(value));
@@ -321,12 +408,15 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             this.countrySearchTerm = '';
             this.optionsPanelToggle('');
             if (this.isConnected$.getValue() && !this.isRemotePeerConnected$.getValue()) {
-                setTimeout(this.rouletteStart.bind(this), 500);
+                setTimeout(this.rouletteStart.bind(this), DELAYS.ROULETTE_RESTART_MS);
             }
-        }, 400);
+        }, DELAYS.OPTIONS_DEBOUNCE_MS);
     }
 
     ngOnDestroy(): void {
+        if (this.optionsDebounceTimer) {
+            clearTimeout(this.optionsDebounceTimer);
+        }
         this.destroyed$.next();
         this.destroyed$.complete();
     }
