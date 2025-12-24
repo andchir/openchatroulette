@@ -201,7 +201,7 @@ export class AppState {
             this.peerjsService.disconnect();
         } else {
             const {countryCode, purpose} = ctx.getState();
-            this.peerjsService.requestNextPear(countryCode, purpose);
+            this.peerjsService.requestNextPeer(countryCode, purpose);
         }
     }
 
