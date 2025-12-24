@@ -41,8 +41,8 @@ export class PeerjsService {
             const peerId = uuidv4();
             // const peerId = Math.floor(Math.random() * 2 ** 18).toString(36).padStart(4, '0');
             this.peer = new Peer(peerId, {
-                port: environment.port || 9000,
-                host: '/',
+                port: environment.peerServerPort || 9000,
+                host: environment.peerServerHost || '/',
                 path: environment.peerServerPath || '/openchatroulette',
                 secure: environment.secure || false,
                 config: {
