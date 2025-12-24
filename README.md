@@ -82,4 +82,35 @@ Extract localization:
 npm run extract-i18n
 ~~~
 
+# GitHub Pages Deployment
+
+You can deploy the frontend to GitHub Pages for a quick demo. Note that this uses the public PeerJS cloud server for signaling.
+
+## Automatic Deployment
+
+1. Fork this repository
+2. Go to Settings > Pages
+3. Under "Build and deployment", select "GitHub Actions" as the source
+4. The workflow will automatically deploy when you push to the `main` branch
+5. Access your deployment at `https://<username>.github.io/openchatroulette/`
+
+## Manual Build for GitHub Pages
+
+```bash
+cd openchatroulette
+npm install
+npm run build:ghpages
+```
+
+The build output will be in `openchatroulette/dist/openchatroulette/`.
+
+## Limitations of GitHub Pages Deployment
+
+- **No country detection**: GeoIP functionality requires the custom server
+- **No admin panel**: The `/chatadmin` endpoint is server-side only
+- **Uses public PeerJS server**: Uses `0.peerjs.com` for WebRTC signaling instead of custom server
+- **Static files only**: GitHub Pages cannot run the Node.js signaling server
+
+For full functionality with country detection and admin panel, deploy the full application with the Node.js server as described in the main installation instructions.
+
 ### MIT License
