@@ -247,7 +247,7 @@ const setPeerWaitingValue = (myPeerId, value) => {
  */
 const clearWaitingData = (peerId) => {
     const currentCountryCode = getPeerData(peerId, 'countryCode', 'all');
-    const currentPurpose = getPeerData(peerId, 'purpose', 'discussion');
+    const currentPurpose = getPeerData(peerId, 'purpose', 'all');
     if (peerWaiting[currentCountryCode] &&
         peerWaiting[currentCountryCode][currentPurpose] === peerId) {
         peerWaiting[currentCountryCode][currentPurpose] = '';
@@ -465,9 +465,7 @@ app.get('/chatadmin', (req, res) => {
     res.status(401).send('Authentication required.');
 });
 
-// Language route - handle supported languages
-const SUPPORTED_LANGUAGES = ['ru', 'ua', 'fr'];
-
+// Language route - redirect to root for /en, otherwise to /en/
 app.get('/:lang', (req, res) => {
     const lang = req.params.lang;
 
@@ -475,16 +473,7 @@ app.get('/:lang', (req, res) => {
         res.redirect(301, '/');
         return;
     }
-
-    if (SUPPORTED_LANGUAGES.includes(lang)) {
-        res.sendFile(`/${lang}/index.html`, {
-            root: app.get('views')
-        });
-        return;
-    }
-
-    // Unsupported language - redirect to English
-    res.redirect(301, '/');
+    res.redirect(301, '/en/');
 });
 
 // Initialize and start server
