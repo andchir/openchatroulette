@@ -1,12 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { NgxsModule } from '@ngxs/store';
 import { AppComponent } from './app.component';
+import { AppState } from './store/states/app.state';
+import { UserMediaState } from './store/states/user-media.state';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule
+        RouterTestingModule,
+        NgxsModule.forRoot([AppState, UserMediaState])
       ],
       declarations: [
         AppComponent
@@ -20,16 +24,17 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'openchatroulette'`, () => {
+  it('should have countries defined', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('openchatroulette');
+    expect(app.countries).toBeDefined();
+    expect(app.countries.length).toBeGreaterThan(0);
   });
 
-  it('should render title', () => {
+  it('should have purposeList defined', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('openchatroulette app is running!');
+    const app = fixture.componentInstance;
+    expect(app.purposeList).toBeDefined();
+    expect(app.purposeList.length).toBe(4);
   });
 });
