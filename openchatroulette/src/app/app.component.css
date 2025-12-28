@@ -1,5 +1,39 @@
 /* icons */
 :host .icon-big { height: 50px; width: 50px; }
+:host .icon-volume { height: 24px; width: 24px; }
 @media (max-width: 992px) {
     :host .icon-big { height: 45px; width: 45px; }
+}
+
+/* volume control */
+.volume-control { max-width: 300px; }
+.volume-btn { padding: 8px 12px; }
+.volume-slider-container { min-width: 100px; }
+.volume-slider {
+    height: 8px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+.volume-slider::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+.volume-slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #63b9ee 0%, #63b9ee var(--volume-percent, 100%), rgba(255, 255, 255, 0.3) var(--volume-percent, 100%));
+    border-radius: 4px;
+}
+@media (max-width: 992px) {
+    .volume-control { max-width: 250px; }
 }
