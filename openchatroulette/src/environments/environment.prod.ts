@@ -1,7 +1,7 @@
 export const environment = {
     production: true,
     peerServerHost: '/',
-    peerServerPort: 9000,
+    peerServerPort: 443,
     peerServerPath: '/openchatroulette',
     secure: true,
     stun_urls: 'stun:stun.l.google.com:19302',
