@@ -49,6 +49,21 @@ server {
     ssl_certificate          /etc/letsencrypt/live/mydomain/fullchain.pem;
     ssl_certificate_key      /etc/letsencrypt/live/mydomain/privkey.pem;
 
+    root /home/installer_user/openchatroulette/openchatroulette/dist/openchatroulette;
+    
+    # Default root path redirects to English version
+    location = / {
+        return 302 /en/;
+    }
+
+    # Language-specific paths (en, ru, fr, ua)
+    location ~ ^/(en|ru|fr|ua)(/.*)?$ {
+        alias /home/installer_user/openchatroulette/openchatroulette/dist/openchatroulette/$1/;
+        index index.html;
+        try_files $2 $2/ /$1/index.html;
+    }
+
+    # Peer server WebSocket/API proxy
     location / {
         proxy_pass https://localhost:9000;
         proxy_http_version 1.1;
