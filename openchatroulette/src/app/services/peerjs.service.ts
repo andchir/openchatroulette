@@ -5,6 +5,10 @@ import {DataConnection, MediaConnection, Peer} from 'peerjs';
 import {v4 as uuidv4} from 'uuid';
 
 import {environment} from '../../environments/environment';
+import {
+    VirtualCameraDetectorService,
+    DEVICE_INFO_MESSAGE_TYPE
+} from './virtual-camera-detector.service';
 
 /**
  * Server message types for WebSocket communication
@@ -46,8 +50,11 @@ export class PeerjsService {
     countryDetected$ = new BehaviorSubject<string>('');
     remoteCountryCode$ = new BehaviorSubject<string>('');
     localStream: MediaStream | undefined;
+    localDeviceLabel = '';
 
-    constructor() {}
+    constructor(
+        private virtualCameraDetector: VirtualCameraDetectorService
+    ) {}
 
     /**
      * Establishes connection to the PeerJS signaling server.
@@ -155,11 +162,21 @@ export class PeerjsService {
         this.delayReconnect = false;
 
         this.dataConnection.on('data', (data) => {
-            this.messageStream$.next(String(data));
+            const message = String(data);
+            // Check if it's a device info message for virtual camera detection
+            const deviceInfo = this.virtualCameraDetector.parseDeviceInfoMessage(message);
+            if (deviceInfo) {
+                this.virtualCameraDetector.processRemoteDeviceInfo(deviceInfo.deviceLabel);
+                return;
+            }
+            // Otherwise, it's a regular chat message
+            this.messageStream$.next(message);
         });
 
         this.dataConnection.on('open', () => {
             this.dataConnectionCreated$.next(true);
+            // Send local device info to the remote peer
+            this.sendDeviceInfo();
         });
 
         this.dataConnection.on('close', () => {
@@ -172,6 +189,8 @@ export class PeerjsService {
             }
             this.remoteCountryCode$.next('');
             this.dataConnection = null;
+            // Reset virtual camera detection state
+            this.virtualCameraDetector.reset();
         });
 
         this.dataConnection.on('error', (error) => {
@@ -341,5 +360,27 @@ export class PeerjsService {
      */
     getReconnectionDelay(): number {
         return this.delayReconnect ? 2000 : 1;
+    }
+
+    /**
+     * Sends local device label information to the remote peer.
+     * This is used for virtual camera detection on the receiving end.
+     */
+    sendDeviceInfo(): void {
+        if (!this.dataConnection) {
+            return;
+        }
+        const deviceInfoMessage = this.virtualCameraDetector.createDeviceInfoMessage(
+            this.localDeviceLabel
+        );
+        this.dataConnection.send(deviceInfoMessage);
+    }
+
+    /**
+     * Updates the local device label.
+     * @param label - The device label of the currently selected video input
+     */
+    setLocalDeviceLabel(label: string): void {
+        this.localDeviceLabel = label;
     }
 }

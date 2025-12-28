@@ -15,6 +15,7 @@ import {Select, Store} from '@ngxs/store';
 
 import {TextMessageInterface, TextMessageType} from './models/textmessage.interface';
 import {AnimationService} from './services/animation.service';
+import {VirtualCameraDetectorService} from './services/virtual-camera-detector.service';
 import {AppState} from './store/states/app.state';
 import {UserMediaState} from './store/states/user-media.state';
 import {AppAction} from './store/actions/app.actions';
@@ -99,6 +100,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     isStarted = false;
     messages: TextMessageInterface[] = [];
     remoteVolume = 1;
+    isVirtualCamera$ = new BehaviorSubject<boolean>(false);
     private previousVolume = 1;
     private optionsDebounceTimer: ReturnType<typeof setTimeout> | null = null;
     private destroyed$ = new Subject<void>();
@@ -106,7 +108,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     constructor(
         @Inject(LOCALE_ID) public locale: string,
         private store: Store,
-        private animationService: AnimationService
+        private animationService: AnimationService,
+        private virtualCameraDetector: VirtualCameraDetectorService
     ) {
         this.countries = countries;
     }
@@ -293,6 +296,11 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                     }
                 }, 0);
             });
+
+        // Subscribe to virtual camera detection state
+        this.virtualCameraDetector.isVirtualCamera$
+            .pipe(takeUntil(this.destroyed$))
+            .subscribe(this.isVirtualCamera$);
     }
 
     /**

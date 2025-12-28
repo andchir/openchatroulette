@@ -1,12 +1,18 @@
 <div class="row g-0">
     <div class="col-lg-6 order-last order-lg-first">
-        <div class="position-relative overflow-hidden bg-black show-on-hover-parent" [style.height]="videoHeight + 'px'">
+        <div class="position-relative overflow-hidden bg-black show-on-hover-parent"
+             [style.height]="videoHeight + 'px'"
+             [class.virtual-camera-warning]="(isVirtualCamera$ | async) && (remotePeerConnectedState$ | async)">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" playsinline #remoteVideo></video>
             <canvas class="position-absolute left-top" #canvas></canvas>
             <div class="position-absolute right-top p-4">
                 <div class="float-end f32 no-pointer-events" *ngIf="remoteCountryCode$ | async">
                     <span class="align-middle flag" [ngClass]="remoteCountryCode$ | async"></span>
                 </div>
+            </div>
+            <div class="virtual-camera-warning-banner position-absolute left-top w-100 p-2 text-center"
+                 *ngIf="(isVirtualCamera$ | async) && (remotePeerConnectedState$ | async)">
+                <span class="badge bg-danger fs-6" i18n="@@virtualCameraWarning">Warning: Virtual camera detected!</span>
             </div>
             <div class="position-absolute center-middle no-pointer-events" *ngIf="!(isConnected$ | async)">
                 <img src="assets/openchart-logo-small-white.png" alt="OpenChatRoulette">
