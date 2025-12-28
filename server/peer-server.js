@@ -452,9 +452,10 @@ class OpenChatRouletteServer {
     handleConnection(client) {
         const clientId = client.getId();
         const clientIpAddress = this.getClientIpAddress(client);
-        this.log('CONNECTION', clientId, clientIpAddress);
 
         const { countryCode, countryName } = this.geoIPService.detectCountry(clientIpAddress);
+
+        this.log('CONNECTION', clientId, clientIpAddress, countryCode);
 
         this.peerManager.addPeer(clientId, countryCode, countryName);
 
