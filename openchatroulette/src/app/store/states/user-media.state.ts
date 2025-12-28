@@ -6,7 +6,7 @@ import {UserMediaAction} from '../actions/user-media.actions';
 export class UserMediaStateModel {
     public videoInputDeviceCurrent: string;
     public audioInputDeviceCurrent: string;
-    public devices: InputDeviceInfo[];
+    public devices: MediaDeviceInfo[];
     public localStream: MediaStream|null;
     public remoteStream: MediaStream|null;
 }
