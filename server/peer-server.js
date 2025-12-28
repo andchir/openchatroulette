@@ -356,6 +356,13 @@ class OpenChatRouletteServer {
         this.peerServer = null;
         this.peerManager = new PeerManager();
         this.geoIPService = new GeoIPService(serverConfig.geoipDbPath);
+        /**
+         * Map storing real client IP addresses by socket remote port.
+         * Used to correlate HTTP upgrade requests with WebSocket connections
+         * when behind a reverse proxy (nginx).
+         * @type {Map<number, string>}
+         */
+        this.clientIpMap = new Map();
     }
 
     /**
@@ -369,7 +376,37 @@ class OpenChatRouletteServer {
     }
 
     /**
-     * Get client IP address from socket
+     * Extract real client IP address from HTTP upgrade request.
+     * Checks proxy headers (X-Real-IP, X-Forwarded-For) first, then falls back to socket.
+     * This is needed when running behind nginx reverse proxy.
+     * @param {http.IncomingMessage} req - HTTP upgrade request
+     * @returns {string} Real client IP address
+     * @private
+     */
+    extractRealIpFromRequest(req) {
+        // Check X-Real-IP header first (set by nginx proxy_set_header X-Real-IP)
+        const xRealIp = req.headers['x-real-ip'];
+        if (xRealIp) {
+            return String(xRealIp).replace('::ffff:', '');
+        }
+
+        // Check X-Forwarded-For header (can contain multiple IPs: client, proxy1, proxy2)
+        const xForwardedFor = req.headers['x-forwarded-for'];
+        if (xForwardedFor) {
+            // Take the first IP which is the original client
+            const clientIp = String(xForwardedFor).split(',')[0].trim();
+            return clientIp.replace('::ffff:', '');
+        }
+
+        // Fallback to socket remote address (direct connection without proxy)
+        const remoteAddress = req.socket?.remoteAddress || '';
+        return remoteAddress.replace('::ffff:', '');
+    }
+
+    /**
+     * Get client IP address from socket, using stored real IP if available.
+     * When behind a reverse proxy (nginx), the real IP is captured from the
+     * HTTP upgrade request headers and stored in clientIpMap.
      * @param {object} client - Peer client object
      * @returns {string} Client IP address
      * @private
@@ -377,13 +414,45 @@ class OpenChatRouletteServer {
     getClientIpAddress(client) {
         try {
             const socket = client.getSocket();
-            if (socket && socket._socket && socket._socket.remoteAddress) {
-                return socket._socket.remoteAddress.replace('::ffff:', '');
+            if (socket && socket._socket) {
+                const remotePort = socket._socket.remotePort;
+                // First try to get the real IP from the map (set during HTTP upgrade)
+                if (remotePort && this.clientIpMap.has(remotePort)) {
+                    return this.clientIpMap.get(remotePort);
+                }
+                // Fallback to direct socket address
+                if (socket._socket.remoteAddress) {
+                    return socket._socket.remoteAddress.replace('::ffff:', '');
+                }
             }
         } catch (error) {
             this.log('Error getting client IP:', error.message);
         }
         return '';
+    }
+
+    /**
+     * Set up HTTP upgrade event listener to capture real client IPs.
+     * This is called before WebSocket handshake completes, allowing us to
+     * extract IP addresses from proxy headers (X-Real-IP, X-Forwarded-For).
+     * @private
+     */
+    setupUpgradeListener() {
+        this.server.on('upgrade', (req, socket) => {
+            const remotePort = socket.remotePort;
+            const realIp = this.extractRealIpFromRequest(req);
+
+            if (remotePort && realIp) {
+                this.clientIpMap.set(remotePort, realIp);
+                this.log('Captured IP for port', remotePort, ':', realIp);
+
+                // Clean up the map entry when socket closes
+                socket.once('close', () => {
+                    this.clientIpMap.delete(remotePort);
+                    this.log('Cleaned up IP map entry for port', remotePort);
+                });
+            }
+        });
     }
 
     /**
@@ -713,6 +782,10 @@ class OpenChatRouletteServer {
         if (!this.server) {
             process.exit(1);
         }
+
+        // Set up upgrade listener to capture real client IPs from proxy headers
+        // This must be done before PeerServer setup to intercept WebSocket upgrades
+        this.setupUpgradeListener();
 
         // Create and configure PeerServer
         this.createPeerServer();
