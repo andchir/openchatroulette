@@ -23,6 +23,7 @@
         "6160972322896689559": "Discussion",
         "2868399174729999313": "Broadcast",
         "1616102757855967475": "All",
-        "434404492084234684": "Volume"
+        "434404492084234684": "Volume",
+        "virtualCameraWarning": "Warning: Virtual camera detected!"
     }
 }

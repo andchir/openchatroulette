@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 
 import {Action, Selector, State, StateContext} from '@ngxs/store';
 import {UserMediaAction} from '../actions/user-media.actions';
+import {PeerjsService} from '../../services/peerjs.service';
 
 export class UserMediaStateModel {
     public videoInputDeviceCurrent: string;
@@ -25,6 +26,10 @@ const defaults = {
 })
 @Injectable()
 export class UserMediaState {
+
+    constructor(
+        private peerjsService: PeerjsService
+    ) {}
 
     @Selector()
     static audioInputDeviceCurrent(state: UserMediaStateModel) {
@@ -131,11 +136,14 @@ export class UserMediaState {
                     ctx.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent(track.getSettings().deviceId || ''));
                 } else {
                     ctx.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent(track.getSettings().deviceId || ''));
+                    // Set the device label for virtual camera detection
+                    this.peerjsService.setLocalDeviceLabel(track.label || '');
                 }
             });
         } else {
             ctx.dispatch(new UserMediaAction.SetAudioInputDeviceCurrent(''));
             ctx.dispatch(new UserMediaAction.SetVideoInputDeviceCurrent(''));
+            this.peerjsService.setLocalDeviceLabel('');
         }
     }
 
