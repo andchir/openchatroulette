@@ -98,6 +98,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     videoHeight = 400;
     isStarted = false;
     messages: TextMessageInterface[] = [];
+    remoteVolume = 1;
+    private previousVolume = 1;
     private optionsDebounceTimer: ReturnType<typeof setTimeout> | null = null;
     private destroyed$ = new Subject<void>();
 
@@ -411,6 +413,40 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
                 setTimeout(this.rouletteStart.bind(this), DELAYS.ROULETTE_RESTART_MS);
             }
         }, DELAYS.OPTIONS_DEBOUNCE_MS);
+    }
+
+    /**
+     * Handles volume slider changes for remote peer's audio.
+     * @param event - The input event from the volume slider
+     */
+    onVolumeChange(event: Event): void {
+        const target = event.target as HTMLInputElement;
+        const volume = parseFloat(target.value) / 100;
+        this.setRemoteVolume(volume);
+    }
+
+    /**
+     * Toggles mute state for remote peer's audio.
+     * Remembers previous volume level for unmuting.
+     */
+    toggleMute(): void {
+        if (this.remoteVolume > 0) {
+            this.previousVolume = this.remoteVolume;
+            this.setRemoteVolume(0);
+        } else {
+            this.setRemoteVolume(this.previousVolume || 1);
+        }
+    }
+
+    /**
+     * Sets the volume for remote peer's video/audio element.
+     * @param volume - Volume level between 0 and 1
+     */
+    private setRemoteVolume(volume: number): void {
+        this.remoteVolume = Math.max(0, Math.min(1, volume));
+        if (this.remoteVideo?.nativeElement) {
+            this.remoteVideo.nativeElement.volume = this.remoteVolume;
+        }
     }
 
     ngOnDestroy(): void {

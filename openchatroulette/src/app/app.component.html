@@ -1,6 +1,6 @@
 <div class="row g-0">
     <div class="col-lg-6 order-last order-lg-first">
-        <div class="position-relative overflow-hidden bg-black" [style.height]="videoHeight + 'px'">
+        <div class="position-relative overflow-hidden bg-black show-on-hover-parent" [style.height]="videoHeight + 'px'">
             <video class="d-block w-100" [style.height]="videoHeight + 'px'" playsinline #remoteVideo></video>
             <canvas class="position-absolute left-top" #canvas></canvas>
             <div class="position-absolute right-top p-4">
@@ -10,6 +10,25 @@
             </div>
             <div class="position-absolute center-middle no-pointer-events" *ngIf="!(isConnected$ | async)">
                 <img src="assets/openchart-logo-small-white.png" alt="OpenChatRoulette">
+            </div>
+            <div class="position-absolute left-bottom w-100 p-2 p-md-4 show-on-hover">
+                <div class="volume-control d-flex align-items-center">
+                    <button type="button" class="btn btn-secondary rounded volume-btn me-2"
+                            (click)="toggleMute()"
+                            [title]="remoteVolume === 0 ? 'Unmute' : 'Mute'">
+                        <i-tabler [name]="remoteVolume === 0 ? 'volume-off' : (remoteVolume < 0.5 ? 'volume-2' : 'volume')" class="icon-volume"></i-tabler>
+                    </button>
+                    <div class="volume-slider-container flex-grow-1">
+                        <input type="range"
+                               class="form-range volume-slider"
+                               min="0"
+                               max="100"
+                               step="1"
+                               [value]="remoteVolume * 100"
+                               (input)="onVolumeChange($event)"
+                               i18n-title title="Volume">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
