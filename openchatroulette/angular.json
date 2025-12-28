@@ -12,7 +12,7 @@
             "i18n": {
                 "sourceLocale": {
                     "code": "en",
-                    "baseHref": ""
+                    "baseHref": "en/"
                 },
                 "locales": {
                     "fr": {
