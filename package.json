@@ -25,7 +25,7 @@
         "express": "^4.22.1",
         "peer": "^1.0.2",
         "save": "^2.9.0",
-        "ws": "^8.14.2"
+        "ws": "^8.18.3"
     },
     "devDependencies": {
         "typescript": "^4.9.5"
