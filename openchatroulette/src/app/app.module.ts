@@ -17,7 +17,10 @@ import {
     IconArrowBigLeft,
     IconDeviceComputerCamera,
     IconMicrophone,
-    IconMenu2
+    IconMenu2,
+    IconVolume,
+    IconVolumeOff,
+    IconVolume2
 } from 'angular-tabler-icons/icons';
 const icons = {
     IconChevronDown,
@@ -26,7 +29,10 @@ const icons = {
     IconArrowBigLeft,
     IconDeviceComputerCamera,
     IconMicrophone,
-    IconMenu2
+    IconMenu2,
+    IconVolume,
+    IconVolumeOff,
+    IconVolume2
 };
 
 import {AppRoutingModule} from './app-routing.module';
