@@ -10,15 +10,15 @@
                     <span class="align-middle flag" [ngClass]="remoteCountryCode$ | async"></span>
                 </div>
             </div>
-            <div class="virtual-camera-warning-banner position-absolute left-top w-100 p-2 text-center"
+            <div class="virtual-camera-warning-banner position-absolute left-top w-100 p-3 text-center"
                  *ngIf="(isVirtualCamera$ | async) && (remotePeerConnectedState$ | async)">
                 <span class="badge bg-danger fs-6" i18n="@@virtualCameraWarning">Warning: Virtual camera detected!</span>
             </div>
             <div class="position-absolute center-middle no-pointer-events" *ngIf="!(isConnected$ | async)">
                 <img src="assets/openchart-logo-small-white.png" alt="OpenChatRoulette">
             </div>
-            <div class="position-absolute left-bottom w-100 p-2 p-md-4 show-on-hover">
-                <div class="volume-control d-flex align-items-center">
+            <div class="position-absolute left-bottom w-100 p-2 p-md-4 show-on-hover z-3" *ngIf="(remotePeerConnectedState$ | async)">
+                <div class="volume-control d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-secondary rounded volume-btn me-2"
                             (click)="toggleMute()"
                             [title]="remoteVolume === 0 ? 'Unmute' : 'Mute'">
