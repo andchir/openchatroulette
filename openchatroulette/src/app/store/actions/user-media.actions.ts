@@ -3,7 +3,7 @@ export namespace UserMediaAction {
 
     export class DevicesUpdate {
         static readonly type = '[UserMedia] DevicesUpdate';
-        constructor(public payload: InputDeviceInfo[]) {}
+        constructor(public payload: MediaDeviceInfo[]) {}
     }
 
     export class SetVideoInputDeviceCurrent {
